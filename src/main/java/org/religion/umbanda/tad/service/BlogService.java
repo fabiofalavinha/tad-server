@@ -1,4 +1,4 @@
-package org.religion.umbanda.tad.core.service;
+package org.religion.umbanda.tad.service;
 
 import java.util.List;
 import org.religion.umbanda.tad.model.Archive;
