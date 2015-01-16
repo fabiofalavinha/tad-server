@@ -1,0 +1,9 @@
+org/religion/umbanda/tad/model/Post.class
+org/religion/umbanda/tad/model/PostType.class
+org/religion/umbanda/tad/core/service/BlogService.class
+org/religion/umbanda/tad/model/UserCredentials.class
+org/religion/umbanda/tad/model/VisibilityType.class
+org/religion/umbanda/tad/Application.class
+org/religion/umbanda/tad/core/service/impl/BlogServiceImpl.class
+org/religion/umbanda/tad/model/Archive.class
+org/religion/umbanda/tad/model/Password.class

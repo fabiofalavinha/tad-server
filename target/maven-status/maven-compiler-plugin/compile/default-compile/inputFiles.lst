@@ -1,0 +1,9 @@
+/home/action/tad-server/src/main/java/org/religion/umbanda/tad/model/Password.java
+/home/action/tad-server/src/main/java/org/religion/umbanda/tad/model/Post.java
+/home/action/tad-server/src/main/java/org/religion/umbanda/tad/model/VisibilityType.java
+/home/action/tad-server/src/main/java/org/religion/umbanda/tad/model/Archive.java
+/home/action/tad-server/src/main/java/org/religion/umbanda/tad/model/PostType.java
+/home/action/tad-server/src/main/java/org/religion/umbanda/tad/core/service/impl/BlogServiceImpl.java
+/home/action/tad-server/src/main/java/org/religion/umbanda/tad/core/service/BlogService.java
+/home/action/tad-server/src/main/java/org/religion/umbanda/tad/Application.java
+/home/action/tad-server/src/main/java/org/religion/umbanda/tad/model/UserCredentials.java
