@@ -8,6 +8,7 @@ public class UserCredentials {
     private UUID id;
     private String userName;
     private Password password;
+    private  UserRole userRole;
 
     public UUID getId() {
         return id;
@@ -31,5 +32,13 @@ public class UserCredentials {
 
     public void setPassword(Password password) {
         this.password = password;
+    }
+
+    public UserRole getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(UserRole userRole) {
+        this.userRole = userRole;
     }
 }
