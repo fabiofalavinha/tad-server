@@ -12,8 +12,8 @@ public class CollaboratorVO {
     private String email;
     private List<TelephoneVO> telephones;
     private DateTime startDate;
+    private DateTime releaseDate;
     private GenderType genderType;
-    private boolean active;
 
     public String getId() {
         return id;
@@ -55,19 +55,19 @@ public class CollaboratorVO {
         this.genderType = genderType;
     }
 
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
     public List<TelephoneVO> getTelephones() {
         return telephones;
     }
 
     public void setTelephones(List<TelephoneVO> telephones) {
         this.telephones = telephones;
+    }
+
+    public DateTime getReleaseDate() {
+        return releaseDate;
+    }
+
+    public void setReleaseDate(DateTime releaseDate) {
+        this.releaseDate = releaseDate;
     }
 }

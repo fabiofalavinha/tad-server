@@ -1,7 +1,10 @@
 package org.religion.umbanda.tad.service.vo;
 
+import org.religion.umbanda.tad.model.PhoneType;
+
 public class TelephoneVO {
 
+    private PhoneType phoneType;
     private int areaCode;
     private int number;
 
@@ -19,5 +22,13 @@ public class TelephoneVO {
 
     public void setNumber(int number) {
         this.number = number;
+    }
+
+    public PhoneType getPhoneType() {
+        return phoneType;
+    }
+
+    public void setPhoneType(PhoneType phoneType) {
+        this.phoneType = phoneType;
     }
 }

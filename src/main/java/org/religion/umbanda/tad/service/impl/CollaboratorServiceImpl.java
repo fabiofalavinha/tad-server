@@ -27,13 +27,14 @@ public class CollaboratorServiceImpl implements CollaboratorService {
             vo.setId(collaborator.getPerson().getId().toString());
             vo.setName(collaborator.getPerson().getName());
             vo.setEmail(collaborator.getUserCredentials().getUserName());
-            vo.setActive(collaborator.getReleaseDate() == null);
             vo.setStartDate(collaborator.getStartDate());
+            vo.setReleaseDate(collaborator.getReleaseDate());
             vo.setGenderType(collaborator.getPerson().getGenderType());
             final List<Telephone> telephones = collaborator.getPerson().getTelephones();
             final List<TelephoneVO> telephoneVOs = new ArrayList<TelephoneVO>(telephones.size());
             for (Telephone telephone : telephones) {
                 final TelephoneVO telephoneVO = new TelephoneVO();
+                telephoneVO.setPhoneType(telephone.getPhoneType());
                 telephoneVO.setAreaCode(telephone.getAreaCode());
                 telephoneVO.setNumber(telephone.getNumber());
                 telephoneVOs.add(telephoneVO);
