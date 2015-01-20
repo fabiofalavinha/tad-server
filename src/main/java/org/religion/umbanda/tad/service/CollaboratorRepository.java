@@ -7,5 +7,6 @@ import java.util.List;
 public interface CollaboratorRepository {
 
     List<Collaborator> findAll();
-
+    Collaborator findById(String id);
+    void removeById(String id);
 }

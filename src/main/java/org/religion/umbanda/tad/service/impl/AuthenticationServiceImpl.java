@@ -9,7 +9,7 @@ import org.religion.umbanda.tad.service.vo.UserCredentialsVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("/security")
+@RestController
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Autowired

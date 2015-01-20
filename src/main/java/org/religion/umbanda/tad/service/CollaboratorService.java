@@ -7,5 +7,6 @@ import java.util.List;
 public interface CollaboratorService {
 
     List<CollaboratorVO> findAll();
+    void removeCollaborator(String id);
 
 }
