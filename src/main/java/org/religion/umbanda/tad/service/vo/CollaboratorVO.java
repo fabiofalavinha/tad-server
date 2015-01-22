@@ -2,6 +2,7 @@ package org.religion.umbanda.tad.service.vo;
 
 import org.joda.time.DateTime;
 import org.religion.umbanda.tad.model.GenderType;
+import org.religion.umbanda.tad.model.UserRole;
 
 import java.util.List;
 
@@ -11,9 +12,11 @@ public class CollaboratorVO {
     private String name;
     private String email;
     private List<TelephoneVO> telephones;
-    private DateTime startDate;
-    private DateTime releaseDate;
+    private String birthDate;
+    private String startDate;
+    private String releaseDate;
     private GenderType genderType;
+    private UserRole userRole;
 
     public String getId() {
         return id;
@@ -39,11 +42,11 @@ public class CollaboratorVO {
         this.email = email;
     }
 
-    public DateTime getStartDate() {
+    public String getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(DateTime startDate) {
+    public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
 
@@ -63,11 +66,27 @@ public class CollaboratorVO {
         this.telephones = telephones;
     }
 
-    public DateTime getReleaseDate() {
+    public String getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(DateTime releaseDate) {
+    public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    public UserRole getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(UserRole userRole) {
+        this.userRole = userRole;
+    }
+
+    public String getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(String birthDate) {
+        this.birthDate = birthDate;
     }
 }

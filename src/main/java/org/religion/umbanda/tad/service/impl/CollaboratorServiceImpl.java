@@ -6,6 +6,7 @@ import org.religion.umbanda.tad.service.CollaboratorRepository;
 import org.religion.umbanda.tad.service.CollaboratorService;
 import org.religion.umbanda.tad.service.vo.CollaboratorVO;
 import org.religion.umbanda.tad.service.vo.TelephoneVO;
+import org.religion.umbanda.tad.util.DateTimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,10 +26,12 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         for (Collaborator collaborator : collaborators) {
             final CollaboratorVO vo = new CollaboratorVO();
             vo.setId(collaborator.getPerson().getId().toString());
+            vo.setUserRole(collaborator.getUserCredentials().getUserRole());
             vo.setName(collaborator.getPerson().getName());
             vo.setEmail(collaborator.getUserCredentials().getUserName());
-            vo.setStartDate(collaborator.getStartDate());
-            vo.setReleaseDate(collaborator.getReleaseDate());
+            vo.setBirthDate(DateTimeUtils.toString(collaborator.getPerson().getBirthDate()));
+            vo.setStartDate(DateTimeUtils.toString(collaborator.getStartDate()));
+            vo.setReleaseDate(DateTimeUtils.toString(collaborator.getReleaseDate()));
             vo.setGenderType(collaborator.getPerson().getGenderType());
             final List<Telephone> telephones = collaborator.getPerson().getTelephones();
             final List<TelephoneVO> telephoneVOs = new ArrayList<TelephoneVO>(telephones.size());
@@ -49,6 +52,14 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     public void removeCollaborator(
             @PathVariable("id") String id) {
         collaboratorRepository.removeById(id);
+    }
+
+    @RequestMapping(value = "/collaborator", method = RequestMethod.POST)
+    public void saveCollaborator(
+        @RequestBody CollaboratorVO collaboratorVO) {
+
+        System.out.print(collaboratorVO.getName());
+
     }
 
 }
