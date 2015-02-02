@@ -5,9 +5,9 @@ import java.security.SecureRandom;
 
 public class Password {
 
-    public static String randomString() {
+    public static Password randomPassword() {
         final SecureRandom random = new SecureRandom();
-        return new BigInteger(130, random).toString(32);
+        return createBySHA1(new BigInteger(130, random).toString(32));
     }
 
     public static Password createBySHA1(String clearText) {

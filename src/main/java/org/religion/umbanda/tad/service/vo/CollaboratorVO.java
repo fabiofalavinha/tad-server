@@ -17,6 +17,7 @@ public class CollaboratorVO {
     private String releaseDate;
     private GenderType genderType;
     private UserRole userRole;
+    private String observation;
 
     public String getId() {
         return id;
@@ -88,5 +89,13 @@ public class CollaboratorVO {
 
     public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public String getObservation() {
+        return observation;
+    }
+
+    public void setObservation(String observation) {
+        this.observation = observation;
     }
 }

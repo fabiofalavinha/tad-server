@@ -1,9 +1,10 @@
 package org.religion.umbanda.tad.service.impl;
 
-import org.religion.umbanda.tad.model.Collaborator;
-import org.religion.umbanda.tad.model.Telephone;
+import org.joda.time.DateTime;
+import org.religion.umbanda.tad.model.*;
 import org.religion.umbanda.tad.service.CollaboratorRepository;
 import org.religion.umbanda.tad.service.CollaboratorService;
+import org.religion.umbanda.tad.service.MailService;
 import org.religion.umbanda.tad.service.vo.CollaboratorVO;
 import org.religion.umbanda.tad.service.vo.TelephoneVO;
 import org.religion.umbanda.tad.util.DateTimeUtils;
@@ -12,12 +13,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 public class CollaboratorServiceImpl implements CollaboratorService {
 
     @Autowired
     private CollaboratorRepository collaboratorRepository;
+
+    @Autowired
+    private MailService mailService;
 
     @RequestMapping(value = "/collaborators", method = RequestMethod.GET, produces = "application/json")
     public List<CollaboratorVO> findAll() {
@@ -57,9 +62,58 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     @RequestMapping(value = "/collaborator", method = RequestMethod.POST)
     public void saveCollaborator(
         @RequestBody CollaboratorVO collaboratorVO) {
+        UUID id;
+        final String collaboratorId = collaboratorVO.getId();
+        if (collaboratorId != null && !"".equals(collaboratorId)) {
+            id = UUID.fromString(collaboratorId);
+        } else {
+            id = UUID.randomUUID();
+        }
 
-        System.out.print(collaboratorVO.getName());
+        final UserCredentials newUserCredentials = new UserCredentials();
+        newUserCredentials.setId(id);
+        newUserCredentials.setUserRole(collaboratorVO.getUserRole());
+        newUserCredentials.setUserName(collaboratorVO.getEmail());
+        newUserCredentials.setPassword(Password.randomPassword());
 
+        final Person newPerson = new Person();
+        newPerson.setId(id);
+        newPerson.setName(collaboratorVO.getName());
+        newPerson.setBirthDate(DateTime.parse(collaboratorVO.getBirthDate()));
+        newPerson.setGenderType(collaboratorVO.getGenderType());
+        final List<Telephone> newTelephones = new ArrayList<Telephone>();
+        for (TelephoneVO telephoneVO : collaboratorVO.getTelephones()) {
+            final Telephone newTelephone = new Telephone();
+            newTelephone.setId(UUID.randomUUID());
+            newTelephone.setPhoneType(telephoneVO.getPhoneType());
+            newTelephone.setAreaCode(telephoneVO.getAreaCode());
+            newTelephone.setNumber(telephoneVO.getNumber());
+            newTelephones.add(newTelephone);
+        }
+        newPerson.setTelephones(newTelephones);
+
+        final Collaborator newCollaborator = new Collaborator();
+        newCollaborator.setPerson(newPerson);
+        newCollaborator.setObservation(collaboratorVO.getObservation());
+        newCollaborator.setStartDate(DateTime.parse(collaboratorVO.getStartDate()));
+        newCollaborator.setReleaseDate(DateTime.parse(collaboratorVO.getReleaseDate()));
+        newCollaborator.setUserCredentials(newUserCredentials);
+
+        if (collaboratorRepository.existsById(id)) {
+            collaboratorRepository.updateCollaborator(newCollaborator);
+        } else {
+            collaboratorRepository.addCollaborator(newCollaborator);
+
+            final MailMessage mailMessage = new MailMessage();
+            mailMessage.setTo(newCollaborator.getUserCredentials().getUserName());
+            mailMessage.setSubject("Você foi cadastrado no web site - temploamordivino.com.br");
+
+            // FIXME
+            // - create template design model
+
+            mailMessage.setText("");
+            mailService.send(mailMessage);
+        }
     }
 
 }

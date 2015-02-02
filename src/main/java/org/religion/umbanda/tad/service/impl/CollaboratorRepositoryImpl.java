@@ -184,4 +184,12 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
         jdbcTemplate.update("delete from Telephone where person_id = ?", collaborator.getPerson().getId());
         jdbcTemplate.update("delete from Person where person_id = ?", collaborator.getPerson().getId());
     }
+
+    @Transactional
+    @Override
+    public void save(Collaborator newCollaborator) {
+
+
+
+    }
 }
