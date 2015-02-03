@@ -23,7 +23,7 @@ public class MailServiceImpl implements MailService {
         final JavaMailSender javaMailSender = mailConfiguration.createMailSender();
         final SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(message.getTo());
-        mailMessage.setFrom(message.getFrom());
+        mailMessage.setFrom(mailConfiguration.getFrom());
         mailMessage.setSubject(message.getSubject());
         mailMessage.setText(message.getText());
         javaMailSender.send(mailMessage);

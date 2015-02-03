@@ -8,9 +8,9 @@ import java.util.UUID;
 public interface CollaboratorRepository {
 
     List<Collaborator> findAll();
-    Collaborator findById(String id);
+    Collaborator findById(UUID id);
     boolean existsById(UUID id);
-    void removeById(String id);
+    void removeById(UUID id);
     void addCollaborator(Collaborator newCollaborator);
     void updateCollaborator(Collaborator newCollaborator);
 

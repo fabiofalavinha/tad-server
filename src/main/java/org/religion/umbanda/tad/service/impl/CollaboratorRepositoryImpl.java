@@ -101,7 +101,7 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public Collaborator findById(String id) {
+    public Collaborator findById(UUID id) {
         final String query =
             "select " +
             "    p.id, " +
@@ -127,7 +127,7 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
         final Collaborator collaborator =
             jdbcTemplate.queryForObject(
                 query,
-                new Object[] { id },
+                new Object[] { id.toString() },
                 new RowMapper<Collaborator>() {
                     @Override
                     public Collaborator mapRow(ResultSet resultSet, int i) throws SQLException {
@@ -175,21 +175,48 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
         return collaborator;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
-    public void removeById(String id) {
-        final Collaborator collaborator = findById(id);
-        jdbcTemplate.update("delete from UserCredentials where id = ?", collaborator.getUserCredentials().getId());
-        jdbcTemplate.update("delete from Collaborator where person_id = ?", collaborator.getPerson().getId());
-        jdbcTemplate.update("delete from Telephone where person_id = ?", collaborator.getPerson().getId());
-        jdbcTemplate.update("delete from Person where person_id = ?", collaborator.getPerson().getId());
+    public boolean existsById(UUID id) {
+        return jdbcTemplate.queryForObject("select count(*) from Collaborator where id=?", Integer.class, id.toString()) == 1;
     }
 
     @Transactional
     @Override
-    public void save(Collaborator newCollaborator) {
-
-
-
+    public void removeById(UUID id) {
+        if (existsById(id)) {
+            doRemoveById(id.toString());
+        }
     }
+
+    @Transactional
+    @Override
+    public void addCollaborator(Collaborator newCollaborator) {
+        final Person person = newCollaborator.getPerson();
+        jdbcTemplate.update("insert into Person (id, name, gender, birth_date) values (?, ?, ?, ?)", person.getId().toString(), person.getName(), person.getGenderType().name(), person.getBirthDate().getMillis());
+
+        for (Telephone telephone : person.getTelephones()) {
+            jdbcTemplate.update("insert into Telephone (id, area_code, number, phoneType) values (?, ?, ?, ?)", telephone.getId().toString(), telephone.getAreaCode(), telephone.getNumber(), telephone.getPhoneType().name());
+        }
+
+        jdbcTemplate.update("insert into Collaborator (start_date, release_date, observation) values (?, ?, ?)", newCollaborator.getStartDate().getMillis(), newCollaborator.getReleaseDate().getMillis(), newCollaborator.getObservation());
+
+        final UserCredentials userCredentials = newCollaborator.getUserCredentials();
+        jdbcTemplate.update("insert into UserCredentials (id, username, password, user_role) values (?, ?, ?, ?)", userCredentials.getId().toString(), userCredentials.getUserName(), userCredentials.getPassword().getSecret(), userCredentials.getUserRole().name());
+    }
+
+    @Transactional
+    @Override
+    public void updateCollaborator(Collaborator newCollaborator) {
+        doRemoveById(newCollaborator.getPerson().getId().toString());
+        addCollaborator(newCollaborator);
+    }
+
+    private void doRemoveById(String id) {
+        jdbcTemplate.update("delete from UserCredentials where id = ?", id);
+        jdbcTemplate.update("delete from Collaborator where person_id = ?", id);
+        jdbcTemplate.update("delete from Telephone where person_id = ?", id);
+        jdbcTemplate.update("delete from Person where person_id = ?", id);
+    }
+
 }

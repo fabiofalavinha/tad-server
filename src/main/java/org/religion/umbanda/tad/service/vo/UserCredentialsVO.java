@@ -5,8 +5,8 @@ import org.religion.umbanda.tad.model.UserRole;
 public class UserCredentialsVO {
 
     private String userName;
+    private String name;
     private UserRole userRole;
-
 
     public String getUserName() {
         return userName;
@@ -22,5 +22,13 @@ public class UserCredentialsVO {
 
     public void setUserRole(UserRole userRole) {
         this.userRole = userRole;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

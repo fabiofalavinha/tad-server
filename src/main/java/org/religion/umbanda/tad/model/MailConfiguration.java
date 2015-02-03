@@ -1,5 +1,6 @@
 package org.religion.umbanda.tad.model;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +30,24 @@ public class MailConfiguration {
     private String username;
     @Value("${mail.password}")
     private String password;
+
+    public String getFrom() {
+        return from;
+    }
+
+    @Autowired
+    private NewCollaboratorMailTemplate newCollaboratorMailTemplate;
+
+    @Autowired
+    private ForgotPasswordMailTemplate forgotPasswordMailTemplate;
+
+    @Bean
+    public MailTemplateFactory mailTemplateFactory() {
+        final MailTemplateFactory mailTemplateFactory = new MailTemplateFactory();
+        mailTemplateFactory.addTemplate(newCollaboratorMailTemplate);
+        mailTemplateFactory.addTemplate(forgotPasswordMailTemplate);
+        return mailTemplateFactory;
+    }
 
     @Bean
     public JavaMailSender createMailSender() {

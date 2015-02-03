@@ -8,7 +8,7 @@ public class UserCredentials {
     private UUID id;
     private String userName;
     private Password password;
-    private  UserRole userRole;
+    private UserRole userRole;
 
     public UUID getId() {
         return id;

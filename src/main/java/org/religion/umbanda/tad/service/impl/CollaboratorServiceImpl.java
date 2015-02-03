@@ -24,6 +24,9 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     @Autowired
     private MailService mailService;
 
+    @Autowired
+    private MailTemplateFactory mailTemplateFactory;
+
     @RequestMapping(value = "/collaborators", method = RequestMethod.GET, produces = "application/json")
     public List<CollaboratorVO> findAll() {
         final List<Collaborator> collaborators = collaboratorRepository.findAll();
@@ -55,7 +58,13 @@ public class CollaboratorServiceImpl implements CollaboratorService {
 
     @RequestMapping(value = "/collaborator/{id}", method = RequestMethod.DELETE)
     public void removeCollaborator(
-            @PathVariable("id") String id) {
+            @PathVariable("id") String idString) {
+        UUID id;
+        try {
+            id = UUID.fromString(idString);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("ID do colaborador é inválido", ex);
+        }
         collaboratorRepository.removeById(id);
     }
 
@@ -103,15 +112,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
             collaboratorRepository.updateCollaborator(newCollaborator);
         } else {
             collaboratorRepository.addCollaborator(newCollaborator);
-
-            final MailMessage mailMessage = new MailMessage();
-            mailMessage.setTo(newCollaborator.getUserCredentials().getUserName());
-            mailMessage.setSubject("Você foi cadastrado no web site - temploamordivino.com.br");
-
-            // FIXME
-            // - create template design model
-
-            mailMessage.setText("");
+            final MailMessage mailMessage = mailTemplateFactory.getTemplate("newCollaborator").createMailMessage(newCollaborator);
             mailService.send(mailMessage);
         }
     }

@@ -25,24 +25,54 @@ public class UserCredentialsRepositoryImpl implements UserCredentialsRepository 
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    @Override
     public UserCredentials findByUserName(String userName) {
-        final List<UserCredentials> result =
-                jdbcTemplate.query(
-                    "select * from UserCredentials where UserName = ?",
-                    new Object[]{userName},
-                    new RowMapper<UserCredentials>() {
-                        @Override
-                        public UserCredentials mapRow(ResultSet resultSet, int i) throws SQLException {
-                            final UserCredentials userCredentials = new UserCredentials();
-                            userCredentials.setId(UUID.fromString(resultSet.getString("id")));
-                            userCredentials.setUserName(resultSet.getString("username"));
-                            userCredentials.setPassword(Password.fromSecret(resultSet.getString("password")));
-                            userCredentials.setUserRole(UserRole.valueOf(resultSet.getString("user_role")));
-                            return userCredentials;
-                        }
-                });
-        return result.isEmpty() ? null : result.get(0);
+        return jdbcTemplate.queryForObject(
+            "select * from UserCredentials where UserName = ?",
+            new Object[]{userName},
+            new RowMapper<UserCredentials>() {
+                @Override
+                public UserCredentials mapRow(ResultSet resultSet, int i) throws SQLException {
+                    final UserCredentials userCredentials = new UserCredentials();
+                    userCredentials.setId(UUID.fromString(resultSet.getString("id")));
+                    userCredentials.setUserName(resultSet.getString("username"));
+                    userCredentials.setPassword(Password.fromSecret(resultSet.getString("password")));
+                    userCredentials.setUserRole(UserRole.valueOf(resultSet.getString("user_role")));
+                    return userCredentials;
+                }
+            }
+        );
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public UserCredentials findById(UUID id) {
+        return jdbcTemplate.queryForObject(
+            "select * from UserCredentials where Id = ?",
+            new Object[] { id.toString() },
+            new RowMapper<UserCredentials>() {
+                @Override
+                public UserCredentials mapRow(ResultSet resultSet, int i) throws SQLException {
+                    final UserCredentials userCredentials = new UserCredentials();
+                    userCredentials.setId(UUID.fromString(resultSet.getString("id")));
+                    userCredentials.setUserName(resultSet.getString("username"));
+                    userCredentials.setPassword(Password.fromSecret(resultSet.getString("password")));
+                    userCredentials.setUserRole(UserRole.valueOf(resultSet.getString("user_role")));
+                    return userCredentials;
+                }
+            });
+    }
+
+    @Transactional
+    @Override
+    public void update(UserCredentials userCredentials) {
+        jdbcTemplate.update(
+            "update UserCredentials set UserName=?, Password=?, User_Role=? where Id=?",
+            userCredentials.getUserName(),
+            userCredentials.getPassword().getSecret(),
+            userCredentials.getUserRole().name(),
+            userCredentials.getId().toString());
     }
 
 }
