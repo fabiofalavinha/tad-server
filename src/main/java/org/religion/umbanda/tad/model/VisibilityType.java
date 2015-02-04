@@ -21,7 +21,7 @@ public enum VisibilityType {
         } else if (value == VisibilityType.PUBLIC.getValue()) {
             return VisibilityType.PUBLIC;
         }
-        throw new IllegalArgumentException(String.format("Could not found visibility type: %s", value));
+        throw new IllegalArgumentException(String.format("Could not found visibility type: %d", value));
     }
 
 }
