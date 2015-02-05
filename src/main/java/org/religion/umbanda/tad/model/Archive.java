@@ -4,15 +4,10 @@ import org.joda.time.DateTime;
 
 public class Archive {
     
-    private String name;
     private DateTime archived;
     
     public String getName() {
-        return name;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
+        return String.format("%s %d", archived.toString("MMM"), archived.getYear());
     }
     
     public DateTime getArchived() {

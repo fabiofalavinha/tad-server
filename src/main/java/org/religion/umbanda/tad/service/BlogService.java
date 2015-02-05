@@ -8,6 +8,6 @@ import org.religion.umbanda.tad.model.Post;
 public interface BlogService {
 
     List<Archive> getArchives();
-    List<Post> findPostBy(String postType);
+    List<Post> findPublishedPostByVisibility(String visibilityName);
     
 }

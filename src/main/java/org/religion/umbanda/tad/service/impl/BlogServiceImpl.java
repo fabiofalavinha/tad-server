@@ -6,8 +6,12 @@ import java.util.ArrayList;
 import org.religion.umbanda.tad.model.Archive;
 import org.religion.umbanda.tad.model.Post;
 import org.religion.umbanda.tad.model.PostType;
+import org.religion.umbanda.tad.model.VisibilityType;
 import org.religion.umbanda.tad.service.BlogService;
 
+import org.religion.umbanda.tad.service.PostResistory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,26 +19,26 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class BlogServiceImpl implements BlogService {
 
-    @RequestMapping("/archives")
+    @Autowired
+    private PostResistory postResistory;
+
+    @RequestMapping("/postArchives")
+    @Override
     public List<Archive> getArchives() {
-        return new ArrayList<Archive>();
+        return postResistory.getArchives();
     }
     
-    @RequestMapping("/posts")
-    public List<Post> findPostBy(
-        @RequestParam(value = "postType") String postTypeString) {
-        
-        PostType postType;
+    @RequestMapping("/publishedPosts/{visibility}")
+    @Override
+    public List<Post> findPublishedPostByVisibility(
+        @PathVariable("visibility") String visibility) {
+        VisibilityType visibilityType;
         try {
-            postType = PostType.valueOf(postTypeString);
+            visibilityType = VisibilityType.valueOf(visibility);
         } catch (IllegalArgumentException e) {
-            return new ArrayList<Post>();    
+            return new ArrayList<Post>();
         }
-        
-        // TODO
-        // - call PostRepository.findPostBy(postType)
-        
-        return new ArrayList<Post>();
+        return postResistory.findPublishedPost(visibilityType);
     }
     
 }
