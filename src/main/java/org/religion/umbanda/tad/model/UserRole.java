@@ -2,8 +2,8 @@ package org.religion.umbanda.tad.model;
 
 public enum UserRole {
 
-    ADMINISTRATOR_ROLE(0),
-    FINANCIAL_ROLE(1),
+    ADMINISTRATOR(0),
+    FINANCIAL(1),
     COLLABORATOR(2);
 
     private final int value;
