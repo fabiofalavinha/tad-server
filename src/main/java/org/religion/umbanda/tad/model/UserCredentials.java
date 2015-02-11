@@ -9,6 +9,7 @@ public class UserCredentials {
     private String userName;
     private Password password;
     private UserRole userRole;
+    private Person person;
 
     public UUID getId() {
         return id;
@@ -40,5 +41,13 @@ public class UserCredentials {
 
     public void setUserRole(UserRole userRole) {
         this.userRole = userRole;
+    }
+
+    public Person getPerson() {
+        return person;
+    }
+
+    public void setPerson(Person person) {
+        this.person = person;
     }
 }

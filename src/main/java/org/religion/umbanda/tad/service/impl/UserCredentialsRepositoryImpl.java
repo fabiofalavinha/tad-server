@@ -1,8 +1,7 @@
 package org.religion.umbanda.tad.service.impl;
 
-import org.religion.umbanda.tad.model.Password;
-import org.religion.umbanda.tad.model.UserCredentials;
-import org.religion.umbanda.tad.model.UserRole;
+import org.joda.time.DateTime;
+import org.religion.umbanda.tad.model.*;
 import org.religion.umbanda.tad.service.UserCredentialsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,6 +19,24 @@ public class UserCredentialsRepositoryImpl implements UserCredentialsRepository 
 
     private final JdbcTemplate jdbcTemplate;
 
+    private final RowMapper<UserCredentials> userCredentialsRowMapper = new RowMapper<UserCredentials>() {
+        @Override
+        public UserCredentials mapRow(ResultSet resultSet, int i) throws SQLException {
+            final UserCredentials userCredentials = new UserCredentials();
+            userCredentials.setId(UUID.fromString(resultSet.getString("id")));
+            userCredentials.setUserName(resultSet.getString("username"));
+            userCredentials.setPassword(Password.fromSecret(resultSet.getString("password")));
+            userCredentials.setUserRole(UserRole.valueOf(resultSet.getString("user_role")));
+            final Person person = new Person();
+            person.setId(userCredentials.getId());
+            person.setName(resultSet.getString("name"));
+            person.setGenderType(GenderType.valueOf(resultSet.getString("gender")));
+            person.setBirthDate(new DateTime(resultSet.getLong("birth_date")));
+            userCredentials.setPerson(person);
+            return userCredentials;
+        }
+    };
+
     @Autowired
     public UserCredentialsRepositoryImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -29,39 +46,16 @@ public class UserCredentialsRepositoryImpl implements UserCredentialsRepository 
     @Override
     public UserCredentials findByUserName(String userName) {
         return jdbcTemplate.queryForObject(
-            "select * from UserCredentials where UserName = ?",
-            new Object[]{userName},
-            new RowMapper<UserCredentials>() {
-                @Override
-                public UserCredentials mapRow(ResultSet resultSet, int i) throws SQLException {
-                    final UserCredentials userCredentials = new UserCredentials();
-                    userCredentials.setId(UUID.fromString(resultSet.getString("id")));
-                    userCredentials.setUserName(resultSet.getString("username"));
-                    userCredentials.setPassword(Password.fromSecret(resultSet.getString("password")));
-                    userCredentials.setUserRole(UserRole.valueOf(resultSet.getString("user_role")));
-                    return userCredentials;
-                }
-            }
-        );
+            "select u.id, u.username, u.password, u.user_role, p.name, p.gender, p.birth_date from UserCredentials u inner join Person p on p.id = u.id where u.UserName = ?",
+            new Object[] { userName }, userCredentialsRowMapper);
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserCredentials findById(UUID id) {
         return jdbcTemplate.queryForObject(
-            "select * from UserCredentials where Id = ?",
-            new Object[] { id.toString() },
-            new RowMapper<UserCredentials>() {
-                @Override
-                public UserCredentials mapRow(ResultSet resultSet, int i) throws SQLException {
-                    final UserCredentials userCredentials = new UserCredentials();
-                    userCredentials.setId(UUID.fromString(resultSet.getString("id")));
-                    userCredentials.setUserName(resultSet.getString("username"));
-                    userCredentials.setPassword(Password.fromSecret(resultSet.getString("password")));
-                    userCredentials.setUserRole(UserRole.valueOf(resultSet.getString("user_role")));
-                    return userCredentials;
-                }
-            });
+            "select u.id, u.username, u.password, u.user_role, p.name, p.gender, p.birth_date from UserCredentials u inner join Person p on p.id = u.id where u.Id = ?",
+            new Object[] { id.toString() }, userCredentialsRowMapper);
     }
 
     @Transactional

@@ -38,6 +38,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             if (userCredentials.getPassword().equals(checkPassword)) {
                 final Collaborator collaborator = collaboratorRepository.findById(userCredentials.getId());
                 final UserCredentialsVO result = new UserCredentialsVO();
+                result.setId(userCredentials.getId().toString());
                 result.setUserName(userCredentials.getUserName());
                 result.setUserRole(userCredentials.getUserRole());
                 result.setName(collaborator.getPerson().getName());

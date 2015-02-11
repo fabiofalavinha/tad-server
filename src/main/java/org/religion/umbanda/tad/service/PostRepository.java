@@ -6,7 +6,7 @@ import org.religion.umbanda.tad.model.VisibilityType;
 
 import java.util.List;
 
-public interface PostResistory {
+public interface PostRepository {
 
     List<Post> findPublishedPost(VisibilityType visibilityType);
     List<Archive> getArchives();
