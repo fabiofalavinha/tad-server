@@ -165,7 +165,7 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
                         telephone.setId(UUID.fromString(resultSet.getString("id")));
                         telephone.setAreaCode(resultSet.getInt("area_code"));
                         telephone.setNumber(resultSet.getInt("number"));
-                        telephone.setPhoneType(PhoneType.valueOf(resultSet.getString("phoneType")));
+                        telephone.setPhoneType(PhoneType.valueOf(resultSet.getString("phone_type")));
                         return telephone;
                     }
                 });
@@ -196,7 +196,7 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
         jdbcTemplate.update("insert into Person (id, name, gender, birth_date) values (?, ?, ?, ?)", person.getId().toString(), person.getName(), person.getGenderType().name(), person.getBirthDate().getMillis());
 
         for (Telephone telephone : person.getTelephones()) {
-            jdbcTemplate.update("insert into Telephone (id, area_code, number, phoneType) values (?, ?, ?, ?)", telephone.getId().toString(), telephone.getAreaCode(), telephone.getNumber(), telephone.getPhoneType().name());
+            jdbcTemplate.update("insert into Telephone (id, area_code, number, phone_type) values (?, ?, ?, ?)", telephone.getId().toString(), telephone.getAreaCode(), telephone.getNumber(), telephone.getPhoneType().name());
         }
 
         jdbcTemplate.update("insert into Collaborator (start_date, release_date, observation) values (?, ?, ?)", newCollaborator.getStartDate().getMillis(), newCollaborator.getReleaseDate().getMillis(), newCollaborator.getObservation());
