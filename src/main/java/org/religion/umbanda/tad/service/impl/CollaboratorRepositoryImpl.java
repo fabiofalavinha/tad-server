@@ -89,7 +89,7 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
                             telephone.setId(UUID.fromString(resultSet.getString("id")));
                             telephone.setAreaCode(resultSet.getInt("area_code"));
                             telephone.setNumber(resultSet.getInt("number"));
-                            telephone.setPhoneType(PhoneType.valueOf(resultSet.getString("phoneType")));
+                            telephone.setPhoneType(PhoneType.valueOf(resultSet.getString("phone_type")));
                             return telephone;
                         }
                 });
