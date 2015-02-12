@@ -41,6 +41,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
             vo.setStartDate(DateTimeUtils.toString(collaborator.getStartDate()));
             vo.setReleaseDate(DateTimeUtils.toString(collaborator.getReleaseDate()));
             vo.setGenderType(collaborator.getPerson().getGenderType());
+            vo.setActive(collaborator.getReleaseDate() == null);
             final List<Telephone> telephones = collaborator.getPerson().getTelephones();
             final List<TelephoneVO> telephoneVOs = new ArrayList<TelephoneVO>(telephones.size());
             for (Telephone telephone : telephones) {

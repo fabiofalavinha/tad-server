@@ -18,6 +18,7 @@ public class CollaboratorVO {
     private GenderType genderType;
     private UserRole userRole;
     private String observation;
+    private boolean active;
 
     public String getId() {
         return id;
@@ -97,5 +98,13 @@ public class CollaboratorVO {
 
     public void setObservation(String observation) {
         this.observation = observation;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }
