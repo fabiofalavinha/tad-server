@@ -23,23 +23,50 @@ public class BlogServiceImpl implements BlogService {
     @Autowired
     private PostRepository postRepository;
 
-    @RequestMapping("/post/archives")
+    private VisibilityType doConvertVisibilityType(String visibility) {
+        try {
+            return VisibilityType.valueOf(visibility);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    @RequestMapping("/post/archives/{visibility}")
     @Override
-    public List<Archive> getArchives() {
-        return postRepository.getArchives();
+    public List<Archive> getArchives(
+            @PathVariable("visibility") String visibility) {
+        final VisibilityType visibilityType = doConvertVisibilityType(visibility);
+        if (visibilityType == null) {
+            return new ArrayList<Archive>();
+        }
+        return postRepository.findArchiveBy(visibilityType);
+    }
+
+    @RequestMapping("/published/posts/{visibility}/archive/{year}/{month}")
+    @Override
+    public List<PostResponse> findPostByArchive(
+            @PathVariable("visibility") String visibility,
+            @PathVariable("year") int year,
+            @PathVariable("month") int month) {
+        final VisibilityType visibilityType = doConvertVisibilityType(visibility);
+        if (visibilityType == null) {
+            return new ArrayList<PostResponse>();
+        }
+        return doConvertPost(postRepository.findPublishedPost(visibilityType, year, month));
     }
     
     @RequestMapping("/published/posts/{visibility}")
     @Override
     public List<PostResponse> findPublishedPostByVisibility(
         @PathVariable("visibility") String visibility) {
-        VisibilityType visibilityType;
-        try {
-            visibilityType = VisibilityType.valueOf(visibility);
-        } catch (IllegalArgumentException e) {
+        final VisibilityType visibilityType = doConvertVisibilityType(visibility);
+        if (visibilityType == null) {
             return new ArrayList<PostResponse>();
         }
-        final List<Post> posts = postRepository.findPublishedPost(visibilityType);
+        return doConvertPost(postRepository.findPublishedPost(visibilityType));
+    }
+
+    private List<PostResponse> doConvertPost(List<Post> posts) {
         final List<PostResponse> result = new ArrayList<PostResponse>(posts.size());
         for (Post post : posts) {
             final PostResponse postResponse = new PostResponse();
@@ -73,5 +100,5 @@ public class BlogServiceImpl implements BlogService {
         }
         return result;
     }
-    
+
 }

@@ -1,5 +1,6 @@
 package org.religion.umbanda.tad.service.impl;
 
+import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.joda.time.DateTime;
 import org.religion.umbanda.tad.model.*;
 import org.religion.umbanda.tad.service.PostRepository;
@@ -21,6 +22,34 @@ public class PostRepositoryImpl implements PostRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final UserCredentialsRepository userCredentialsRepository;
+    private final RowMapper<Post> postRowMapper = new RowMapper<Post>() {
+        @Override
+        public Post mapRow(ResultSet rs, int i) throws SQLException {
+            final Post post = new Post();
+            post.setId(UUID.fromString(rs.getString("id")));
+            post.setTitle(rs.getString("title"));
+            post.setContent(rs.getString("content"));
+            post.setVisibilityType(VisibilityType.fromValue(rs.getInt("visibility_type")));
+            post.setPostType(PostType.fromValue(rs.getInt("post_type")));
+
+            final UserCredentials createdBy = new UserCredentials();
+            createdBy.setId(UUID.fromString(rs.getString("created_by")));
+            post.setCreatedBy(createdBy);
+            post.setCreated(DateTimeUtils.fromString(rs.getString("created")));
+
+            final UserCredentials modifiedBy = new UserCredentials();
+            modifiedBy.setId(UUID.fromString(rs.getString("modified_by")));
+            post.setModifiedBy(modifiedBy);
+            post.setModified(DateTimeUtils.fromString(rs.getString("modified")));
+
+            final UserCredentials publishedBy = new UserCredentials();
+            publishedBy.setId(UUID.fromString(rs.getString("published_by")));
+            post.setPublishedBy(publishedBy);
+            post.setPublished(DateTimeUtils.fromString(rs.getString("published")));
+
+            return post;
+        }
+    };
 
     @Autowired
     public PostRepositoryImpl(JdbcTemplate jdbcTemplate, UserCredentialsRepository userCredentialsRepository) {
@@ -28,41 +57,7 @@ public class PostRepositoryImpl implements PostRepository {
         this.userCredentialsRepository = userCredentialsRepository;
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public List<Post> findPublishedPost(VisibilityType visibilityType) {
-        final List<Post> posts = jdbcTemplate.query(
-            "select * from Post where visibility_type = ? and published is not null order by published",
-            new Object[] { visibilityType.getValue() },
-            new RowMapper<Post>() {
-                @Override
-                public Post mapRow(ResultSet rs, int i) throws SQLException {
-                    final Post post = new Post();
-                    post.setId(UUID.fromString(rs.getString("id")));
-                    post.setTitle(rs.getString("title"));
-                    post.setContent(rs.getString("content"));
-                    post.setVisibilityType(VisibilityType.fromValue(rs.getInt("visibility_type")));
-                    post.setPostType(PostType.fromValue(rs.getInt("post_type")));
-
-                    final UserCredentials createdBy = new UserCredentials();
-                    createdBy.setId(UUID.fromString(rs.getString("created_by")));
-                    post.setCreatedBy(createdBy);
-                    post.setCreated(DateTimeUtils.fromString(rs.getString("created")));
-
-                    final UserCredentials modifiedBy = new UserCredentials();
-                    modifiedBy.setId(UUID.fromString(rs.getString("modified_by")));
-                    post.setModifiedBy(modifiedBy);
-                    post.setModified(DateTimeUtils.fromString(rs.getString("modified")));
-
-                    final UserCredentials publishedBy = new UserCredentials();
-                    publishedBy.setId(UUID.fromString(rs.getString("published_by")));
-                    post.setPublishedBy(publishedBy);
-                    post.setPublished(DateTimeUtils.fromString(rs.getString("published")));
-
-                    return post;
-                }
-            }
-        );
+    private void doSetAuditProperties(List<Post> posts) {
         for (Post post : posts) {
             UserCredentials createdBy = post.getCreatedBy();
             createdBy = userCredentialsRepository.findById(createdBy.getId());
@@ -76,14 +71,32 @@ public class PostRepositoryImpl implements PostRepository {
             publishedBy = userCredentialsRepository.findById(publishedBy.getId());
             post.setPublishedBy(publishedBy);
         }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Post> findPublishedPost(VisibilityType visibilityType) {
+        return doFindPost("select * from Post where visibility_type = ? and published is not null order by published desc", new Object[] { visibilityType.getValue() });
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Post> findPublishedPost(VisibilityType visibilityType, int year, int month) {
+        return doFindPost("select * from Post where visibility_type = ? and published is not null and cast(strftime('%Y', published) as integer) = ? and cast(strftime('%m', published) as integer) = ? order by published desc", new Object[] { visibilityType.getValue(), year, month });
+    }
+
+    private List<Post> doFindPost(String queryString, Object[] parameters) {
+        final List<Post> posts = jdbcTemplate.query(queryString, parameters, postRowMapper);
+        doSetAuditProperties(posts);
         return posts;
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<Archive> getArchives() {
+    public List<Archive> findArchiveBy(VisibilityType visibilityType) {
         return jdbcTemplate.query(
-            "select published, count(*) as quantity from Post where published is not null group by strftime('%m-%Y', published) order by published",
+            "select published, count(*) as quantity from Post where published is not null and visibility = ? group by strftime('%m-%Y', published) order by published desc",
+            new Object[] { visibilityType.getValue() },
             new RowMapper<Archive>() {
                 @Override
                 public Archive mapRow(ResultSet rs, int i) throws SQLException {

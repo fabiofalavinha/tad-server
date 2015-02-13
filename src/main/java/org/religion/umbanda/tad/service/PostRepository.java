@@ -9,6 +9,7 @@ import java.util.List;
 public interface PostRepository {
 
     List<Post> findPublishedPost(VisibilityType visibilityType);
-    List<Archive> getArchives();
+    List<Post> findPublishedPost(VisibilityType visibilityType, int year, int month);
+    List<Archive> findArchiveBy(VisibilityType visibilityType);
 
 }
