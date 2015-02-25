@@ -70,7 +70,10 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
                         collaborator.setPerson(person);
                         collaborator.setUserCredentials(userCredentials);
                         collaborator.setStartDate(new DateTime(resultSet.getLong("start_date")));
-                        collaborator.setReleaseDate(new DateTime(resultSet.getLong("release_date")));
+                        final long releaseDateTimeInMillis = resultSet.getLong("release_date");
+                        if (releaseDateTimeInMillis > 0) {
+                            collaborator.setReleaseDate(new DateTime(releaseDateTimeInMillis));
+                        }
                         collaborator.setObservation(resultSet.getString("observation"));
 
                         return collaborator;
