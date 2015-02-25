@@ -196,6 +196,8 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
     @Override
     public void addCollaborator(Collaborator newCollaborator) {
         final Person person = newCollaborator.getPerson();
+        final UserCredentials userCredentials = newCollaborator.getUserCredentials();
+
         jdbcTemplate.update("insert into Person (id, name, gender, birth_date) values (?, ?, ?, ?)",
             person.getId().toString(),
             person.getName(),
@@ -211,13 +213,13 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
                 person.getId().toString());
         }
 
-        jdbcTemplate.update("insert into Collaborator (person_id, start_date, release_date, observation) values (?, ?, ?, ?)",
+        jdbcTemplate.update("insert into Collaborator (person_id, start_date, release_date, observation, usercredentials_id) values (?, ?, ?, ?, ?)",
             person.getId().toString(),
             newCollaborator.getStartDate().getMillis(),
             newCollaborator.getReleaseDate() == null ? 0 : newCollaborator.getReleaseDate().getMillis(),
-            newCollaborator.getObservation());
+            newCollaborator.getObservation(),
+            userCredentials.getId().toString());
 
-        final UserCredentials userCredentials = newCollaborator.getUserCredentials();
         jdbcTemplate.update("insert into UserCredentials (id, username, password, user_role) values (?, ?, ?, ?)",
             userCredentials.getId().toString(),
             userCredentials.getUserName(),
