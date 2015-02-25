@@ -181,7 +181,7 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
     @Transactional(readOnly = true)
     @Override
     public boolean existsById(UUID id) {
-        return jdbcTemplate.queryForObject("select count(*) from Collaborator where id=?", Integer.class, id.toString()) == 1;
+        return jdbcTemplate.queryForObject("select count(*) from Collaborator where person_id=?", Integer.class, id.toString()) == 1;
     }
 
     @Transactional
