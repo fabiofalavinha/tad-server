@@ -196,16 +196,33 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
     @Override
     public void addCollaborator(Collaborator newCollaborator) {
         final Person person = newCollaborator.getPerson();
-        jdbcTemplate.update("insert into Person (id, name, gender, birth_date) values (?, ?, ?, ?)", person.getId().toString(), person.getName(), person.getGenderType().name(), person.getBirthDate().getMillis());
+        jdbcTemplate.update("insert into Person (id, name, gender, birth_date) values (?, ?, ?, ?)",
+            person.getId().toString(),
+            person.getName(),
+            person.getGenderType().name(),
+            person.getBirthDate().getMillis());
 
         for (Telephone telephone : person.getTelephones()) {
-            jdbcTemplate.update("insert into Telephone (id, area_code, number, phone_type, person_id) values (?, ?, ?, ?, ?)", telephone.getId().toString(), telephone.getAreaCode(), telephone.getNumber(), telephone.getPhoneType().name(), person.getId().toString());
+            jdbcTemplate.update("insert into Telephone (id, area_code, number, phone_type, person_id) values (?, ?, ?, ?, ?)",
+                telephone.getId().toString(),
+                telephone.getAreaCode(),
+                telephone.getNumber(),
+                telephone.getPhoneType().name(),
+                person.getId().toString());
         }
 
-        jdbcTemplate.update("insert into Collaborator (person_id, start_date, release_date, observation) values (?, ?, ?, ?)", person.getId().toString(), newCollaborator.getStartDate().getMillis(), newCollaborator.getReleaseDate().getMillis(), newCollaborator.getObservation());
+        jdbcTemplate.update("insert into Collaborator (person_id, start_date, release_date, observation) values (?, ?, ?, ?)",
+            person.getId().toString(),
+            newCollaborator.getStartDate().getMillis(),
+            newCollaborator.getReleaseDate() == null ? 0 : newCollaborator.getReleaseDate().getMillis(),
+            newCollaborator.getObservation());
 
         final UserCredentials userCredentials = newCollaborator.getUserCredentials();
-        jdbcTemplate.update("insert into UserCredentials (id, username, password, user_role) values (?, ?, ?, ?)", userCredentials.getId().toString(), userCredentials.getUserName(), userCredentials.getPassword().getSecret(), userCredentials.getUserRole().name());
+        jdbcTemplate.update("insert into UserCredentials (id, username, password, user_role) values (?, ?, ?, ?)",
+            userCredentials.getId().toString(),
+            userCredentials.getUserName(),
+            userCredentials.getPassword().getSecret(),
+            userCredentials.getUserRole().name());
     }
 
     @Transactional
