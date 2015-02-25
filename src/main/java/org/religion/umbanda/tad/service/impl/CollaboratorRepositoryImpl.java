@@ -219,7 +219,7 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
         jdbcTemplate.update("delete from UserCredentials where id = ?", id);
         jdbcTemplate.update("delete from Collaborator where person_id = ?", id);
         jdbcTemplate.update("delete from Telephone where person_id = ?", id);
-        jdbcTemplate.update("delete from Person where person_id = ?", id);
+        jdbcTemplate.update("delete from Person where id = ?", id);
     }
 
 }
