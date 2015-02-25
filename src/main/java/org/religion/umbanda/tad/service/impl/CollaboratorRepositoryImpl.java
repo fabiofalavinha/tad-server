@@ -230,7 +230,14 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
     @Transactional
     @Override
     public void updateCollaborator(Collaborator newCollaborator) {
-        doRemoveById(newCollaborator.getPerson().getId().toString());
+        final String id = newCollaborator.getPerson().getId().toString();
+        jdbcTemplate.update("delete from Collaborator where person_id = ?", id);
+        jdbcTemplate.update("delete from Telephone where person_id = ?", id);
+        jdbcTemplate.update("delete from Person where id = ?", id);
+        jdbcTemplate.update("update UserCredentials set user_role = ?, username = ? where id = ?",
+            newCollaborator.getUserCredentials().getUserRole().name(),
+            newCollaborator.getUserCredentials().getUserName(),
+            newCollaborator.getPerson().getId().toString());
         addCollaborator(newCollaborator);
     }
 
