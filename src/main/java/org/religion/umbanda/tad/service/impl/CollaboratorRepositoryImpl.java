@@ -49,36 +49,36 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
 
         final List<Collaborator> collaborators =
             jdbcTemplate.query(
-                query,
-                new Object[] {},
-                new RowMapper<Collaborator>() {
-                    @Override
-                    public Collaborator mapRow(ResultSet resultSet, int i) throws SQLException {
-                        final Person person = new Person();
-                        person.setId(UUID.fromString(resultSet.getString("id")));
-                        person.setName(resultSet.getString("name"));
-                        person.setGenderType(GenderType.valueOf(resultSet.getString("gender")));
-                        person.setBirthDate(new DateTime(resultSet.getLong("birth_date")));
+                    query,
+                    new Object[]{},
+                    new RowMapper<Collaborator>() {
+                        @Override
+                        public Collaborator mapRow(ResultSet resultSet, int i) throws SQLException {
+                            final Person person = new Person();
+                            person.setId(UUID.fromString(resultSet.getString("id")));
+                            person.setName(resultSet.getString("name"));
+                            person.setGenderType(GenderType.valueOf(resultSet.getString("gender")));
+                            person.setBirthDate(new DateTime(resultSet.getLong("birth_date")));
 
-                        final UserCredentials userCredentials = new UserCredentials();
-                        userCredentials.setId(UUID.fromString(resultSet.getString("user_credentials_id")));
-                        userCredentials.setUserName(resultSet.getString("username"));
-                        userCredentials.setPassword(Password.fromSecret(resultSet.getString("password")));
-                        userCredentials.setUserRole(UserRole.valueOf(resultSet.getString("user_role")));
+                            final UserCredentials userCredentials = new UserCredentials();
+                            userCredentials.setId(UUID.fromString(resultSet.getString("user_credentials_id")));
+                            userCredentials.setUserName(resultSet.getString("username"));
+                            userCredentials.setPassword(Password.fromSecret(resultSet.getString("password")));
+                            userCredentials.setUserRole(UserRole.valueOf(resultSet.getString("user_role")));
 
-                        final Collaborator collaborator = new Collaborator();
-                        collaborator.setPerson(person);
-                        collaborator.setUserCredentials(userCredentials);
-                        collaborator.setStartDate(new DateTime(resultSet.getLong("start_date")));
-                        final long releaseDateTimeInMillis = resultSet.getLong("release_date");
-                        if (releaseDateTimeInMillis > 0) {
-                            collaborator.setReleaseDate(new DateTime(releaseDateTimeInMillis));
+                            final Collaborator collaborator = new Collaborator();
+                            collaborator.setPerson(person);
+                            collaborator.setUserCredentials(userCredentials);
+                            collaborator.setStartDate(new DateTime(resultSet.getLong("start_date")));
+                            final long releaseDateTimeInMillis = resultSet.getLong("release_date");
+                            if (releaseDateTimeInMillis > 0) {
+                                collaborator.setReleaseDate(new DateTime(releaseDateTimeInMillis));
+                            }
+                            collaborator.setObservation(resultSet.getString("observation"));
+
+                            return collaborator;
                         }
-                        collaborator.setObservation(resultSet.getString("observation"));
-
-                        return collaborator;
-                    }
-                });
+                    });
 
         for (Collaborator collaborator : collaborators) {
             final List<Telephone> telephones =
@@ -188,7 +188,11 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
     @Override
     public void removeById(UUID id) {
         if (existsById(id)) {
-            doRemoveById(id.toString());
+            final String idString = id.toString();
+            jdbcTemplate.update("delete from UserCredentials where id = ?", idString);
+            jdbcTemplate.update("delete from Collaborator where person_id = ?", idString);
+            jdbcTemplate.update("delete from Telephone where person_id = ?", idString);
+            jdbcTemplate.update("delete from Person where id = ?", idString);
         }
     }
 
@@ -230,22 +234,35 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
     @Transactional
     @Override
     public void updateCollaborator(Collaborator newCollaborator) {
-        final String id = newCollaborator.getPerson().getId().toString();
-        jdbcTemplate.update("delete from Collaborator where person_id = ?", id);
+        final Person person = newCollaborator.getPerson();
+        final String id = person.getId().toString();
+
+        jdbcTemplate.update("update Collaborator set start_date = ?, release_date = ?, observation = ? where id = ?",
+            newCollaborator.getStartDate().getMillis(),
+            newCollaborator.getReleaseDate() == null ? 0 : newCollaborator.getReleaseDate().getMillis(),
+            newCollaborator.getObservation(),
+            id);
+
         jdbcTemplate.update("delete from Telephone where person_id = ?", id);
-        jdbcTemplate.update("delete from Person where id = ?", id);
+        for (Telephone telephone : newCollaborator.getPerson().getTelephones()) {
+            jdbcTemplate.update("insert into Telephone (id, area_code, number, phone_type, person_id) values (?, ?, ?, ?, ?)",
+                    telephone.getId().toString(),
+                    telephone.getAreaCode(),
+                    telephone.getNumber(),
+                    telephone.getPhoneType().name(),
+                    id);
+        }
+
+        jdbcTemplate.update("update Person set name = ?, gender = ?, birth_date = ? where id = ?",
+            person.getName(),
+            person.getGenderType().name(),
+            person.getBirthDate().getMillis(),
+            id);
+
         jdbcTemplate.update("update UserCredentials set user_role = ?, username = ? where id = ?",
             newCollaborator.getUserCredentials().getUserRole().name(),
             newCollaborator.getUserCredentials().getUserName(),
-            newCollaborator.getPerson().getId().toString());
-        addCollaborator(newCollaborator);
-    }
-
-    private void doRemoveById(String id) {
-        jdbcTemplate.update("delete from UserCredentials where id = ?", id);
-        jdbcTemplate.update("delete from Collaborator where person_id = ?", id);
-        jdbcTemplate.update("delete from Telephone where person_id = ?", id);
-        jdbcTemplate.update("delete from Person where id = ?", id);
+                newCollaborator.getPerson().getId().toString());
     }
 
 }
