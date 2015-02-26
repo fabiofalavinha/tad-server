@@ -237,7 +237,7 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
         final Person person = newCollaborator.getPerson();
         final String id = person.getId().toString();
 
-        jdbcTemplate.update("update Collaborator set start_date = ?, release_date = ?, observation = ? where id = ?",
+        jdbcTemplate.update("update Collaborator set start_date = ?, release_date = ?, observation = ? where person_id = ?",
             newCollaborator.getStartDate().getMillis(),
             newCollaborator.getReleaseDate() == null ? 0 : newCollaborator.getReleaseDate().getMillis(),
             newCollaborator.getObservation(),
