@@ -35,7 +35,7 @@ public class EventServiceImpl implements EventService {
                 eventResponse.setTitle(event.getTitle());
                 eventResponse.setNotes(event.getNotes());
                 eventResponse.setDate(DateTimeUtils.toString(event.getDate()));
-                eventResponse.setVisibility(event.getVisibility().name());
+                eventResponse.setVisibility(event.getVisibility());
                 results.add(eventResponse);
             }
         }
