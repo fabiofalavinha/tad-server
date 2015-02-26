@@ -7,7 +7,6 @@ public class EventResponse {
     private String notes;
     private String date;
     private String visibility;
-    private int year;
 
     public String getId() {
         return id;
@@ -49,11 +48,4 @@ public class EventResponse {
         this.visibility = visibility;
     }
 
-    public int getYear() {
-        return year;
-    }
-
-    public void setYear(int year) {
-        this.year = year;
-    }
 }

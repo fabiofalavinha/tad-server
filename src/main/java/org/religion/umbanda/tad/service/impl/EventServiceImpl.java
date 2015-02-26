@@ -6,9 +6,12 @@ import org.religion.umbanda.tad.model.VisibilityType;
 import org.religion.umbanda.tad.service.EventRepository;
 import org.religion.umbanda.tad.service.EventService;
 import org.religion.umbanda.tad.service.vo.EventRequest;
+import org.religion.umbanda.tad.service.vo.EventResponse;
+import org.religion.umbanda.tad.util.DateTimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,9 +23,23 @@ public class EventServiceImpl implements EventService {
 
     @RequestMapping(value = "/events/{year}", method = RequestMethod.GET, produces = "application/json")
     @Override
-    public List<Event> getEvents(
+    public List<EventResponse> getEvents(
             @PathVariable("year") int year) {
-        return eventRepository.findEventByYear(year);
+        List<EventResponse> results = null;
+        if (year > 0) {
+            final List<Event> events = eventRepository.findEventByYear(year);
+            results = new ArrayList<EventResponse>(events.size());
+            for (Event event : events) {
+                final EventResponse eventResponse = new EventResponse();
+                eventResponse.setId(event.getId().toString());
+                eventResponse.setTitle(event.getTitle());
+                eventResponse.setNotes(event.getNotes());
+                eventResponse.setDate(DateTimeUtils.toString(event.getDate()));
+                eventResponse.setVisibility(event.getVisibility().name());
+                results.add(eventResponse);
+            }
+        }
+        return results;
     }
 
     @RequestMapping(value = "/event", method = RequestMethod.POST, consumes =  "application/json")
