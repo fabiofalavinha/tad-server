@@ -27,7 +27,7 @@ public class EventServiceImpl implements EventService {
     @RequestMapping(value = "/events/{year}", method = RequestMethod.GET, produces = "application/json")
     @Override
     public List<EventResponse> getEvents(
-            @PathVariable("year") int year) {
+        @PathVariable("year") int year) {
         List<EventResponse> results = null;
         if (year > 0) {
             final List<Event> events = eventRepository.findEventByYear(year);
@@ -45,10 +45,23 @@ public class EventServiceImpl implements EventService {
         return results;
     }
 
+    @RequestMapping(value = "/event/{id}", method = RequestMethod.DELETE)
+    @Override
+    public void removeEvent(
+        @PathVariable("id") String eventId) {
+        UUID id;
+        try {
+            id = UUID.fromString(eventId);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Could not parse event id", ex);
+        }
+        eventRepository.removeEventById(id);
+    }
+
     @RequestMapping(value = "/event", method = RequestMethod.POST)
     @Override
     public void saveEvent(
-            @RequestBody EventRequest request) {
+        @RequestBody EventRequest request) {
         UUID id;
         final String eventId = request.getId();
         if (eventId != null && !"".equals(eventId)) {

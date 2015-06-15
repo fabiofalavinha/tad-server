@@ -11,5 +11,6 @@ public interface EventRepository {
     List<Event> findEventByYear(int year);
     void addEvent(Event event);
     void updateEvent(Event event);
+    void removeEventById(UUID id);
 
 }

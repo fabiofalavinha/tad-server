@@ -62,4 +62,10 @@ public class EventRepositoryImpl implements EventRepository {
         jdbcTemplate.update("update Event set title=?, notes=?, event_date=?, event_year=?, visibility_type=? where id=?",
             event.getTitle(), event.getNotes(), event.getDate().getMillis(), event.getYear(), event.getVisibility().getValue(), event.getId().toString());
     }
+
+    @Transactional
+    @Override
+    public void removeEventById(UUID id) {
+        jdbcTemplate.update("delete from Event where id = ?", id.toString());
+    }
 }
