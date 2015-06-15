@@ -1,6 +1,5 @@
 package org.religion.umbanda.tad.service.vo;
 
-import org.joda.time.DateTime;
 import org.religion.umbanda.tad.model.GenderType;
 import org.religion.umbanda.tad.model.UserRole;
 

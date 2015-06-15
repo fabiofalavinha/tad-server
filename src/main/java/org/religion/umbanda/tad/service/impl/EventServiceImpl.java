@@ -44,7 +44,7 @@ public class EventServiceImpl implements EventService {
         return results;
     }
 
-    @RequestMapping(value = "/event", method = RequestMethod.POST, consumes =  "application/json")
+    @RequestMapping(value = "/event", method = RequestMethod.POST)
     @Override
     public void saveEvent(
             @RequestBody EventRequest request) {
