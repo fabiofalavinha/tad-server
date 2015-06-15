@@ -1,6 +1,5 @@
 package org.religion.umbanda.tad.service.vo;
 
-import org.joda.time.DateTime;
 import org.religion.umbanda.tad.model.VisibilityType;
 
 public class EventRequest {
@@ -8,7 +7,7 @@ public class EventRequest {
     private String id;
     private String title;
     private String notes;
-    private DateTime date;
+    private String date;
     private VisibilityType visibility;
 
     public String getId() {
@@ -35,11 +34,11 @@ public class EventRequest {
         this.notes = notes;
     }
 
-    public DateTime getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(DateTime date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
@@ -50,4 +49,5 @@ public class EventRequest {
     public void setVisibility(VisibilityType visibility) {
         this.visibility = visibility;
     }
+
 }

@@ -1,15 +1,17 @@
 package org.religion.umbanda.tad.service.impl;
 
-import org.joda.time.DateTime;
 import org.religion.umbanda.tad.model.Event;
-import org.religion.umbanda.tad.model.VisibilityType;
 import org.religion.umbanda.tad.service.EventRepository;
 import org.religion.umbanda.tad.service.EventService;
 import org.religion.umbanda.tad.service.vo.EventRequest;
 import org.religion.umbanda.tad.service.vo.EventResponse;
 import org.religion.umbanda.tad.util.DateTimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +68,7 @@ public class EventServiceImpl implements EventService {
     private Event doConvertEvent(UUID id, EventRequest request) {
         final Event event = new Event();
         event.setId(id);
-        event.setDate(request.getDate());
+        event.setDate(DateTimeUtils.fromString(request.getDate()));
         event.setTitle(request.getTitle());
         event.setNotes(request.getNotes());
         event.setVisibility(request.getVisibility());
