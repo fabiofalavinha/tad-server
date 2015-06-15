@@ -1,5 +1,6 @@
 package org.religion.umbanda.tad.service.impl;
 
+import org.joda.time.DateTime;
 import org.religion.umbanda.tad.model.Event;
 import org.religion.umbanda.tad.service.EventRepository;
 import org.religion.umbanda.tad.service.EventService;
@@ -68,7 +69,7 @@ public class EventServiceImpl implements EventService {
     private Event doConvertEvent(UUID id, EventRequest request) {
         final Event event = new Event();
         event.setId(id);
-        event.setDate(DateTimeUtils.fromString(request.getDate()));
+        event.setDate(DateTime.parse(request.getDate()));
         event.setTitle(request.getTitle());
         event.setNotes(request.getNotes());
         event.setVisibility(request.getVisibility());
