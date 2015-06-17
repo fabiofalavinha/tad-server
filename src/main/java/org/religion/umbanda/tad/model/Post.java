@@ -1,10 +1,8 @@
 package org.religion.umbanda.tad.model;
 
-import java.util.UUID;
 import org.joda.time.DateTime;
-import org.religion.umbanda.tad.model.PostType;
-import org.religion.umbanda.tad.model.VisibilityType;
-import org.religion.umbanda.tad.model.UserCredentials;
+
+import java.util.UUID;
 
 public class Post {
     

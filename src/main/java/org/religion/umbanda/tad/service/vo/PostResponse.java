@@ -1,12 +1,5 @@
 package org.religion.umbanda.tad.service.vo;
 
-import org.joda.time.DateTime;
-import org.religion.umbanda.tad.model.PostType;
-import org.religion.umbanda.tad.model.UserCredentials;
-import org.religion.umbanda.tad.model.VisibilityType;
-
-import java.util.UUID;
-
 public class PostResponse {
 
     private String id;

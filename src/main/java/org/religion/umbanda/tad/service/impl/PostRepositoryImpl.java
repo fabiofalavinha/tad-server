@@ -1,8 +1,10 @@
 package org.religion.umbanda.tad.service.impl;
 
-import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
-import org.joda.time.DateTime;
-import org.religion.umbanda.tad.model.*;
+import org.religion.umbanda.tad.model.Archive;
+import org.religion.umbanda.tad.model.Post;
+import org.religion.umbanda.tad.model.PostType;
+import org.religion.umbanda.tad.model.UserCredentials;
+import org.religion.umbanda.tad.model.VisibilityType;
 import org.religion.umbanda.tad.service.PostRepository;
 import org.religion.umbanda.tad.service.UserCredentialsRepository;
 import org.religion.umbanda.tad.util.DateTimeUtils;
@@ -75,17 +77,23 @@ public class PostRepositoryImpl implements PostRepository {
 
     @Transactional(readOnly = true)
     @Override
+    public List<Post> findAll() {
+        return doFindPost("select * from Post order by published desc");
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public List<Post> findPublishedPost(VisibilityType visibilityType) {
-        return doFindPost("select * from Post where visibility_type = ? and published is not null order by published desc", new Object[] { visibilityType.getValue() });
+        return doFindPost("select * from Post where visibility_type = ? and published is not null order by published desc", visibilityType.getValue());
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Post> findPublishedPost(VisibilityType visibilityType, int year, int month) {
-        return doFindPost("select * from Post where visibility_type = ? and published is not null and cast(strftime('%Y', published) as integer) = ? and cast(strftime('%m', published) as integer) = ? order by published desc", new Object[] { visibilityType.getValue(), year, month });
+        return doFindPost("select * from Post where visibility_type = ? and published is not null and cast(strftime('%Y', published) as integer) = ? and cast(strftime('%m', published) as integer) = ? order by published desc", visibilityType.getValue(), year, month);
     }
 
-    private List<Post> doFindPost(String queryString, Object[] parameters) {
+    private List<Post> doFindPost(String queryString, Object... parameters) {
         final List<Post> posts = jdbcTemplate.query(queryString, parameters, postRowMapper);
         doSetAuditProperties(posts);
         return posts;

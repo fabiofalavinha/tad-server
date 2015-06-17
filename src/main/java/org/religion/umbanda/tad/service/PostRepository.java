@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface PostRepository {
 
+    List<Post> findAll();
     List<Post> findPublishedPost(VisibilityType visibilityType);
     List<Post> findPublishedPost(VisibilityType visibilityType, int year, int month);
     List<Archive> findArchiveBy(VisibilityType visibilityType);

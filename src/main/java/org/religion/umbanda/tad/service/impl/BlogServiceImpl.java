@@ -1,14 +1,13 @@
 package org.religion.umbanda.tad.service.impl;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import org.religion.umbanda.tad.model.Archive;
 import org.religion.umbanda.tad.model.Post;
+import org.religion.umbanda.tad.model.UserCredentials;
+import org.religion.umbanda.tad.model.UserRole;
 import org.religion.umbanda.tad.model.VisibilityType;
 import org.religion.umbanda.tad.service.BlogService;
-
 import org.religion.umbanda.tad.service.PostRepository;
+import org.religion.umbanda.tad.service.UserCredentialsRepository;
 import org.religion.umbanda.tad.service.vo.PostResponse;
 import org.religion.umbanda.tad.service.vo.UserCredentialsVO;
 import org.religion.umbanda.tad.util.DateTimeUtils;
@@ -17,8 +16,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 @RestController
 public class BlogServiceImpl implements BlogService {
+
+    @Autowired
+    private UserCredentialsRepository userCredentialsRepository;
 
     @Autowired
     private PostRepository postRepository;
@@ -31,10 +37,31 @@ public class BlogServiceImpl implements BlogService {
         }
     }
 
+    @RequestMapping("/posts/{userId}")
+    @Override
+    public List<PostResponse> getPostsByUserId(
+        @PathVariable("userId") String userIdAsString) {
+
+        UUID userId;
+        try {
+            userId = UUID.fromString(userIdAsString);
+        } catch (IllegalArgumentException ex) {
+            return new ArrayList<PostResponse>();
+        }
+
+        final UserCredentials userCredentials = userCredentialsRepository.findById(userId);
+
+        if (userCredentials == null || userCredentials.getUserRole() != UserRole.ADMINISTRATOR) {
+            return new ArrayList<PostResponse>();
+        }
+
+        return doConvertPost(postRepository.findAll());
+    }
+
     @RequestMapping("/post/archives/{visibility}")
     @Override
     public List<Archive> getArchives(
-            @PathVariable("visibility") String visibility) {
+        @PathVariable("visibility") String visibility) {
         final VisibilityType visibilityType = doConvertVisibilityType(visibility);
         if (visibilityType == null) {
             return new ArrayList<Archive>();
@@ -45,9 +72,9 @@ public class BlogServiceImpl implements BlogService {
     @RequestMapping("/published/posts/{visibility}/archive/{year}/{month}")
     @Override
     public List<PostResponse> findPostByArchive(
-            @PathVariable("visibility") String visibility,
-            @PathVariable("year") int year,
-            @PathVariable("month") int month) {
+        @PathVariable("visibility") String visibility,
+        @PathVariable("year") int year,
+        @PathVariable("month") int month) {
         final VisibilityType visibilityType = doConvertVisibilityType(visibility);
         if (visibilityType == null) {
             return new ArrayList<PostResponse>();
@@ -75,6 +102,7 @@ public class BlogServiceImpl implements BlogService {
             postResponse.setContent(post.getContent());
             postResponse.setPostType(post.getPostType().name());
             postResponse.setVisibilityType(post.getVisibilityType().name());
+
             final UserCredentialsVO createdBy = new UserCredentialsVO();
             createdBy.setId(post.getCreatedBy().getId().toString());
             createdBy.setName(post.getCreatedBy().getPerson().getName());
@@ -82,6 +110,7 @@ public class BlogServiceImpl implements BlogService {
             createdBy.setUserRole(post.getCreatedBy().getUserRole());
             postResponse.setCreatedBy(createdBy);
             postResponse.setCreated(DateTimeUtils.toString(post.getCreated()));
+
             final UserCredentialsVO modifiedBy = new UserCredentialsVO();
             modifiedBy.setId(post.getModifiedBy().getId().toString());
             modifiedBy.setName(post.getModifiedBy().getPerson().getName());
@@ -89,13 +118,18 @@ public class BlogServiceImpl implements BlogService {
             modifiedBy.setUserRole(post.getModifiedBy().getUserRole());
             postResponse.setModifiedBy(modifiedBy);
             postResponse.setModified(DateTimeUtils.toString(post.getModified()));
-            final UserCredentialsVO publishedBy = new UserCredentialsVO();
-            publishedBy.setId(post.getPublishedBy().getId().toString());
-            publishedBy.setName(post.getPublishedBy().getPerson().getName());
-            publishedBy.setUserName(post.getPublishedBy().getUserName());
-            publishedBy.setUserRole(post.getPublishedBy().getUserRole());
-            postResponse.setPublishedBy(publishedBy);
-            postResponse.setPublished(DateTimeUtils.toString(post.getPublished()));
+
+            final UserCredentials publishedBy = post.getPublishedBy();
+            if (publishedBy != null) {
+                final UserCredentialsVO publishedByVO = new UserCredentialsVO();
+                publishedByVO.setId(publishedBy.getId().toString());
+                publishedByVO.setName(publishedBy.getPerson().getName());
+                publishedByVO.setUserName(publishedBy.getUserName());
+                publishedByVO.setUserRole(publishedBy.getUserRole());
+                postResponse.setPublishedBy(publishedByVO);
+                postResponse.setPublished(DateTimeUtils.toString(post.getPublished()));
+            }
+
             result.add(postResponse);
         }
         return result;
