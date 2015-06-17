@@ -73,8 +73,10 @@ public class PostRepositoryImpl implements PostRepository {
             post.setModifiedBy(modifiedBy);
 
             UserCredentials publishedBy = post.getPublishedBy();
-            publishedBy = userCredentialsRepository.findById(publishedBy.getId());
-            post.setPublishedBy(publishedBy);
+            if (publishedBy != null) {
+                publishedBy = userCredentialsRepository.findById(publishedBy.getId());
+                post.setPublishedBy(publishedBy);
+            }
         }
     }
 
