@@ -44,10 +44,13 @@ public class PostRepositoryImpl implements PostRepository {
             post.setModifiedBy(modifiedBy);
             post.setModified(DateTimeUtils.fromString(rs.getString("modified")));
 
-            final UserCredentials publishedBy = new UserCredentials();
-            publishedBy.setId(UUID.fromString(rs.getString("published_by")));
-            post.setPublishedBy(publishedBy);
-            post.setPublished(DateTimeUtils.fromString(rs.getString("published")));
+            final String publishedById = rs.getString("published_by");
+            if (publishedById != null && !"".equals(publishedById)) {
+                final UserCredentials publishedBy = new UserCredentials();
+                publishedBy.setId(UUID.fromString(publishedById));
+                post.setPublishedBy(publishedBy);
+                post.setPublished(DateTimeUtils.fromString(rs.getString("published")));
+            }
 
             return post;
         }
