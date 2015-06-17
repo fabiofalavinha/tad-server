@@ -11,5 +11,6 @@ public interface BlogService {
     List<PostResponse> findPublishedPostByVisibility(String visibilityName);
     List<PostResponse> findPostByArchive(String visibility, int year, int month);
     List<PostResponse> getPostsByUserId(String userId);
+    void removePost(String id);
     
 }

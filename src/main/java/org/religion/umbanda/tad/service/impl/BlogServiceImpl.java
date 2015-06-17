@@ -14,6 +14,7 @@ import org.religion.umbanda.tad.util.DateTimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -91,6 +92,21 @@ public class BlogServiceImpl implements BlogService {
             return new ArrayList<PostResponse>();
         }
         return doConvertPost(postRepository.findPublishedPost(visibilityType));
+    }
+
+    @RequestMapping(value = "/post/{id}", method = RequestMethod.DELETE)
+    @Override
+    public void removePost(
+        @PathVariable("id") String id) {
+
+        UUID postId;
+        try {
+            postId = UUID.fromString(id);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Id do post é inválido", ex);
+        }
+
+        postRepository.removePostById(postId);
     }
 
     private List<PostResponse> doConvertPost(List<Post> posts) {

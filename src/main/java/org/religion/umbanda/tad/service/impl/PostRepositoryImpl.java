@@ -121,4 +121,10 @@ public class PostRepositoryImpl implements PostRepository {
             }
         );
     }
+
+    @Transactional
+    @Override
+    public void removePostById(UUID postId) {
+        jdbcTemplate.update("delete from Post where id = ?", postId.toString());
+    }
 }
