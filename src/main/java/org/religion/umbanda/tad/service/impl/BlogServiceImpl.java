@@ -1,5 +1,6 @@
 package org.religion.umbanda.tad.service.impl;
 
+import org.joda.time.DateTime;
 import org.religion.umbanda.tad.model.Archive;
 import org.religion.umbanda.tad.model.Post;
 import org.religion.umbanda.tad.model.PostType;
@@ -143,7 +144,7 @@ public class BlogServiceImpl implements BlogService {
         }
         post.setContent(postContent);
 
-        post.setCreated(DateTimeUtils.fromString(postRequest.getCreated()));
+        post.setCreated(DateTime.parse(postRequest.getCreated()));
         final UserCredentialsVO createdByVO = postRequest.getCreatedBy();
         if (createdByVO == null) {
             throw new IllegalStateException("É obrigatório informar o usuário que criou o post");
@@ -155,7 +156,7 @@ public class BlogServiceImpl implements BlogService {
         }
         post.setCreatedBy(createdBy);
 
-        post.setModified(DateTimeUtils.fromString(postRequest.getModified()));
+        post.setModified(DateTime.parse(postRequest.getModified()));
         final UserCredentialsVO modifiedByVO = postRequest.getModifiedBy();
         if (modifiedByVO == null) {
             throw new IllegalStateException("É obrigatório informar o usuário que fez a modificação no post");
@@ -169,7 +170,7 @@ public class BlogServiceImpl implements BlogService {
 
         final String postPublished = postRequest.getPublished();
         if (postPublished != null && !"".equals(postPublished.trim())) {
-            post.setPublished(DateTimeUtils.fromString(postPublished));
+            post.setPublished(DateTime.parse(postPublished));
         }
 
         final UserCredentialsVO publishedByVO = postRequest.getPublishedBy();
