@@ -115,13 +115,20 @@ public class BlogServiceImpl implements BlogService {
         }
 
         boolean isNewPost = false;
-        final UUID postId = IdUtils.fromString(postRequest.getId());
-        Post post = postRepository.findById(postId);
-        if (post == null) {
+        Post post;
+
+        final String postIdAsString = postRequest.getId();
+        if (postIdAsString == null || "".equals(postIdAsString.trim())) {
             isNewPost = true;
             post = new Post();
             post.setPostType(PostType.GENERAL);
             post.setId(UUID.randomUUID());
+        } else {
+            final UUID postId = IdUtils.fromString(postIdAsString);
+            post = postRepository.findById(postId);
+            if (post == null) {
+                throw new IllegalStateException(String.format("Não foi possível alterar o post [id=%s]", postId));
+            }
         }
 
         final String postTitle = postRequest.getTitle();
