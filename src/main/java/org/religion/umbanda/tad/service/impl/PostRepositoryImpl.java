@@ -122,9 +122,42 @@ public class PostRepositoryImpl implements PostRepository {
         );
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Post findById(UUID postId) {
+        final List<Post> posts = doFindPost("select * from Post where id = ?", postId.toString());
+        if (posts.isEmpty()) {
+            return null;
+        }
+        return posts.get(0);
+    }
+
     @Transactional
     @Override
     public void removePostById(UUID postId) {
         jdbcTemplate.update("delete from Post where id = ?", postId.toString());
+    }
+
+    @Transactional
+    @Override
+    public void createPost(Post post) {
+        jdbcTemplate.update(
+            "insert into Post (id, title, content, visibility_type, post_type, created_by, created, modified_by, modified, published_by, published) " +
+            "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            post.getId().toString(), post.getTitle(), post.getContent(), post.getVisibilityType().getValue(), post.getPostType().getValue(),
+            post.getCreatedBy().getId().toString(), post.getCreated(), post.getModifiedBy().getId().toString(), post.getModified(),
+            post.getPublishedBy().getId().toString(), post.getPublished()
+        );
+    }
+
+    @Transactional
+    @Override
+    public void updatePost(Post post) {
+        jdbcTemplate.update(
+            "update Post set title=?, content=?, visibility_type=?, post_type=?, created_by=?, created=?, modified_by=?, modified=?, published_by=?, published=? where id=?",
+            post.getTitle(), post.getContent(), post.getVisibilityType().getValue(), post.getPostType().getValue(),
+            post.getCreatedBy().getId().toString(), post.getCreated(), post.getModifiedBy().getId().toString(), post.getModified(),
+            post.getPublishedBy().getId().toString(), post.getPublished(), post.getId().toString()
+        );
     }
 }

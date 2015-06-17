@@ -2,17 +2,21 @@ package org.religion.umbanda.tad.service.impl;
 
 import org.religion.umbanda.tad.model.Archive;
 import org.religion.umbanda.tad.model.Post;
+import org.religion.umbanda.tad.model.PostType;
 import org.religion.umbanda.tad.model.UserCredentials;
 import org.religion.umbanda.tad.model.UserRole;
 import org.religion.umbanda.tad.model.VisibilityType;
 import org.religion.umbanda.tad.service.BlogService;
 import org.religion.umbanda.tad.service.PostRepository;
 import org.religion.umbanda.tad.service.UserCredentialsRepository;
+import org.religion.umbanda.tad.service.vo.PostRequest;
 import org.religion.umbanda.tad.service.vo.PostResponse;
 import org.religion.umbanda.tad.service.vo.UserCredentialsVO;
 import org.religion.umbanda.tad.util.DateTimeUtils;
+import org.religion.umbanda.tad.util.IdUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -98,15 +102,86 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public void removePost(
         @PathVariable("id") String id) {
+        postRepository.removePostById(IdUtils.fromString(id));
+    }
 
-        UUID postId;
-        try {
-            postId = UUID.fromString(id);
-        } catch (IllegalArgumentException ex) {
-            throw new IllegalArgumentException("Id do post é inválido", ex);
+    @RequestMapping(value = "/post", method = RequestMethod.POST)
+    @Override
+    public void savePost(
+        @RequestBody PostRequest postRequest) {
+
+        if (postRequest == null) {
+            throw new IllegalArgumentException("Dados do post são inválido");
         }
 
-        postRepository.removePostById(postId);
+        boolean isNewPost = false;
+        final UUID postId = IdUtils.fromString(postRequest.getId());
+        Post post = postRepository.findById(postId);
+        if (post == null) {
+            isNewPost = true;
+            post = new Post();
+            post.setPostType(PostType.GENERAL);
+            post.setId(UUID.randomUUID());
+        }
+
+        final String postTitle = postRequest.getTitle();
+        if (postTitle == null || "".equals(postTitle)) {
+            throw new IllegalStateException("É obrigatório informar o título do post");
+        }
+        post.setTitle(postTitle);
+
+        final String postContent = postRequest.getContent();
+        if (postContent == null || "".equals(postContent)) {
+            throw new IllegalStateException("É obrigatório escrever o conteúdo do post");
+        }
+        post.setContent(postContent);
+
+        post.setCreated(DateTimeUtils.fromString(postRequest.getCreated()));
+        final UserCredentialsVO createdByVO = postRequest.getCreatedBy();
+        if (createdByVO == null) {
+            throw new IllegalStateException("É obrigatório informar o usuário que criou o post");
+        }
+        final UUID createdById = IdUtils.fromString(createdByVO.getId());
+        final UserCredentials createdBy = userCredentialsRepository.findById(createdById);
+        if (createdBy == null) {
+            throw new IllegalStateException(String.format("Não foi possível encontrar os dados do usuário que criou o post: %s", createdById.toString()));
+        }
+        post.setCreatedBy(createdBy);
+
+        post.setModified(DateTimeUtils.fromString(postRequest.getModified()));
+        final UserCredentialsVO modifiedByVO = postRequest.getModifiedBy();
+        if (modifiedByVO == null) {
+            throw new IllegalStateException("É obrigatório informar o usuário que fez a modificação no post");
+        }
+        final UUID modifiedById = IdUtils.fromString(modifiedByVO.getId());
+        final UserCredentials modifiedBy = userCredentialsRepository.findById(modifiedById);
+        if (modifiedBy == null) {
+            throw new IllegalStateException(String.format("Não foi possível encontrar os dados do usuário que fez a modificação no post: %s", modifiedById.toString()));
+        }
+        post.setModifiedBy(modifiedBy);
+
+        final String postPublished = postRequest.getPublished();
+        if (postPublished != null && !"".equals(postPublished.trim())) {
+            post.setPublished(DateTimeUtils.fromString(postPublished));
+        }
+
+        final UserCredentialsVO publishedByVO = postRequest.getPublishedBy();
+        if (publishedByVO != null) {
+            final UUID publishedById = IdUtils.fromString(publishedByVO.getId());
+            final UserCredentials publishedBy = userCredentialsRepository.findById(publishedById);
+            if (publishedBy == null) {
+                throw new IllegalStateException(String.format("Não foi possível encontrar os dados do usuário que publicou o post: %s", publishedById.toString()));
+            }
+            post.setPublishedBy(publishedBy);
+        }
+
+        post.setVisibilityType(postRequest.getVisibility());
+
+        if (isNewPost) {
+            postRepository.createPost(post);
+        } else {
+            postRepository.updatePost(post);
+        }
     }
 
     private List<PostResponse> doConvertPost(List<Post> posts) {
