@@ -200,7 +200,7 @@ public class BlogServiceImpl implements BlogService {
             postResponse.setTitle(post.getTitle());
             postResponse.setContent(post.getContent());
             postResponse.setPostType(post.getPostType().name());
-            postResponse.setVisibilityType(post.getVisibilityType().name());
+            postResponse.setVisibility(post.getVisibilityType().name());
 
             final UserCredentialsVO createdBy = new UserCredentialsVO();
             createdBy.setId(post.getCreatedBy().getId().toString());

@@ -6,7 +6,7 @@ public class PostResponse {
     private String title;
     private String content;
     private String postType;
-    private String visibilityType;
+    private String visibility;
     private UserCredentialsVO createdBy;
     private String created;
     private UserCredentialsVO modifiedBy;
@@ -46,12 +46,12 @@ public class PostResponse {
         this.postType = postType;
     }
 
-    public String getVisibilityType() {
-        return visibilityType;
+    public String getVisibility() {
+        return visibility;
     }
 
-    public void setVisibilityType(String visibilityType) {
-        this.visibilityType = visibilityType;
+    public void setVisibility(String visibility) {
+        this.visibility = visibility;
     }
 
     public UserCredentialsVO getCreatedBy() {
