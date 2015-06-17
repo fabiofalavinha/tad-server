@@ -1,5 +1,6 @@
 package org.religion.umbanda.tad.service.impl;
 
+import org.joda.time.DateTime;
 import org.religion.umbanda.tad.model.Archive;
 import org.religion.umbanda.tad.model.Post;
 import org.religion.umbanda.tad.model.PostType;
@@ -37,19 +38,19 @@ public class PostRepositoryImpl implements PostRepository {
             final UserCredentials createdBy = new UserCredentials();
             createdBy.setId(UUID.fromString(rs.getString("created_by")));
             post.setCreatedBy(createdBy);
-            post.setCreated(DateTimeUtils.fromString(rs.getString("created")));
+            post.setCreated(new DateTime(rs.getLong("created")));
 
             final UserCredentials modifiedBy = new UserCredentials();
             modifiedBy.setId(UUID.fromString(rs.getString("modified_by")));
             post.setModifiedBy(modifiedBy);
-            post.setModified(DateTimeUtils.fromString(rs.getString("modified")));
+            post.setModified(new DateTime(rs.getLong("modified")));
 
             final String publishedById = rs.getString("published_by");
             if (publishedById != null && !"".equals(publishedById)) {
                 final UserCredentials publishedBy = new UserCredentials();
                 publishedBy.setId(UUID.fromString(publishedById));
                 post.setPublishedBy(publishedBy);
-                post.setPublished(DateTimeUtils.fromString(rs.getString("published")));
+                post.setPublished(new DateTime(rs.getLong("published")));
             }
 
             return post;
@@ -146,12 +147,17 @@ public class PostRepositoryImpl implements PostRepository {
         if (publishedBy != null) {
             publishedById = publishedBy.getId().toString();
         }
+        long publishedMillis = 0;
+        DateTime published = post.getPublished();
+        if (published != null) {
+            publishedMillis = post.getPublished().getMillis();
+        }
         jdbcTemplate.update(
             "insert into Post (id, title, content, visibility_type, post_type, created_by, created, modified_by, modified, published_by, published) " +
             "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             post.getId().toString(), post.getTitle(), post.getContent(), post.getVisibilityType().getValue(), post.getPostType().getValue(),
-            post.getCreatedBy().getId().toString(), post.getCreated(), post.getModifiedBy().getId().toString(), post.getModified(),
-            publishedById, post.getPublished()
+            post.getCreatedBy().getId().toString(), post.getCreated().getMillis(), post.getModifiedBy().getId().toString(), post.getModified().getMillis(),
+            publishedById, publishedMillis
         );
     }
 
@@ -163,11 +169,16 @@ public class PostRepositoryImpl implements PostRepository {
         if (publishedBy != null) {
             publishedById = publishedBy.getId().toString();
         }
+        long publishedMillis = 0;
+        DateTime published = post.getPublished();
+        if (published != null) {
+            publishedMillis = post.getPublished().getMillis();
+        }
         jdbcTemplate.update(
             "update Post set title=?, content=?, visibility_type=?, post_type=?, created_by=?, created=?, modified_by=?, modified=?, published_by=?, published=? where id=?",
             post.getTitle(), post.getContent(), post.getVisibilityType().getValue(), post.getPostType().getValue(),
-            post.getCreatedBy().getId().toString(), post.getCreated(), post.getModifiedBy().getId().toString(), post.getModified(),
-            publishedById, post.getPublished(), post.getId().toString()
+            post.getCreatedBy().getId().toString(), post.getCreated().getMillis(), post.getModifiedBy().getId().toString(),
+            post.getModified().getMillis(), publishedById, publishedMillis, post.getId().toString()
         );
     }
 }
