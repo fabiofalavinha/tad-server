@@ -141,23 +141,33 @@ public class PostRepositoryImpl implements PostRepository {
     @Transactional
     @Override
     public void createPost(Post post) {
+        String publishedById = "";
+        final UserCredentials publishedBy = post.getPublishedBy();
+        if (publishedBy != null) {
+            publishedById = publishedBy.getId().toString();
+        }
         jdbcTemplate.update(
             "insert into Post (id, title, content, visibility_type, post_type, created_by, created, modified_by, modified, published_by, published) " +
             "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             post.getId().toString(), post.getTitle(), post.getContent(), post.getVisibilityType().getValue(), post.getPostType().getValue(),
             post.getCreatedBy().getId().toString(), post.getCreated(), post.getModifiedBy().getId().toString(), post.getModified(),
-            post.getPublishedBy().getId().toString(), post.getPublished()
+            publishedById, post.getPublished()
         );
     }
 
     @Transactional
     @Override
     public void updatePost(Post post) {
+        String publishedById = "";
+        final UserCredentials publishedBy = post.getPublishedBy();
+        if (publishedBy != null) {
+            publishedById = publishedBy.getId().toString();
+        }
         jdbcTemplate.update(
             "update Post set title=?, content=?, visibility_type=?, post_type=?, created_by=?, created=?, modified_by=?, modified=?, published_by=?, published=? where id=?",
             post.getTitle(), post.getContent(), post.getVisibilityType().getValue(), post.getPostType().getValue(),
             post.getCreatedBy().getId().toString(), post.getCreated(), post.getModifiedBy().getId().toString(), post.getModified(),
-            post.getPublishedBy().getId().toString(), post.getPublished(), post.getId().toString()
+            publishedById, post.getPublished(), post.getId().toString()
         );
     }
 }
