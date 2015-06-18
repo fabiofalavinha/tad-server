@@ -84,7 +84,8 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         newUserCredentials.setId(id);
         newUserCredentials.setUserRole(collaboratorVO.getUserRole());
         newUserCredentials.setUserName(collaboratorVO.getEmail());
-        newUserCredentials.setPassword(Password.randomPassword());
+        // newUserCredentials.setPassword(Password.randomPassword());
+        newUserCredentials.setPassword(Password.createBySHA1("temp123"));
 
         final Person newPerson = new Person();
         newPerson.setId(id);
@@ -117,8 +118,12 @@ public class CollaboratorServiceImpl implements CollaboratorService {
             collaboratorRepository.updateCollaborator(newCollaborator);
         } else {
             collaboratorRepository.addCollaborator(newCollaborator);
-            final MailMessage mailMessage = mailTemplateFactory.getTemplate("newCollaborator").createMailMessage(newCollaborator);
-            mailService.send(mailMessage);
+            try {
+                final MailMessage mailMessage = mailTemplateFactory.getTemplate("newCollaborator").createMailMessage(newCollaborator);
+                mailService.send(mailMessage);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
