@@ -8,7 +8,6 @@ import org.religion.umbanda.tad.model.UserCredentials;
 import org.religion.umbanda.tad.model.VisibilityType;
 import org.religion.umbanda.tad.service.PostRepository;
 import org.religion.umbanda.tad.service.UserCredentialsRepository;
-import org.religion.umbanda.tad.util.DateTimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -109,13 +108,13 @@ public class PostRepositoryImpl implements PostRepository {
     @Override
     public List<Archive> findArchiveBy(VisibilityType visibilityType) {
         return jdbcTemplate.query(
-            "select published, count(*) as quantity from Post where published is not null and visibility = ? group by strftime('%m-%Y', published) order by published desc",
+            "select published, count(*) as quantity from Post where published is not null and visibility_type = ? group by strftime('%m-%Y', published) order by published desc",
             new Object[] { visibilityType.getValue() },
             new RowMapper<Archive>() {
                 @Override
                 public Archive mapRow(ResultSet rs, int i) throws SQLException {
                     final Archive archive = new Archive();
-                    archive.setArchived(DateTimeUtils.fromString(rs.getString("published")));
+                    archive.setArchived(new DateTime(rs.getLong("published")));
                     archive.setCount(rs.getInt("quantity"));
                     return archive;
                 }
