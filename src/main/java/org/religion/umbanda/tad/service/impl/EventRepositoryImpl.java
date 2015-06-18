@@ -20,11 +20,23 @@ public class EventRepositoryImpl implements EventRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
+    private final RowMapper<Event> eventRowMapper = new RowMapper<Event>() {
+        @Override
+        public Event mapRow(ResultSet resultSet, int i) throws SQLException {
+            final Event event = new Event();
+            event.setId(UUID.fromString(resultSet.getString("id")));
+            event.setTitle(resultSet.getString("title"));
+            event.setNotes(resultSet.getString("notes"));
+            event.setDate(new DateTime(resultSet.getLong("event_date")));
+            event.setVisibility(VisibilityType.fromValue(resultSet.getInt("visibility_type")));
+            return event;
+        }
+    };
+
     @Autowired
     public EventRepositoryImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
 
     @Transactional(readOnly = true)
     @Override
@@ -35,18 +47,13 @@ public class EventRepositoryImpl implements EventRepository {
     @Transactional(readOnly = true)
     @Override
     public List<Event> findEventByYear(int year) {
-        return jdbcTemplate.query("select * from Event where event_year = ?", new Object[] { year }, new RowMapper<Event>() {
-            @Override
-            public Event mapRow(ResultSet resultSet, int i) throws SQLException {
-                final Event event = new Event();
-                event.setId(UUID.fromString(resultSet.getString("id")));
-                event.setTitle(resultSet.getString("title"));
-                event.setNotes(resultSet.getString("notes"));
-                event.setDate(new DateTime(resultSet.getLong("event_date")));
-                event.setVisibility(VisibilityType.fromValue(resultSet.getInt("visibility_type")));
-                return event;
-            }
-        });
+        return jdbcTemplate.query("select * from Event where event_year = ?", new Object[] { year }, eventRowMapper);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Event> findEventByYear(int year, VisibilityType visibilityType) {
+        return jdbcTemplate.query("select * from Event where event_year = ? and visibility_type = ?", new Object[] { year, visibilityType.getValue() }, eventRowMapper);
     }
 
     @Transactional

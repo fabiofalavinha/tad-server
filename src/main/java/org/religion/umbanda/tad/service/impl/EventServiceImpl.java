@@ -2,6 +2,7 @@ package org.religion.umbanda.tad.service.impl;
 
 import org.joda.time.DateTime;
 import org.religion.umbanda.tad.model.Event;
+import org.religion.umbanda.tad.model.VisibilityType;
 import org.religion.umbanda.tad.service.EventRepository;
 import org.religion.umbanda.tad.service.EventService;
 import org.religion.umbanda.tad.service.vo.EventRequest;
@@ -24,25 +25,45 @@ public class EventServiceImpl implements EventService {
     @Autowired
     private EventRepository eventRepository;
 
+    @RequestMapping(value = "/events/{visibility}/{year}", method = RequestMethod.GET, produces = "application/json")
+    @Override
+    public List<EventResponse> findEventsByYear(
+        @PathVariable("year") int year,
+        @PathVariable("visibility") String visibility) {
+        VisibilityType visibilityType;
+        try {
+            visibilityType = VisibilityType.valueOf(visibility);
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException("Não é possível retornar os eventos", ex);
+        }
+        if (year > 0) {
+            return doConvertEvents(eventRepository.findEventByYear(year, visibilityType));
+        }
+        return new ArrayList<EventResponse>(0);
+    }
+
     @RequestMapping(value = "/events/{year}", method = RequestMethod.GET, produces = "application/json")
     @Override
-    public List<EventResponse> getEvents(
+    public List<EventResponse> findEventsByYear(
         @PathVariable("year") int year) {
-        List<EventResponse> results = null;
         if (year > 0) {
-            final List<Event> events = eventRepository.findEventByYear(year);
-            results = new ArrayList<EventResponse>(events.size());
-            for (Event event : events) {
-                final EventResponse eventResponse = new EventResponse();
-                eventResponse.setId(event.getId().toString());
-                eventResponse.setTitle(event.getTitle());
-                eventResponse.setNotes(event.getNotes());
-                eventResponse.setDate(DateTimeUtils.toString(event.getDate()));
-                eventResponse.setVisibility(event.getVisibility());
-                results.add(eventResponse);
-            }
+            return doConvertEvents(eventRepository.findEventByYear(year));
         }
-        return results;
+        return new ArrayList<EventResponse>(0);
+    }
+
+    private List<EventResponse> doConvertEvents(List<Event> events) {
+        final List<EventResponse> eventResponseList = new ArrayList<EventResponse>(events.size());
+        for (Event event : events) {
+            final EventResponse eventResponse = new EventResponse();
+            eventResponse.setId(event.getId().toString());
+            eventResponse.setTitle(event.getTitle());
+            eventResponse.setNotes(event.getNotes());
+            eventResponse.setDate(DateTimeUtils.toString(event.getDate()));
+            eventResponse.setVisibility(event.getVisibility());
+            eventResponseList.add(eventResponse);
+        }
+        return eventResponseList;
     }
 
     @RequestMapping(value = "/event/{id}", method = RequestMethod.DELETE)

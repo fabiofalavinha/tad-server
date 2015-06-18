@@ -7,7 +7,8 @@ import java.util.List;
 
 public interface EventService {
 
-    List<EventResponse> getEvents(int year);
+    List<EventResponse> findEventsByYear(int year);
+    List<EventResponse> findEventsByYear(int year, String visibility);
     void saveEvent(EventRequest request);
     void removeEvent(String id);
 
