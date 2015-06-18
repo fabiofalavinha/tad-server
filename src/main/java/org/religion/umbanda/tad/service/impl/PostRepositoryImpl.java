@@ -95,7 +95,7 @@ public class PostRepositoryImpl implements PostRepository {
     @Transactional(readOnly = true)
     @Override
     public List<Post> findPublishedPost(VisibilityType visibilityType, int year, int month) {
-        final List<Post> posts = doFindPost("select * from Post where visibility_type = ? and published is not null order by published desc", visibilityType.getValue(), year, month);
+        final List<Post> posts = doFindPost("select * from Post where visibility_type = ? and published is not null order by published desc", visibilityType.getValue());
         for (Post post : posts.toArray(new Post[posts.size()])) {
             final DateTime published = post.getPublished();
             if (published.getYear() != year || published.getMonthOfYear() != month) {
