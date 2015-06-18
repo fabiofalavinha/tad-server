@@ -1,15 +1,22 @@
 package org.religion.umbanda.tad.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.joda.time.DateTime;
+import org.religion.umbanda.tad.util.DateTimeUtils;
 
 public class Archive {
 
-    @JsonProperty("date")
+    @JsonIgnore
     private DateTime archived;
 
     @JsonProperty("count")
     private int count;
+
+    @JsonProperty("date")
+    public String getDate() {
+        return DateTimeUtils.toString(getArchived());
+    }
 
     @JsonProperty("name")
     public String getName() {
