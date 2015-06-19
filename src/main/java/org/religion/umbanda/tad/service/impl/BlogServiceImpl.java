@@ -227,6 +227,7 @@ public class BlogServiceImpl implements BlogService {
                 publishedByVO.setUserRole(publishedBy.getUserRole());
                 postResponse.setPublishedBy(publishedByVO);
                 postResponse.setPublished(DateTimeUtils.toString(post.getPublished()));
+                postResponse.setPublishedDateFormat(DateTimeUtils.toString(post.getPublished(), "dd/MMMM/yy HH:mm"));
             }
 
             result.add(postResponse);

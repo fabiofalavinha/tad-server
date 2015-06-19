@@ -13,6 +13,7 @@ public class PostResponse {
     private String modified;
     private UserCredentialsVO publishedBy;
     private String published;
+    private String publishedDateFormat;
 
     public String getId() {
         return id;
@@ -100,5 +101,13 @@ public class PostResponse {
 
     public void setPublished(String published) {
         this.published = published;
+    }
+
+    public void setPublishedDateFormat(String publishedDateFormat) {
+        this.publishedDateFormat = publishedDateFormat;
+    }
+
+    public String getPublishedDateFormat() {
+        return publishedDateFormat;
     }
 }
