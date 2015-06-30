@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -45,6 +46,18 @@ public class ImageCarouselServiceImpl implements ImageCarouselService {
         } catch (IOException e) {
             throw new IllegalStateException("Não foi possível efetivar o download da imagem", e);
         }
+    }
+
+    @RequestMapping(value = "/carousel", method = RequestMethod.GET)
+    @Override
+    public String[] getImageNames() {
+        final Path imageCarouselLocalPath = imageCarouselPathConfiguration.getLocalPath();
+        final File[] images = imageCarouselLocalPath.toFile().listFiles();
+        final String[] imageNames = new String[images.length];
+        for (int i = 0; i < images.length; ++i) {
+            imageNames[i] = images[i].getName();
+        }
+        return imageNames;
     }
 
 }
