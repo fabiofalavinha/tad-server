@@ -15,6 +15,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.UUID;
 
 @RestController
@@ -53,9 +55,20 @@ public class ImageCarouselServiceImpl implements ImageCarouselService {
     public String[] getImageNames() {
         final Path imageCarouselLocalPath = imageCarouselPathConfiguration.getLocalPath();
         final File[] images = imageCarouselLocalPath.toFile().listFiles();
-        final String[] imageNames = new String[images.length];
-        for (int i = 0; i < images.length; ++i) {
-            imageNames[i] = images[i].getName();
+        String[] imageNames = null;
+        if (images != null) {
+            Arrays.sort(images, new Comparator<File>() {
+                @Override
+                public int compare(File o1, File o2) {
+                    final long t1 = o1.lastModified();
+                    final long t2 = o2.lastModified();
+                    return t1 > t2 ? 1 : t1 == t2 ? 0 : -1;
+                }
+            });
+            imageNames = new String[images.length];
+            for (int i = 0; i < images.length; ++i) {
+                imageNames[i] = images[i].getName();
+            }
         }
         return imageNames;
     }

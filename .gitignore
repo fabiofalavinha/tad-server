@@ -224,3 +224,4 @@ pom.xml.next
 release.properties
 
 .idea/
+.out
