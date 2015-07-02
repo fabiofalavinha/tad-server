@@ -2,6 +2,7 @@ package org.religion.umbanda.tad.service.impl;
 
 import org.religion.umbanda.tad.model.ImageCarouselPathConfiguration;
 import org.religion.umbanda.tad.service.ImageCarouselService;
+import org.religion.umbanda.tad.service.vo.CarouselImage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,8 +16,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -46,16 +49,16 @@ public class ImageCarouselServiceImpl implements ImageCarouselService {
                 }
             }
         } catch (IOException e) {
-            throw new IllegalStateException("Não foi possível efetivar o download da imagem", e);
+            throw new IllegalStateException("Não foi possível efetivar o upload da imagem", e);
         }
     }
 
     @RequestMapping(value = "/carousel", method = RequestMethod.GET)
     @Override
-    public String[] getImageNames() {
+    public List<CarouselImage> getImages() {
+        final List<CarouselImage> carouselImages = new ArrayList<CarouselImage>();
         final Path imageCarouselLocalPath = imageCarouselPathConfiguration.getLocalPath();
         final File[] images = imageCarouselLocalPath.toFile().listFiles();
-        String[] imageNames = null;
         if (images != null) {
             Arrays.sort(images, new Comparator<File>() {
                 @Override
@@ -65,12 +68,11 @@ public class ImageCarouselServiceImpl implements ImageCarouselService {
                     return t1 > t2 ? 1 : t1 == t2 ? 0 : -1;
                 }
             });
-            imageNames = new String[images.length];
-            for (int i = 0; i < images.length; ++i) {
-                imageNames[i] = images[i].getName();
+            for (File image : images) {
+                carouselImages.add(new CarouselImage(image.getName()));
             }
         }
-        return imageNames;
+        return carouselImages;
     }
 
 }

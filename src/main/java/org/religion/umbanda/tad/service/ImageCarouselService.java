@@ -1,10 +1,13 @@
 package org.religion.umbanda.tad.service;
 
+import org.religion.umbanda.tad.service.vo.CarouselImage;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 public interface ImageCarouselService {
 
-    String[] getImageNames();
+    List<CarouselImage> getImages();
     void uploadImage(MultipartFile file);
 
 }
