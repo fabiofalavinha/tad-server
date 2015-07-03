@@ -15,7 +15,6 @@ public class CharEncodingConfigurationFilter implements Filter {
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
         res.setCharacterEncoding("utf-8");
-        //res.setContentType("application/json; charset=utf-8");
         chain.doFilter(req, res);
     }
 
