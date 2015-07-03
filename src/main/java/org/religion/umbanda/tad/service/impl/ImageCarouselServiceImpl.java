@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -79,15 +80,16 @@ public class ImageCarouselServiceImpl implements ImageCarouselService {
     @RequestMapping(value = "/carousel/{name}", method = RequestMethod.DELETE)
     @Override
     public void removeImage(
-        @PathVariable("name") String name) {
-        System.out.printf("Requesting to delete image [%s]...\n", name);
-        final Path imagePath = imageCarouselPathConfiguration.getLocalPath().resolve(name);
-        System.out.printf("Image path: %s\n", imagePath.toString());
-        final File imageFilePath = imagePath.toFile();
-        if (imageFilePath.exists()) {
-            imageFilePath.delete();
-        } else {
-            System.out.printf("File does not exists: %s\n", imageFilePath.toString());
+        @PathVariable("name") final String imageName) {
+        final Path imageCarouselLocalPath = imageCarouselPathConfiguration.getLocalPath();
+        final File[] selectedFiles = imageCarouselLocalPath.toFile().listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.startsWith(imageName);
+            }
+        });
+        for (File file : selectedFiles) {
+            file.delete();
         }
     }
 
