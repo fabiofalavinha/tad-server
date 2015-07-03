@@ -84,6 +84,8 @@ public class ImageCarouselServiceImpl implements ImageCarouselService {
         final File imageFilePath = imagePath.toFile();
         if (imageFilePath.exists()) {
             imageFilePath.delete();
+        } else {
+            System.out.printf("File does not exists: %s", imageFilePath.toString());
         }
     }
 
