@@ -80,12 +80,14 @@ public class ImageCarouselServiceImpl implements ImageCarouselService {
     @Override
     public void removeImage(
         @PathVariable("name") String name) {
+        System.out.printf("Requesting to delete image [%s]...\n", name);
         final Path imagePath = imageCarouselPathConfiguration.getLocalPath().resolve(name);
+        System.out.printf("Image path: %s\n", imagePath.toString());
         final File imageFilePath = imagePath.toFile();
         if (imageFilePath.exists()) {
             imageFilePath.delete();
         } else {
-            System.out.printf("File does not exists: %s", imageFilePath.toString());
+            System.out.printf("File does not exists: %s\n", imageFilePath.toString());
         }
     }
 
