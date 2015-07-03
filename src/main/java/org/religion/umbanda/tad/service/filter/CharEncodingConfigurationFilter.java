@@ -13,19 +13,9 @@ import java.io.IOException;
 @Component
 public class CharEncodingConfigurationFilter implements Filter {
 
-    private static final String defaultCharset = "iso-8859-1";
-
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
-        //final HttpServletResponse response = (HttpServletResponse) res;
-        //Charset charset;
-        //try {
-        //    charset = Charset.forName(defaultCharset);
-        //} catch (UnsupportedCharsetException ex) {
-        //    ex.printStackTrace();
-        //    charset = Charset.defaultCharset();
-        //}
-        //response.setCharacterEncoding(charset.displayName());
-        res.setContentType("application/json; charset=utf-8");
+        res.setCharacterEncoding("utf-8");
+        //res.setContentType("application/json; charset=utf-8");
         chain.doFilter(req, res);
     }
 
