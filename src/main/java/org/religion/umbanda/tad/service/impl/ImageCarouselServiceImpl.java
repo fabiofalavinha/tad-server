@@ -4,6 +4,7 @@ import org.religion.umbanda.tad.model.ImageCarouselPathConfiguration;
 import org.religion.umbanda.tad.service.ImageCarouselService;
 import org.religion.umbanda.tad.service.vo.CarouselImage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -73,6 +74,17 @@ public class ImageCarouselServiceImpl implements ImageCarouselService {
             }
         }
         return carouselImages;
+    }
+
+    @RequestMapping(value = "/carousel/{name}", method = RequestMethod.DELETE)
+    @Override
+    public void removeImage(
+        @PathVariable("name") String name) {
+        final Path imagePath = imageCarouselPathConfiguration.getLocalPath().resolve(name);
+        final File imageFilePath = imagePath.toFile();
+        if (imageFilePath.exists()) {
+            imageFilePath.delete();
+        }
     }
 
 }

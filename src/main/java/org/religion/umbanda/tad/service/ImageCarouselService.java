@@ -9,5 +9,6 @@ public interface ImageCarouselService {
 
     List<CarouselImage> getImages();
     void uploadImage(MultipartFile file);
+    void removeImage(String name);
 
 }
