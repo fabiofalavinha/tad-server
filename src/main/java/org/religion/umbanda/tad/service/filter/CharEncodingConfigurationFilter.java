@@ -25,7 +25,7 @@ public class CharEncodingConfigurationFilter implements Filter {
         //    charset = Charset.defaultCharset();
         //}
         //response.setCharacterEncoding(charset.displayName());
-        res.setContentType("application/json; charset=iso-8859-1");
+        res.setContentType("application/json; charset=utf-8");
         chain.doFilter(req, res);
     }
 
