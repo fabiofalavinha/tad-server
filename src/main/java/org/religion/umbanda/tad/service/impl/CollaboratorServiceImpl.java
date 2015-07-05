@@ -108,7 +108,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         newCollaborator.setObservation(collaboratorVO.getObservation());
 
         final String startDateAsString = collaboratorVO.getStartDate();
-        if (startDateAsString != null && "".equals(startDateAsString.trim())) {
+        if (startDateAsString != null && !"".equals(startDateAsString.trim())) {
             newCollaborator.setStartDate(DateTime.parse(startDateAsString));
         }
 
