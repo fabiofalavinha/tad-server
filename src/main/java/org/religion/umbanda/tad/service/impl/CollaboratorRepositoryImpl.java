@@ -69,11 +69,17 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
                             final Collaborator collaborator = new Collaborator();
                             collaborator.setPerson(person);
                             collaborator.setUserCredentials(userCredentials);
-                            collaborator.setStartDate(new DateTime(resultSet.getLong("start_date")));
+
+                            final long startDateInMillis = resultSet.getLong("start_date");
+                            if (startDateInMillis > 0) {
+                                collaborator.setStartDate(new DateTime(startDateInMillis));
+                            }
+
                             final long releaseDateTimeInMillis = resultSet.getLong("release_date");
                             if (releaseDateTimeInMillis > 0) {
                                 collaborator.setReleaseDate(new DateTime(releaseDateTimeInMillis));
                             }
+
                             collaborator.setObservation(resultSet.getString("observation"));
 
                             return collaborator;
@@ -149,8 +155,17 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
                         final Collaborator collaborator = new Collaborator();
                         collaborator.setPerson(person);
                         collaborator.setUserCredentials(userCredentials);
-                        collaborator.setStartDate(new DateTime(resultSet.getLong("start_date")));
-                        collaborator.setReleaseDate(new DateTime(resultSet.getLong("release_date")));
+
+                        final long startDateInMillis = resultSet.getLong("start_date");
+                        if (startDateInMillis > 0) {
+                            collaborator.setStartDate(new DateTime(startDateInMillis));
+                        }
+
+                        final long releaseDateTimeInMillis = resultSet.getLong("release_date");
+                        if (releaseDateTimeInMillis > 0) {
+                            collaborator.setReleaseDate(new DateTime(releaseDateTimeInMillis));
+                        }
+
                         collaborator.setObservation(resultSet.getString("observation"));
 
                         return collaborator;
@@ -219,7 +234,7 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
 
         jdbcTemplate.update("insert into Collaborator (person_id, start_date, release_date, observation, usercredentials_id) values (?, ?, ?, ?, ?)",
             person.getId().toString(),
-            newCollaborator.getStartDate().getMillis(),
+            newCollaborator.getStartDate() == null ? 0 : newCollaborator.getStartDate().getMillis(),
             newCollaborator.getReleaseDate() == null ? 0 : newCollaborator.getReleaseDate().getMillis(),
             newCollaborator.getObservation(),
             userCredentials.getId().toString());
@@ -238,7 +253,7 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
         final String id = person.getId().toString();
 
         jdbcTemplate.update("update Collaborator set start_date = ?, release_date = ?, observation = ? where person_id = ?",
-            newCollaborator.getStartDate().getMillis(),
+            newCollaborator.getStartDate() == null ? 0 : newCollaborator.getStartDate().getMillis(),
             newCollaborator.getReleaseDate() == null ? 0 : newCollaborator.getReleaseDate().getMillis(),
             newCollaborator.getObservation(),
             id);
@@ -246,11 +261,11 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
         jdbcTemplate.update("delete from Telephone where person_id = ?", id);
         for (Telephone telephone : newCollaborator.getPerson().getTelephones()) {
             jdbcTemplate.update("insert into Telephone (id, area_code, number, phone_type, person_id) values (?, ?, ?, ?, ?)",
-                    telephone.getId().toString(),
-                    telephone.getAreaCode(),
-                    telephone.getNumber(),
-                    telephone.getPhoneType().name(),
-                    id);
+                telephone.getId().toString(),
+                telephone.getAreaCode(),
+                telephone.getNumber(),
+                telephone.getPhoneType().name(),
+                id);
         }
 
         jdbcTemplate.update("update Person set name = ?, gender = ?, birth_date = ? where id = ?",
@@ -262,7 +277,7 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
         jdbcTemplate.update("update UserCredentials set user_role = ?, username = ? where id = ?",
             newCollaborator.getUserCredentials().getUserRole().name(),
             newCollaborator.getUserCredentials().getUserName(),
-                newCollaborator.getPerson().getId().toString());
+            newCollaborator.getPerson().getId().toString());
     }
 
 }

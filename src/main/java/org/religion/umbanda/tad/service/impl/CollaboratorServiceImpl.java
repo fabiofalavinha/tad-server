@@ -106,12 +106,17 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         final Collaborator newCollaborator = new Collaborator();
         newCollaborator.setPerson(newPerson);
         newCollaborator.setObservation(collaboratorVO.getObservation());
-        newCollaborator.setStartDate(DateTime.parse(collaboratorVO.getStartDate()));
+
+        final String startDateAsString = collaboratorVO.getStartDate();
+        if (startDateAsString != null && "".equals(startDateAsString.trim())) {
+            newCollaborator.setStartDate(DateTime.parse(startDateAsString));
+        }
 
         final String releaseDateAsString = collaboratorVO.getReleaseDate();
-        if (releaseDateAsString != null && !"".equals(releaseDateAsString)) {
+        if (releaseDateAsString != null && !"".equals(releaseDateAsString.trim())) {
             newCollaborator.setReleaseDate(DateTime.parse(releaseDateAsString));
         }
+
         newCollaborator.setUserCredentials(newUserCredentials);
 
         if (collaboratorRepository.existsById(id)) {
