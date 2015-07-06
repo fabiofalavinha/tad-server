@@ -29,6 +29,8 @@ public class EventRepositoryImpl implements EventRepository {
             event.setNotes(resultSet.getString("notes"));
             event.setDate(new DateTime(resultSet.getLong("event_date")));
             event.setVisibility(VisibilityType.fromValue(resultSet.getInt("visibility_type")));
+            event.setBackColor(resultSet.getString("back_color"));
+            event.setFontColor(resultSet.getString("font_color"));
             return event;
         }
     };
@@ -59,15 +61,15 @@ public class EventRepositoryImpl implements EventRepository {
     @Transactional
     @Override
     public void addEvent(Event event) {
-        jdbcTemplate.update("insert into Event (id, title, notes, event_date, event_year, visibility_type) values (?, ?, ?, ?, ?, ?)",
-            event.getId().toString(), event.getTitle(), event.getNotes(), event.getDate().getMillis(), event.getYear(), event.getVisibility().getValue());
+        jdbcTemplate.update("insert into Event (id, title, notes, event_date, event_year, visibility_type, back_color, font_color) values (?, ?, ?, ?, ?, ?, ?, ?)",
+            event.getId().toString(), event.getTitle(), event.getNotes(), event.getDate().getMillis(), event.getYear(), event.getVisibility().getValue(), event.getBackColor(), event.getFontColor());
     }
 
     @Transactional
     @Override
     public void updateEvent(Event event) {
-        jdbcTemplate.update("update Event set title=?, notes=?, event_date=?, event_year=?, visibility_type=? where id=?",
-            event.getTitle(), event.getNotes(), event.getDate().getMillis(), event.getYear(), event.getVisibility().getValue(), event.getId().toString());
+        jdbcTemplate.update("update Event set title=?, notes=?, event_date=?, event_year=?, visibility_type=?, back_color=?, font_color=? where id=?",
+            event.getTitle(), event.getNotes(), event.getDate().getMillis(), event.getYear(), event.getVisibility().getValue(), event.getId().toString(), event.getBackColor(), event.getFontColor());
     }
 
     @Transactional

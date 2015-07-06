@@ -11,6 +11,8 @@ public class Event {
     private String notes;
     private DateTime date;
     private VisibilityType visibility;
+    private String backColor;
+    private String fontColor;
 
     public String getTitle() {
         return title;
@@ -54,5 +56,21 @@ public class Event {
 
     public  int getYear() {
         return date == null ? 0 : date.getYear();
+    }
+
+    public String getFontColor() {
+        return fontColor;
+    }
+
+    public void setFontColor(String fontColor) {
+        this.fontColor = fontColor;
+    }
+
+    public String getBackColor() {
+        return backColor;
+    }
+
+    public void setBackColor(String backColor) {
+        this.backColor = backColor;
     }
 }

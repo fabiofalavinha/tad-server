@@ -61,6 +61,8 @@ public class EventServiceImpl implements EventService {
             eventResponse.setNotes(event.getNotes());
             eventResponse.setDate(DateTimeUtils.toString(event.getDate()));
             eventResponse.setVisibility(event.getVisibility());
+            eventResponse.setBackColor(event.getBackColor());
+            eventResponse.setFontColor(event.getFontColor());
             eventResponseList.add(eventResponse);
         }
         return eventResponseList;
@@ -107,6 +109,8 @@ public class EventServiceImpl implements EventService {
         event.setTitle(request.getTitle());
         event.setNotes(request.getNotes());
         event.setVisibility(request.getVisibility());
+        event.setFontColor(request.getFontColor());
+        event.setBackColor(request.getBackColor());
         return event;
     }
 

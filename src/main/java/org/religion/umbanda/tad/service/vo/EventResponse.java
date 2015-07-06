@@ -9,6 +9,8 @@ public class EventResponse {
     private String notes;
     private String date;
     private VisibilityType visibility;
+    private String backColor;
+    private String fontColor;
 
     public String getId() {
         return id;
@@ -50,4 +52,19 @@ public class EventResponse {
         this.visibility = visibility;
     }
 
+    public String getBackColor() {
+        return backColor;
+    }
+
+    public void setBackColor(String backColor) {
+        this.backColor = backColor;
+    }
+
+    public String getFontColor() {
+        return fontColor;
+    }
+
+    public void setFontColor(String fontColor) {
+        this.fontColor = fontColor;
+    }
 }
