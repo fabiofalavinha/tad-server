@@ -55,7 +55,14 @@ public class EventServiceImpl implements EventService {
     private List<EventResponse> doConvertEvents(List<Event> events) {
         final List<EventResponse> eventResponseList = new ArrayList<EventResponse>(events.size());
         for (Event event : events) {
-            final EventResponse eventResponse = new EventResponse();
+            eventResponseList.add(convertEventResponse(event));
+        }
+        return eventResponseList;
+    }
+
+    private EventResponse convertEventResponse(Event event) {
+        final EventResponse eventResponse = new EventResponse();
+        if (event != null) {
             eventResponse.setId(event.getId().toString());
             eventResponse.setTitle(event.getTitle());
             eventResponse.setNotes(event.getNotes());
@@ -63,9 +70,8 @@ public class EventServiceImpl implements EventService {
             eventResponse.setVisibility(event.getVisibility());
             eventResponse.setBackColor(event.getBackColor());
             eventResponse.setFontColor(event.getFontColor());
-            eventResponseList.add(eventResponse);
         }
-        return eventResponseList;
+        return eventResponse;
     }
 
     @RequestMapping(value = "/event/{id}", method = RequestMethod.DELETE)
@@ -83,23 +89,27 @@ public class EventServiceImpl implements EventService {
 
     @RequestMapping(value = "/event", method = RequestMethod.POST)
     @Override
-    public void saveEvent(
+    public EventResponse saveEvent(
         @RequestBody EventRequest request) {
+        Event event = null;
         UUID id;
         final String eventId = request.getId();
         if (eventId != null && !"".equals(eventId)) {
             try {
                 id = UUID.fromString(eventId);
                 if (eventRepository.existsById(id)) {
-                    eventRepository.updateEvent(doConvertEvent(id, request));
+                    event = doConvertEvent(id, request);
+                    eventRepository.updateEvent(event);
                 }
             } catch (IllegalArgumentException ex) {
                 throw new IllegalArgumentException("ID do evento é inválido", ex);
             }
         } else {
             id = UUID.randomUUID();
-            eventRepository.addEvent(doConvertEvent(id, request));
+            event = doConvertEvent(id, request);
+            eventRepository.addEvent(event);
         }
+        return convertEventResponse(event);
     }
 
     private Event doConvertEvent(UUID id, EventRequest request) {
