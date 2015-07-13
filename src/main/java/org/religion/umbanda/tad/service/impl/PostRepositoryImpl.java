@@ -98,7 +98,7 @@ public class PostRepositoryImpl implements PostRepository {
         final List<Post> posts = doFindPost("select * from Post where visibility_type = ? and published is not null order by published desc", visibilityType.getValue());
         for (Post post : posts.toArray(new Post[posts.size()])) {
             final DateTime published = post.getPublished();
-            if (published.getYear() != year || published.getMonthOfYear() != month) {
+            if (published != null && (published.getYear() != year || published.getMonthOfYear() != month)) {
                 posts.remove(post);
             }
         }
