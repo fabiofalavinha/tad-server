@@ -1,5 +1,7 @@
 package org.religion.umbanda.tad.service.impl;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.joda.time.DateTime;
 import org.religion.umbanda.tad.model.Archive;
 import org.religion.umbanda.tad.model.Post;
@@ -10,12 +12,14 @@ import org.religion.umbanda.tad.service.PostRepository;
 import org.religion.umbanda.tad.service.UserCredentialsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -89,13 +93,13 @@ public class PostRepositoryImpl implements PostRepository {
     @Transactional(readOnly = true)
     @Override
     public List<Post> findPublishedPost(VisibilityType visibilityType) {
-        return doFindPost("select * from Post where visibility_type = ? and published is not null order by published desc", visibilityType.getValue());
+        return doFindPost("select * from Post where visibility_type = ? and published > 0 order by published desc", visibilityType.getValue());
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Post> findPublishedPost(VisibilityType visibilityType, int year, int month) {
-        final List<Post> posts = doFindPost("select * from Post where visibility_type = ? and published is not null order by published desc", visibilityType.getValue());
+        final List<Post> posts = doFindPost("select * from Post where visibility_type = ? and published > 0 order by published desc", visibilityType.getValue());
         for (Post post : posts.toArray(new Post[posts.size()])) {
             final DateTime published = post.getPublished();
             if (published != null && (published.getYear() != year || published.getMonthOfYear() != month)) {
@@ -114,19 +118,32 @@ public class PostRepositoryImpl implements PostRepository {
     @Transactional(readOnly = true)
     @Override
     public List<Archive> findArchiveBy(VisibilityType visibilityType) {
-        return jdbcTemplate.query(
-            "select published, count(*) as quantity from Post where published is not null and visibility_type = ? group by strftime('%m-%Y', published) order by published desc",
+        final List<Archive> archives = new ArrayList<>();
+        jdbcTemplate.query(
+            "select published from Post where published > 0 and visibility_type = ? order by published desc",
             new Object[] { visibilityType.getValue() },
-            new RowMapper<Archive>() {
+            new RowCallbackHandler() {
                 @Override
-                public Archive mapRow(ResultSet rs, int i) throws SQLException {
-                    final Archive archive = new Archive();
-                    archive.setArchived(new DateTime(rs.getLong("published")));
-                    archive.setCount(rs.getInt("quantity"));
-                    return archive;
+                public void processRow(ResultSet resultSet) throws SQLException {
+                    final DateTime published = new DateTime(resultSet.getLong("published"));
+                    Archive found = (Archive) CollectionUtils.find(archives, new Predicate() {
+                        @Override
+                        public boolean evaluate(Object o) {
+                            final Archive archive = (Archive) o;
+                            return archive.getArchived().getMonthOfYear() == published.getMonthOfYear() &&
+                                    archive.getArchived().getYear() == published.getYear();
+                        }
+                    });
+                    if (found == null) {
+                        found = new Archive();
+                        found.setArchived(published);
+                        archives.add(found);
+                    }
+                    found.increaseCount();
                 }
             }
         );
+        return archives;
     }
 
     @Transactional(readOnly = true)
