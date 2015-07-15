@@ -69,7 +69,7 @@ public class EventRepositoryImpl implements EventRepository {
     @Override
     public void updateEvent(Event event) {
         jdbcTemplate.update("update Event set title=?, notes=?, event_date=?, event_year=?, visibility_type=?, back_color=?, font_color=? where id=?",
-            event.getTitle(), event.getNotes(), event.getDate().getMillis(), event.getYear(), event.getVisibility().getValue(), event.getId().toString(), event.getBackColor(), event.getFontColor());
+            event.getTitle(), event.getNotes(), event.getDate().getMillis(), event.getYear(), event.getVisibility().getValue(), event.getBackColor(), event.getFontColor(), event.getId().toString());
     }
 
     @Transactional

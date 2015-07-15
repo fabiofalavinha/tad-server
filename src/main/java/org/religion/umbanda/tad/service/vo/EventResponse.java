@@ -1,14 +1,12 @@
 package org.religion.umbanda.tad.service.vo;
 
-import org.religion.umbanda.tad.model.VisibilityType;
-
 public class EventResponse {
 
     private String id;
     private String title;
     private String notes;
     private String date;
-    private VisibilityType visibility;
+    private int visibility;
     private String backColor;
     private String fontColor;
 
@@ -44,11 +42,11 @@ public class EventResponse {
         this.date = date;
     }
 
-    public VisibilityType getVisibility() {
+    public int getVisibility() {
         return visibility;
     }
 
-    public void setVisibility(VisibilityType visibility) {
+    public void setVisibility(int visibility) {
         this.visibility = visibility;
     }
 
