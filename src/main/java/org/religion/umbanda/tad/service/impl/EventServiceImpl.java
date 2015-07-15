@@ -39,7 +39,7 @@ public class EventServiceImpl implements EventService {
         if (year > 0) {
             return doConvertEvents(eventRepository.findEventByYear(year, visibilityType));
         }
-        return new ArrayList<EventResponse>(0);
+        return new ArrayList<>(0);
     }
 
     @RequestMapping(value = "/events/{year}", method = RequestMethod.GET, produces = "application/json")
@@ -49,11 +49,11 @@ public class EventServiceImpl implements EventService {
         if (year > 0) {
             return doConvertEvents(eventRepository.findEventByYear(year));
         }
-        return new ArrayList<EventResponse>(0);
+        return new ArrayList<>(0);
     }
 
     private List<EventResponse> doConvertEvents(List<Event> events) {
-        final List<EventResponse> eventResponseList = new ArrayList<EventResponse>(events.size());
+        final List<EventResponse> eventResponseList = new ArrayList<>(events.size());
         for (Event event : events) {
             eventResponseList.add(convertEventResponse(event));
         }
@@ -67,7 +67,7 @@ public class EventServiceImpl implements EventService {
             eventResponse.setTitle(event.getTitle());
             eventResponse.setNotes(event.getNotes());
             eventResponse.setDate(DateTimeUtils.toString(event.getDate()));
-            eventResponse.setVisibility(event.getVisibility());
+            eventResponse.setVisibility(event.getVisibility().getValue());
             eventResponse.setBackColor(event.getBackColor());
             eventResponse.setFontColor(event.getFontColor());
         }
@@ -118,7 +118,7 @@ public class EventServiceImpl implements EventService {
         event.setDate(DateTime.parse(request.getDate()));
         event.setTitle(request.getTitle());
         event.setNotes(request.getNotes());
-        event.setVisibility(request.getVisibility());
+        event.setVisibility(VisibilityType.fromValue(request.getVisibility()));
         event.setFontColor(request.getFontColor());
         event.setBackColor(request.getBackColor());
         return event;
