@@ -168,20 +168,23 @@ public class BlogServiceImpl implements BlogService {
         }
         post.setModifiedBy(modifiedBy);
 
+        DateTime published = null;
         final String postPublished = postRequest.getPublished();
         if (postPublished != null && !"".equals(postPublished.trim())) {
-            post.setPublished(DateTime.parse(postPublished));
+            published = DateTime.parse(postPublished);
         }
+        post.setPublished(published);
 
+        UserCredentials publishedBy = null;
         final UserCredentialsVO publishedByVO = postRequest.getPublishedBy();
         if (publishedByVO != null) {
             final UUID publishedById = IdUtils.fromString(publishedByVO.getId());
-            final UserCredentials publishedBy = userCredentialsRepository.findById(publishedById);
+            publishedBy = userCredentialsRepository.findById(publishedById);
             if (publishedBy == null) {
                 throw new IllegalStateException(String.format("Não foi possível encontrar os dados do usuário que publicou o post: %s", publishedById.toString()));
             }
-            post.setPublishedBy(publishedBy);
         }
+        post.setPublishedBy(publishedBy);
 
         post.setVisibilityType(postRequest.getVisibility());
 
