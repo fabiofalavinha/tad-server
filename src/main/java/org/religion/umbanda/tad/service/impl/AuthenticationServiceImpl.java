@@ -1,15 +1,25 @@
 package org.religion.umbanda.tad.service.impl;
 
-import org.religion.umbanda.tad.model.*;
+import org.religion.umbanda.tad.model.Collaborator;
+import org.religion.umbanda.tad.model.MailMessage;
+import org.religion.umbanda.tad.model.MailTemplateFactory;
+import org.religion.umbanda.tad.model.Password;
+import org.religion.umbanda.tad.model.UserCredentials;
 import org.religion.umbanda.tad.service.AuthenticationService;
 import org.religion.umbanda.tad.service.CollaboratorRepository;
 import org.religion.umbanda.tad.service.MailService;
 import org.religion.umbanda.tad.service.UserCredentialsRepository;
-import org.religion.umbanda.tad.service.vo.*;
+import org.religion.umbanda.tad.service.vo.AuthenticationRequest;
+import org.religion.umbanda.tad.service.vo.ChangePasswordRequest;
+import org.religion.umbanda.tad.service.vo.ForgotPasswordRequest;
+import org.religion.umbanda.tad.service.vo.NewPasswordRequest;
+import org.religion.umbanda.tad.service.vo.UserCredentialsVO;
 import org.religion.umbanda.tad.validator.MailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.MailSender;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
 
