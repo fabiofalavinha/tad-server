@@ -37,6 +37,7 @@ public class PostRepositoryImpl implements PostRepository {
             post.setContent(rs.getString("content"));
             post.setVisibilityType(VisibilityType.fromValue(rs.getInt("visibility_type")));
             post.setPostType(PostType.fromValue(rs.getInt("post_type")));
+            post.setOrder(rs.getInt("order"));
 
             final UserCredentials createdBy = new UserCredentials();
             createdBy.setId(UUID.fromString(rs.getString("created_by")));
@@ -87,19 +88,19 @@ public class PostRepositoryImpl implements PostRepository {
     @Transactional(readOnly = true)
     @Override
     public List<Post> findAll() {
-        return doFindPost("select * from Post order by published desc");
+        return doFindPost("select * from Post order by [order]");
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Post> findPublishedPost(VisibilityType visibilityType) {
-        return doFindPost("select * from Post where visibility_type = ? and published > 0 order by published desc", visibilityType.getValue());
+        return doFindPost("select * from Post where visibility_type = ? and published > 0 order by [order]", visibilityType.getValue());
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Post> findPublishedPost(VisibilityType visibilityType, int year, int month) {
-        final List<Post> posts = doFindPost("select * from Post where visibility_type = ? and published > 0 order by published desc", visibilityType.getValue());
+        final List<Post> posts = doFindPost("select * from Post where visibility_type = ? and published > 0 order by [order]", visibilityType.getValue());
         for (Post post : posts.toArray(new Post[posts.size()])) {
             final DateTime published = post.getPublished();
             if (published != null && (published.getYear() != year || published.getMonthOfYear() != month)) {
@@ -120,7 +121,7 @@ public class PostRepositoryImpl implements PostRepository {
     public List<Archive> findArchiveBy(VisibilityType visibilityType) {
         final List<Archive> archives = new ArrayList<>();
         jdbcTemplate.query(
-            "select published from Post where published > 0 and visibility_type = ? order by published desc",
+            "select published from Post where published > 0 and visibility_type = ? order by [order]",
             new Object[] { visibilityType.getValue() },
             new RowCallbackHandler() {
                 @Override
@@ -176,11 +177,11 @@ public class PostRepositoryImpl implements PostRepository {
             publishedMillis = post.getPublished().getMillis();
         }
         jdbcTemplate.update(
-            "insert into Post (id, title, content, visibility_type, post_type, created_by, created, modified_by, modified, published_by, published) " +
+            "insert into Post (id, title, content, visibility_type, post_type, created_by, created, modified_by, modified, published_by, published, [order]) " +
             "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             post.getId().toString(), post.getTitle(), post.getContent(), post.getVisibilityType().getValue(), post.getPostType().getValue(),
             post.getCreatedBy().getId().toString(), post.getCreated().getMillis(), post.getModifiedBy().getId().toString(), post.getModified().getMillis(),
-            publishedById, publishedMillis
+            publishedById, publishedMillis, post.getOrder()
         );
     }
 
@@ -198,10 +199,10 @@ public class PostRepositoryImpl implements PostRepository {
             publishedMillis = post.getPublished().getMillis();
         }
         jdbcTemplate.update(
-            "update Post set title=?, content=?, visibility_type=?, post_type=?, created_by=?, created=?, modified_by=?, modified=?, published_by=?, published=? where id=?",
+            "update Post set title=?, content=?, visibility_type=?, post_type=?, created_by=?, created=?, modified_by=?, modified=?, published_by=?, published=?, [order]=? where id=?",
             post.getTitle(), post.getContent(), post.getVisibilityType().getValue(), post.getPostType().getValue(),
             post.getCreatedBy().getId().toString(), post.getCreated().getMillis(), post.getModifiedBy().getId().toString(),
-            post.getModified().getMillis(), publishedById, publishedMillis, post.getId().toString()
+            post.getModified().getMillis(), publishedById, publishedMillis, post.getOrder(), post.getId().toString()
         );
     }
 }

@@ -14,6 +14,7 @@ public class PostRequest {
     private String published;
     private UserCredentialsVO publishedBy;
     private VisibilityType visibility;
+    private int order;
 
     public String getId() {
         return id;
@@ -93,5 +94,13 @@ public class PostRequest {
 
     public void setVisibility(VisibilityType visibility) {
         this.visibility = visibility;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 }

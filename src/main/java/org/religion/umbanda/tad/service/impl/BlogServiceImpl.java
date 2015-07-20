@@ -130,7 +130,9 @@ public class BlogServiceImpl implements BlogService {
             if (post == null) {
                 throw new IllegalStateException(String.format("Não foi possível alterar o post [id=%s]", postId));
             }
+            post.setOrder(postRequest.getOrder());
         }
+
 
         final String postTitle = postRequest.getTitle();
         if (postTitle == null || "".equals(postTitle)) {

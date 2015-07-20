@@ -17,6 +17,7 @@ public class Post {
     private DateTime modified;
     private UserCredentials publishedBy;
     private DateTime published;
+    private int order;
 
     public String getTitle() {
         return title;
@@ -104,5 +105,13 @@ public class Post {
 
     public void setPublished(DateTime published) {
         this.published = published;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 }
