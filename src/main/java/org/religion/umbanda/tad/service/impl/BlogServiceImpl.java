@@ -43,25 +43,23 @@ public class BlogServiceImpl implements BlogService {
         }
     }
 
+    @RequestMapping("/post/{postId}")
+    @Override
+    public PostResponse getPostById(
+        @PathVariable("postId") String postIdAsString) {
+        return doConvertPost(postRepository.findById(IdUtils.fromString(postIdAsString)));
+    }
+
     @RequestMapping("/posts/{userId}")
     @Override
     public List<PostResponse> getPostsByUserId(
         @PathVariable("userId") String userIdAsString) {
-
-        UUID userId;
-        try {
-            userId = UUID.fromString(userIdAsString);
-        } catch (IllegalArgumentException ex) {
-            return new ArrayList<PostResponse>();
-        }
-
+        final UUID userId = IdUtils.fromString(userIdAsString);
         final UserCredentials userCredentials = userCredentialsRepository.findById(userId);
-
         if (userCredentials == null || userCredentials.getUserRole() != UserRole.ADMINISTRATOR) {
-            return new ArrayList<PostResponse>();
+            return new ArrayList<>();
         }
-
-        return doConvertPost(postRepository.findAll());
+        return doConvertPostList(postRepository.findAll());
     }
 
     @RequestMapping("/post/archives/{visibility}")
@@ -70,7 +68,7 @@ public class BlogServiceImpl implements BlogService {
         @PathVariable("visibility") String visibility) {
         final VisibilityType visibilityType = doConvertVisibilityType(visibility);
         if (visibilityType == null) {
-            return new ArrayList<Archive>();
+            return new ArrayList<>();
         }
         return postRepository.findArchiveBy(visibilityType);
     }
@@ -83,9 +81,9 @@ public class BlogServiceImpl implements BlogService {
         @PathVariable("month") int month) {
         final VisibilityType visibilityType = doConvertVisibilityType(visibility);
         if (visibilityType == null) {
-            return new ArrayList<PostResponse>();
+            return new ArrayList<>();
         }
-        return doConvertPost(postRepository.findPublishedPost(visibilityType, year, month));
+        return doConvertPostList(postRepository.findPublishedPost(visibilityType, year, month));
     }
     
     @RequestMapping("/published/posts/{visibility}")
@@ -94,9 +92,9 @@ public class BlogServiceImpl implements BlogService {
         @PathVariable("visibility") String visibility) {
         final VisibilityType visibilityType = doConvertVisibilityType(visibility);
         if (visibilityType == null) {
-            return new ArrayList<PostResponse>();
+            return new ArrayList<>();
         }
-        return doConvertPost(postRepository.findPublishedPost(visibilityType));
+        return doConvertPostList(postRepository.findPublishedPost(visibilityType));
     }
 
     @RequestMapping(value = "/post/{id}", method = RequestMethod.DELETE)
@@ -197,47 +195,50 @@ public class BlogServiceImpl implements BlogService {
         }
     }
 
-    private List<PostResponse> doConvertPost(List<Post> posts) {
-        final List<PostResponse> result = new ArrayList<PostResponse>(posts.size());
+    private List<PostResponse> doConvertPostList(List<Post> posts) {
+        final List<PostResponse> result = new ArrayList<>(posts.size());
         for (Post post : posts) {
-            final PostResponse postResponse = new PostResponse();
-            postResponse.setId(post.getId().toString());
-            postResponse.setTitle(post.getTitle());
-            postResponse.setContent(post.getContent());
-            postResponse.setPostType(post.getPostType().name());
-            postResponse.setVisibility(post.getVisibilityType().name());
-
-            final UserCredentialsVO createdBy = new UserCredentialsVO();
-            createdBy.setId(post.getCreatedBy().getId().toString());
-            createdBy.setName(post.getCreatedBy().getPerson().getName());
-            createdBy.setUserName(post.getCreatedBy().getUserName());
-            createdBy.setUserRole(post.getCreatedBy().getUserRole());
-            postResponse.setCreatedBy(createdBy);
-            postResponse.setCreated(DateTimeUtils.toString(post.getCreated()));
-
-            final UserCredentialsVO modifiedBy = new UserCredentialsVO();
-            modifiedBy.setId(post.getModifiedBy().getId().toString());
-            modifiedBy.setName(post.getModifiedBy().getPerson().getName());
-            modifiedBy.setUserName(post.getModifiedBy().getUserName());
-            modifiedBy.setUserRole(post.getModifiedBy().getUserRole());
-            postResponse.setModifiedBy(modifiedBy);
-            postResponse.setModified(DateTimeUtils.toString(post.getModified()));
-
-            final UserCredentials publishedBy = post.getPublishedBy();
-            if (publishedBy != null) {
-                final UserCredentialsVO publishedByVO = new UserCredentialsVO();
-                publishedByVO.setId(publishedBy.getId().toString());
-                publishedByVO.setName(publishedBy.getPerson().getName());
-                publishedByVO.setUserName(publishedBy.getUserName());
-                publishedByVO.setUserRole(publishedBy.getUserRole());
-                postResponse.setPublishedBy(publishedByVO);
-                postResponse.setPublished(DateTimeUtils.toString(post.getPublished()));
-                postResponse.setPublishedDateFormat(DateTimeUtils.toString(post.getPublished(), "dd/MMMM/yy HH:mm"));
-            }
-
-            result.add(postResponse);
+            result.add(doConvertPost(post));
         }
         return result;
+    }
+
+    private PostResponse doConvertPost(Post post) {
+        final PostResponse postResponse = new PostResponse();
+        postResponse.setId(post.getId().toString());
+        postResponse.setTitle(post.getTitle());
+        postResponse.setContent(post.getContent());
+        postResponse.setPostType(post.getPostType().name());
+        postResponse.setVisibility(post.getVisibilityType().name());
+
+        final UserCredentialsVO createdBy = new UserCredentialsVO();
+        createdBy.setId(post.getCreatedBy().getId().toString());
+        createdBy.setName(post.getCreatedBy().getPerson().getName());
+        createdBy.setUserName(post.getCreatedBy().getUserName());
+        createdBy.setUserRole(post.getCreatedBy().getUserRole());
+        postResponse.setCreatedBy(createdBy);
+        postResponse.setCreated(DateTimeUtils.toString(post.getCreated()));
+
+        final UserCredentialsVO modifiedBy = new UserCredentialsVO();
+        modifiedBy.setId(post.getModifiedBy().getId().toString());
+        modifiedBy.setName(post.getModifiedBy().getPerson().getName());
+        modifiedBy.setUserName(post.getModifiedBy().getUserName());
+        modifiedBy.setUserRole(post.getModifiedBy().getUserRole());
+        postResponse.setModifiedBy(modifiedBy);
+        postResponse.setModified(DateTimeUtils.toString(post.getModified()));
+
+        final UserCredentials publishedBy = post.getPublishedBy();
+        if (publishedBy != null) {
+            final UserCredentialsVO publishedByVO = new UserCredentialsVO();
+            publishedByVO.setId(publishedBy.getId().toString());
+            publishedByVO.setName(publishedBy.getPerson().getName());
+            publishedByVO.setUserName(publishedBy.getUserName());
+            publishedByVO.setUserRole(publishedBy.getUserRole());
+            postResponse.setPublishedBy(publishedByVO);
+            postResponse.setPublished(DateTimeUtils.toString(post.getPublished()));
+            postResponse.setPublishedDateFormat(DateTimeUtils.toString(post.getPublished(), "dd/MMMM/yy HH:mm"));
+        }
+        return postResponse;
     }
 
 }

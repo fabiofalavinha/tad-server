@@ -178,7 +178,7 @@ public class PostRepositoryImpl implements PostRepository {
         }
         jdbcTemplate.update(
             "insert into Post (id, title, content, visibility_type, post_type, created_by, created, modified_by, modified, published_by, published, [order]) " +
-            "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             post.getId().toString(), post.getTitle(), post.getContent(), post.getVisibilityType().getValue(), post.getPostType().getValue(),
             post.getCreatedBy().getId().toString(), post.getCreated().getMillis(), post.getModifiedBy().getId().toString(), post.getModified().getMillis(),
             publishedById, publishedMillis, post.getOrder()
