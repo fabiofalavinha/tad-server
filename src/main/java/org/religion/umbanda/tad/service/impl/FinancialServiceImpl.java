@@ -4,13 +4,10 @@ import org.religion.umbanda.tad.model.financial.Category;
 import org.religion.umbanda.tad.model.financial.FinancialReference;
 import org.religion.umbanda.tad.service.FinancialReferenceRepository;
 import org.religion.umbanda.tad.service.FinancialService;
+import org.religion.umbanda.tad.service.vo.FinancialEntryDTO;
 import org.religion.umbanda.tad.service.vo.FinancialReferenceVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,4 +81,11 @@ public class FinancialServiceImpl implements FinancialService {
         financialReferenceRepository.removeById(id);
     }
 
+    @RequestMapping(value = "/financial/entry", method = RequestMethod.POST)
+    @Override
+    public void saveFinancialEntry(
+            @RequestBody FinancialEntryDTO financialEntryDTO) {
+
+
+    }
 }

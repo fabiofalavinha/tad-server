@@ -3,7 +3,7 @@ create table [Person] (
 	name varchar not null,
 	gender varchar not null,
 	birth_date integer not null
-)
+);
 
 create table [Collaborator] (
 	person_id varchar not null primary key,
@@ -11,7 +11,7 @@ create table [Collaborator] (
 	release_date integer,
 	observation varchar,
 	usercredentials_id varchar not null
-)
+);
 
 create table [Telephone] (
 	id varchar not null primary key,
@@ -19,14 +19,14 @@ create table [Telephone] (
 	area_code int not null,
 	number int not null,
 	phone_type int not null
-)
+);
 
 create table [UserCredentials] (
 	id varchar not null primary key,
 	username varchar not null,
 	password varchar not null,
 	user_role varchar not null
-)
+);
 
 /* 
 
@@ -64,26 +64,26 @@ create table [Student] (
 	person_id varchar not null primary key,
 	observation varchar,
 	usercredentials_id varchar not null
-)
+);
 
 create table [Teacher] (
 	person_id varchar not null primary key,
 	usercredentials_id varchar not null
-)
+);
 
 create table [Class] (
 	id varchar not null primary key,
 	name varchar not null,
 	description varchar not null,
 	teacher_id varchar not null
-)
+);
 
 create table [ClassRun] (
 	class_id varchar not null,
 	start_date integer not null,
 	end_date integer not null,
 	class_run_type int not null -- Daily, Weekly, Monthly
-)
+);
 
 create table [Post] (
 	id varchar not null primary key,
@@ -96,7 +96,7 @@ create table [Post] (
 	published_date integer not null,
 	modified integer not null,
 	modified_by varchar not null
-)
+);
 
 create table [Event] (
 	id varchar not null primary key,
@@ -110,4 +110,28 @@ create table [Event] (
 	created integer not null,
 	modified_by varchar not null,
 	modified integer not null
-)
+);
+
+CREATE TABLE [FinancialReference] (
+  [id] varchar not null primary key,
+  [description] varchar not null,
+  [category] int not null,
+  [associated_with_collaborator] bit not null
+);
+
+create table [FinancialEntry] (
+	[id] varchar not null primary key,
+	[entry_date] datetime not null,
+	[entry_value] real not null,
+	[balance] real not null
+	[category] int not null,
+	[reference_entry] varchar not null,
+	[additional_text] varchar,
+	[target_id] varchar not null
+);
+
+create table [FinancialEntryTarget] (
+	[id] varchar not null primary key,
+	[reference_id] varchar not null,
+	[description] varchar
+);

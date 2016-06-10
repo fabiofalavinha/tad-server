@@ -1,12 +1,7 @@
 package org.religion.umbanda.tad.service.impl;
 
 import org.joda.time.DateTime;
-import org.religion.umbanda.tad.model.Archive;
-import org.religion.umbanda.tad.model.Post;
-import org.religion.umbanda.tad.model.PostType;
-import org.religion.umbanda.tad.model.UserCredentials;
-import org.religion.umbanda.tad.model.UserRole;
-import org.religion.umbanda.tad.model.VisibilityType;
+import org.religion.umbanda.tad.model.*;
 import org.religion.umbanda.tad.service.BlogService;
 import org.religion.umbanda.tad.service.PostRepository;
 import org.religion.umbanda.tad.service.UserCredentialsRepository;
@@ -16,11 +11,7 @@ import org.religion.umbanda.tad.service.vo.UserCredentialsVO;
 import org.religion.umbanda.tad.util.DateTimeUtils;
 import org.religion.umbanda.tad.util.IdUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +38,12 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public PostResponse getPostById(
         @PathVariable("postId") String postIdAsString) {
-        return doConvertPost(postRepository.findById(IdUtils.fromString(postIdAsString)));
+        try {
+            final UUID id = IdUtils.fromString(postIdAsString);
+            return doConvertPost(postRepository.findById(id));
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     @RequestMapping("/posts/{userId}")
