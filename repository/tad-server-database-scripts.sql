@@ -131,7 +131,10 @@ create table [FinancialEntry] (
 );
 
 create table [FinancialEntryTarget] (
-	[id] varchar not null primary key,
-	[reference_id] varchar not null,
-	[description] varchar
+	[id] varchar not null,
+	[name] varchar
+);
+
+create table [FinancialBalance] (
+    [balance] real not null
 );
