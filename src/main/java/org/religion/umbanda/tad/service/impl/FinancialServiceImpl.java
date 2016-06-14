@@ -1,11 +1,11 @@
 package org.religion.umbanda.tad.service.impl;
 
-import org.religion.umbanda.tad.model.financial.Category;
-import org.religion.umbanda.tad.model.financial.FinancialReference;
-import org.religion.umbanda.tad.service.FinancialReferenceRepository;
-import org.religion.umbanda.tad.service.FinancialService;
+import org.joda.time.DateTime;
+import org.religion.umbanda.tad.model.financial.*;
+import org.religion.umbanda.tad.service.*;
 import org.religion.umbanda.tad.service.vo.FinancialEntryDTO;
 import org.religion.umbanda.tad.service.vo.FinancialReferenceVO;
+import org.religion.umbanda.tad.util.DateTimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +18,15 @@ public class FinancialServiceImpl implements FinancialService {
 
     @Autowired
     private FinancialReferenceRepository financialReferenceRepository;
+
+    @Autowired
+    private FinancialTargetRepository financialTargetRepository;
+
+    @Autowired
+    private FinancialBalanceRepository financialBalanceRepository;
+
+    @Autowired
+    private FinancialEntryRepository financialEntryRepository;
 
     private FinancialReferenceVO convertFinancialReference(FinancialReference financialReference) {
         final FinancialReferenceVO vo = new FinancialReferenceVO();
@@ -41,7 +50,7 @@ public class FinancialServiceImpl implements FinancialService {
     @RequestMapping(value = "/financial/reference", method = RequestMethod.POST)
     @Override
     public void saveFinancialReference(
-        @RequestBody FinancialReferenceVO financialReferenceVO) {
+            @RequestBody FinancialReferenceVO financialReferenceVO) {
         final String id = financialReferenceVO.getId();
         final boolean created = id == null || "".equals(id.trim());
         FinancialReference financialReference;
@@ -73,19 +82,49 @@ public class FinancialServiceImpl implements FinancialService {
 
     @RequestMapping(value = "/financial/reference/{id}", method = RequestMethod.DELETE)
     @Override
-    public void removeFinancialReferenceById(
-        @PathVariable("id") String id) {
+    public void removeFinancialReferenceById(@PathVariable("id") String id) {
         if (id == null || "".equals(id.trim())) {
             throw new IllegalArgumentException("Id do tipo de lançamento é inválido");
         }
         financialReferenceRepository.removeById(id);
     }
 
+    @RequestMapping(value = "/financial/targets", method = RequestMethod.GET)
+    @Override
+    public List<FinancialTarget> getFinancialTargets() {
+        return financialTargetRepository.findAll();
+    }
+
+    @RequestMapping(value = "/financial/balance", method = RequestMethod.GET)
+    @Override
+    public Balance getCurrentBalance() {
+        return financialBalanceRepository.getBalance();
+    }
+
+    @RequestMapping(value = "/financial/entries/{from}/{to}", method = RequestMethod.GET)
+    @Override
+    public List<FinancialEntryDTO> findFinancialEntriesBy(@PathVariable("from") String fromDateString, @PathVariable("to") String toDateString) {
+        final DateTime fromDate = DateTimeUtils.fromString(fromDateString);
+        final DateTime toDate = DateTimeUtils.fromString(toDateString);
+        final List<FinancialEntry> list = financialEntryRepository.findBy(fromDate, toDate);
+        final List<FinancialEntryDTO> responseList = new ArrayList<>();
+        for (FinancialEntry financialEntry : list) {
+            final FinancialEntryDTO dto = new FinancialEntryDTO();
+            dto.setId(financialEntry.getId());
+            dto.setAdditionalText(financialEntry.getAdditionalText());
+            dto.setBalance(financialEntry.getBalance());
+            dto.setDate(DateTimeUtils.toString(financialEntry.getEntryDate()));
+            dto.setPreviewBalance(financialEntry.getPreviewBalance());
+            dto.setValue(financialEntry.getValue());
+            dto.setTarget(financialEntry.getTarget());
+            dto.setType(convertFinancialReference(financialEntry.getType()));
+            responseList.add(dto);
+        }
+        return responseList;
+    }
+
     @RequestMapping(value = "/financial/entry", method = RequestMethod.POST)
     @Override
-    public void saveFinancialEntry(
-            @RequestBody FinancialEntryDTO financialEntryDTO) {
-
-
+    public void saveFinancialEntry(@RequestBody FinancialEntryDTO financialEntryDTO) {
     }
 }

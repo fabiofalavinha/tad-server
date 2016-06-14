@@ -121,10 +121,9 @@ CREATE TABLE [FinancialReference] (
 
 create table [FinancialEntry] (
 	[id] varchar not null primary key,
-	[entry_date] datetime not null,
+	[entry_date] integer not null,
 	[entry_value] real not null,
-	[balance] real not null
-	[category] int not null,
+	[balance] real not null,
 	[reference_entry] varchar not null,
 	[additional_text] varchar,
 	[target_id] varchar not null
@@ -132,7 +131,8 @@ create table [FinancialEntry] (
 
 create table [FinancialEntryTarget] (
 	[id] varchar not null,
-	[name] varchar
+	[name] varchar,
+	[type] int not null
 );
 
 create table [FinancialBalance] (

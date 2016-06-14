@@ -1,15 +1,36 @@
 package org.religion.umbanda.tad.service.vo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.religion.umbanda.tad.model.financial.Balance;
+import org.religion.umbanda.tad.model.financial.FinancialTarget;
+
 import java.math.BigDecimal;
 
 public class FinancialEntryDTO {
 
+    @JsonProperty
     private String id;
-    private int category;
-    private String entryDate;
-    private BigDecimal value;
-    private String referenceEntry;
+
+    @JsonProperty
+    private String date;
+
+    @JsonProperty
+    private FinancialTarget target;
+
+    @JsonProperty
+    private FinancialReferenceVO type;
+
+    @JsonProperty
     private String additionalText;
+
+    @JsonProperty
+    private BigDecimal value;
+
+    @JsonProperty
+    private Balance balance;
+
+    @JsonProperty
+    private Balance previewBalance;
 
     public String getId() {
         return id;
@@ -19,12 +40,36 @@ public class FinancialEntryDTO {
         this.id = id;
     }
 
-    public String getEntryDate() {
-        return entryDate;
+    public String getDate() {
+        return date;
     }
 
-    public void setEntryDate(String entryDate) {
-        this.entryDate = entryDate;
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public FinancialTarget getTarget() {
+        return target;
+    }
+
+    public void setTarget(FinancialTarget target) {
+        this.target = target;
+    }
+
+    public FinancialReferenceVO getType() {
+        return type;
+    }
+
+    public void setType(FinancialReferenceVO type) {
+        this.type = type;
+    }
+
+    public String getAdditionalText() {
+        return additionalText;
+    }
+
+    public void setAdditionalText(String additionalText) {
+        this.additionalText = additionalText;
     }
 
     public BigDecimal getValue() {
@@ -35,27 +80,19 @@ public class FinancialEntryDTO {
         this.value = value;
     }
 
-    public int getCategory() {
-        return category;
+    public Balance getBalance() {
+        return balance;
     }
 
-    public void setCategory(int category) {
-        this.category = category;
+    public void setBalance(Balance balance) {
+        this.balance = balance;
     }
 
-    public String getReferenceEntry() {
-        return referenceEntry;
+    public Balance getPreviewBalance() {
+        return previewBalance;
     }
 
-    public void setReferenceEntry(String referenceEntry) {
-        this.referenceEntry = referenceEntry;
-    }
-
-    public String getAdditionalText() {
-        return additionalText;
-    }
-
-    public void setAdditionalText(String additionalText) {
-        this.additionalText = additionalText;
+    public void setPreviewBalance(Balance previewBalance) {
+        this.previewBalance = previewBalance;
     }
 }

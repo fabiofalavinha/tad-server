@@ -1,9 +1,17 @@
 package org.religion.umbanda.tad.model.financial;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class FinancialTarget {
 
+    @JsonProperty
     private String id;
+
+    @JsonProperty
     private String name;
+
+    @JsonProperty
+    private FinancialTargetType type;
 
     public String getId() {
         return id;
@@ -19,5 +27,13 @@ public class FinancialTarget {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public FinancialTargetType getType() {
+        return type;
+    }
+
+    public void setType(FinancialTargetType type) {
+        this.type = type;
     }
 }

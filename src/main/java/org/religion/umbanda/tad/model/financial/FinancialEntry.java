@@ -1,22 +1,19 @@
 package org.religion.umbanda.tad.model.financial;
 
+import org.joda.time.DateTime;
+
 import java.math.BigDecimal;
-import java.util.Date;
 
 public class FinancialEntry {
 
     private String id;
-    private Date entryDate;
+    private DateTime entryDate;
     private String additionalText;
     private BigDecimal value;
-    private BigDecimal balance;
-    private BigDecimal previewBalance;
+    private Balance balance;
+    private Balance previewBalance;
     private FinancialReference type;
     private FinancialTarget target;
-    private Date created;
-    private String createdBy;
-    private Date modified;
-    private String modifiedBy;
 
     public String getId() {
         return id;
@@ -26,11 +23,11 @@ public class FinancialEntry {
         this.id = id;
     }
 
-    public Date getEntryDate() {
+    public DateTime getEntryDate() {
         return entryDate;
     }
 
-    public void setEntryDate(Date entryDate) {
+    public void setEntryDate(DateTime entryDate) {
         this.entryDate = entryDate;
     }
 
@@ -50,52 +47,20 @@ public class FinancialEntry {
         this.value = value;
     }
 
-    public BigDecimal getBalance() {
+    public Balance getBalance() {
         return balance;
     }
 
-    public void setBalance(BigDecimal balance) {
+    public void setBalance(Balance balance) {
         this.balance = balance;
     }
 
-    public BigDecimal getPreviewBalance() {
+    public Balance getPreviewBalance() {
         return previewBalance;
     }
 
-    public void setPreviewBalance(BigDecimal previewBalance) {
+    public void setPreviewBalance(Balance previewBalance) {
         this.previewBalance = previewBalance;
-    }
-
-    public Date getCreated() {
-        return created;
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public Date getModified() {
-        return modified;
-    }
-
-    public void setModified(Date modified) {
-        this.modified = modified;
-    }
-
-    public String getModifiedBy() {
-        return modifiedBy;
-    }
-
-    public void setModifiedBy(String modifiedBy) {
-        this.modifiedBy = modifiedBy;
     }
 
     public FinancialTarget getTarget() {
