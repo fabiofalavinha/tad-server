@@ -20,6 +20,10 @@ public final class DateTimeUtils {
         return DateTime.parse(dateString, SIMPLE_DATE_FORMATTER);
     }
 
+    public static DateTime fromString(String dateString, String formatter) {
+        return DateTime.parse(dateString, DateTimeFormat.forPattern(formatter));
+    }
+
     public static String toString(DateTime dateTime, String format) {
         return dateTime.toString(format);
     }

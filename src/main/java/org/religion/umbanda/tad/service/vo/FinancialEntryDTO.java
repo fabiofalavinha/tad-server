@@ -2,7 +2,6 @@ package org.religion.umbanda.tad.service.vo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.religion.umbanda.tad.model.financial.Balance;
-import org.religion.umbanda.tad.model.financial.FinancialTarget;
 
 import java.math.BigDecimal;
 
@@ -15,7 +14,7 @@ public class FinancialEntryDTO {
     private String date;
 
     @JsonProperty
-    private FinancialTarget target;
+    private FinancialTargetVO target;
 
     @JsonProperty
     private FinancialReferenceVO type;
@@ -46,14 +45,6 @@ public class FinancialEntryDTO {
 
     public void setDate(String date) {
         this.date = date;
-    }
-
-    public FinancialTarget getTarget() {
-        return target;
-    }
-
-    public void setTarget(FinancialTarget target) {
-        this.target = target;
     }
 
     public FinancialReferenceVO getType() {
@@ -94,5 +85,13 @@ public class FinancialEntryDTO {
 
     public void setPreviewBalance(Balance previewBalance) {
         this.previewBalance = previewBalance;
+    }
+
+    public FinancialTargetVO getTarget() {
+        return target;
+    }
+
+    public void setTarget(FinancialTargetVO target) {
+        this.target = target;
     }
 }

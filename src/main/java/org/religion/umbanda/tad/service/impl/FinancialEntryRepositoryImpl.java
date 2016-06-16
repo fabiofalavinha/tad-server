@@ -3,6 +3,7 @@ package org.religion.umbanda.tad.service.impl;
 import org.joda.time.DateTime;
 import org.religion.umbanda.tad.model.financial.*;
 import org.religion.umbanda.tad.service.FinancialEntryRepository;
+import org.religion.umbanda.tad.util.DateTimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -44,20 +45,20 @@ public class FinancialEntryRepositoryImpl implements FinancialEntryRepository {
                         "from " +
                         "   FinancialEntry e " +
                         "   inner join FinancialReference r on r.id = e.reference_entry " +
-                        "   left join FinancialTarget t on t.id = e.target_id  " +
+                        "   inner join FinancialEntryTarget t on t.id = e.target_id  " +
                         "where " +
-                        "   e.entry_date >= ? and e.entry_date <= ? " +
+                        "   strftime('%s', e.entry_date) between strftime('%s', '" + DateTimeUtils.toString(from, "yyyy-MM-dd") + "') and strftime('%s', '" + DateTimeUtils.toString(to, "yyyy-MM-dd") + "') " +
                         "order by " +
                         "   e.entry_date asc";
-        return jdbcTemplate.query(sql, new Object[]{from.toDate(), to.toDate()}, new RowMapper<FinancialEntry>() {
+        return jdbcTemplate.query(sql, new RowMapper<FinancialEntry>() {
             @Override
             public FinancialEntry mapRow(ResultSet resultSet, int i) throws SQLException {
                 final FinancialEntry financialEntry = new FinancialEntry();
                 financialEntry.setId(resultSet.getString("id"));
-                financialEntry.setEntryDate(new DateTime(resultSet.getLong("entry_date")));
+                financialEntry.setEntryDate(new DateTime(resultSet.getDate("entry_date")));
                 financialEntry.setValue(BigDecimal.valueOf(resultSet.getDouble("entry_value")));
                 financialEntry.setBalance(new Balance(resultSet.getDouble("balance")));
-                financialEntry.setAdditionalText(resultSet.getString("additionalText"));
+                financialEntry.setAdditionalText(resultSet.getString("additional_text"));
                 final FinancialReference financialReference = new FinancialReference();
                 financialReference.setId(resultSet.getString("typeId"));
                 financialReference.setDescription(resultSet.getString("typeDescription"));

@@ -5,6 +5,7 @@ import org.religion.umbanda.tad.model.financial.*;
 import org.religion.umbanda.tad.service.*;
 import org.religion.umbanda.tad.service.vo.FinancialEntryDTO;
 import org.religion.umbanda.tad.service.vo.FinancialReferenceVO;
+import org.religion.umbanda.tad.service.vo.FinancialTargetVO;
 import org.religion.umbanda.tad.util.DateTimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -104,8 +105,14 @@ public class FinancialServiceImpl implements FinancialService {
     @RequestMapping(value = "/financial/entries/{from}/{to}", method = RequestMethod.GET)
     @Override
     public List<FinancialEntryDTO> findFinancialEntriesBy(@PathVariable("from") String fromDateString, @PathVariable("to") String toDateString) {
-        final DateTime fromDate = DateTimeUtils.fromString(fromDateString);
-        final DateTime toDate = DateTimeUtils.fromString(toDateString);
+        DateTime fromDate;
+        DateTime toDate;
+        try {
+            fromDate = DateTimeUtils.fromString(fromDateString, "yyyy-MM-dd");
+            toDate = DateTimeUtils.fromString(toDateString, "yyyy-MM-dd");
+        } catch (Exception ex) {
+            throw new IllegalStateException("Datas para consulta de lançamentos financeiros tem o formato inválido. Formato esperado: yyyy-MM-dd", ex);
+        }
         final List<FinancialEntry> list = financialEntryRepository.findBy(fromDate, toDate);
         final List<FinancialEntryDTO> responseList = new ArrayList<>();
         for (FinancialEntry financialEntry : list) {
@@ -116,7 +123,11 @@ public class FinancialServiceImpl implements FinancialService {
             dto.setDate(DateTimeUtils.toString(financialEntry.getEntryDate()));
             dto.setPreviewBalance(financialEntry.getPreviewBalance());
             dto.setValue(financialEntry.getValue());
-            dto.setTarget(financialEntry.getTarget());
+            final FinancialTargetVO targetVO = new FinancialTargetVO();
+            targetVO.setId(financialEntry.getTarget().getId());
+            targetVO.setName(financialEntry.getTarget().getName());
+            targetVO.setType(financialEntry.getTarget().getType().value());
+            dto.setTarget(targetVO);
             dto.setType(convertFinancialReference(financialEntry.getType()));
             responseList.add(dto);
         }

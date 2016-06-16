@@ -119,6 +119,7 @@ CREATE TABLE [FinancialReference] (
   [associated_with_collaborator] bit not null
 );
 
+drop table [FinancialEntry];
 create table [FinancialEntry] (
 	[id] varchar not null primary key,
 	[entry_date] integer not null,
@@ -129,12 +130,14 @@ create table [FinancialEntry] (
 	[target_id] varchar not null
 );
 
+drop table [FinancialEntryTarget];
 create table [FinancialEntryTarget] (
 	[id] varchar not null,
 	[name] varchar,
 	[type] int not null
 );
 
+drop table [FinancialReference];
 create table [FinancialBalance] (
     [balance] real not null
 );
