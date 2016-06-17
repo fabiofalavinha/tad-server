@@ -10,6 +10,7 @@ import org.religion.umbanda.tad.util.DateTimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -147,11 +148,15 @@ public class FinancialServiceImpl implements FinancialService {
     @Override
     public void saveFinancialEntry(@RequestBody FinancialEntryDTO financialEntryDTO) {
         boolean newEntry = false;
+        BigDecimal oldEntryValue = null;
+
         FinancialEntry entry = financialEntryRepository.findById(financialEntryDTO.getId());
         if (entry == null) {
             newEntry = true;
             entry = new FinancialEntry();
             entry.setId(financialEntryDTO.getId());
+        } else {
+            oldEntryValue = entry.getValue();
         }
 
         entry.setEntryDate(DateTimeUtils.fromString(financialEntryDTO.getDate(), "yyyy-MM-dd"));
@@ -172,14 +177,23 @@ public class FinancialServiceImpl implements FinancialService {
 
         entry.setType(financialReferenceRepository.findById(financialEntryDTO.getType().getId()));
 
+        boolean updateBalance = true;
         if (newEntry) {
             financialEntryRepository.create(entry);
         } else {
+            if (oldEntryValue.equals(entry.getValue())) {
+                updateBalance = false;
+            }
             financialEntryRepository.update(entry);
+
+            // TODO
+            // - if old entry value was changed, update every entry from this date
         }
 
-        final Balance currentBalance = financialBalanceRepository.getBalance();
-        final Balance newBalance = currentBalance.calculate(entry.getValue(), entry.getType().getCategory());
-        financialBalanceRepository.update(newBalance);
+        if (updateBalance) {
+            final Balance currentBalance = financialBalanceRepository.getBalance();
+            final Balance newBalance = currentBalance.calculate(entry.getValue(), entry.getType().getCategory());
+            financialBalanceRepository.update(newBalance);
+        }
     }
 }
