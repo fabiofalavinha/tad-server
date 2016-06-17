@@ -92,8 +92,17 @@ public class FinancialServiceImpl implements FinancialService {
 
     @RequestMapping(value = "/financial/targets", method = RequestMethod.GET)
     @Override
-    public List<FinancialTarget> getFinancialTargets() {
-        return financialTargetRepository.findAll();
+    public List<FinancialTargetVO> getFinancialTargets() {
+        final List<FinancialTarget> targets = financialTargetRepository.findAll();
+        final List<FinancialTargetVO> list = new ArrayList<>();
+        for (FinancialTarget target : targets) {
+            final FinancialTargetVO vo = new FinancialTargetVO();
+            vo.setId(target.getId());
+            vo.setName(target.getName());
+            vo.setType(target.getType().value());
+            list.add(vo);
+        }
+        return list;
     }
 
     @RequestMapping(value = "/financial/balance", method = RequestMethod.GET)
@@ -120,7 +129,7 @@ public class FinancialServiceImpl implements FinancialService {
             dto.setId(financialEntry.getId());
             dto.setAdditionalText(financialEntry.getAdditionalText());
             dto.setBalance(financialEntry.getBalance());
-            dto.setDate(DateTimeUtils.toString(financialEntry.getEntryDate()));
+            dto.setDate(DateTimeUtils.toString(financialEntry.getEntryDate(), "yyyy-MM-dd"));
             dto.setPreviewBalance(financialEntry.getPreviewBalance());
             dto.setValue(financialEntry.getValue());
             final FinancialTargetVO targetVO = new FinancialTargetVO();
@@ -137,5 +146,40 @@ public class FinancialServiceImpl implements FinancialService {
     @RequestMapping(value = "/financial/entry", method = RequestMethod.POST)
     @Override
     public void saveFinancialEntry(@RequestBody FinancialEntryDTO financialEntryDTO) {
+        boolean newEntry = false;
+        FinancialEntry entry = financialEntryRepository.findById(financialEntryDTO.getId());
+        if (entry == null) {
+            newEntry = true;
+            entry = new FinancialEntry();
+            entry.setId(financialEntryDTO.getId());
+        }
+
+        entry.setEntryDate(DateTimeUtils.fromString(financialEntryDTO.getDate(), "yyyy-MM-dd"));
+        entry.setAdditionalText(financialEntryDTO.getAdditionalText());
+        entry.setValue(financialEntryDTO.getValue());
+        entry.setBalance(financialEntryDTO.getBalance());
+
+        final FinancialTargetVO targetVO = financialEntryDTO.getTarget();
+        FinancialTarget target = financialTargetRepository.findById(targetVO.getId());
+        if (target == null) {
+            target = new FinancialTarget();
+            target.setId(targetVO.getId());
+            target.setName(targetVO.getName());
+            target.setType(FinancialTargetType.fromValue(targetVO.getType()));
+            financialTargetRepository.create(target);
+        }
+        entry.setTarget(target);
+
+        entry.setType(financialReferenceRepository.findById(financialEntryDTO.getType().getId()));
+
+        if (newEntry) {
+            financialEntryRepository.create(entry);
+        } else {
+            financialEntryRepository.update(entry);
+        }
+
+        final Balance currentBalance = financialBalanceRepository.getBalance();
+        final Balance newBalance = currentBalance.calculate(entry.getValue(), entry.getType().getCategory());
+        financialBalanceRepository.update(newBalance);
     }
 }

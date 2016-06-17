@@ -6,4 +6,6 @@ public interface FinancialBalanceRepository {
 
     Balance getBalance();
 
+    void update(Balance newBalance);
+
 }

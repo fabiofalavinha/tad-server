@@ -36,4 +36,10 @@ public class FinancialBalanceRepositoryImpl implements FinancialBalanceRepositor
             return new Balance();
         }
     }
+
+    @Transactional
+    @Override
+    public void update(Balance newBalance) {
+        jdbcTemplate.update("update FinancialBalance set balance = ?", newBalance.getValue().doubleValue());
+    }
 }

@@ -8,4 +8,8 @@ public interface FinancialTargetRepository {
 
     List<FinancialTarget> findAll();
 
+    FinancialTarget findById(String id);
+
+    void create(FinancialTarget target);
+
 }

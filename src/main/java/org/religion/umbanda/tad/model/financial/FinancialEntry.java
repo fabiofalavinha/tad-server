@@ -11,7 +11,6 @@ public class FinancialEntry {
     private String additionalText;
     private BigDecimal value;
     private Balance balance;
-    private Balance previewBalance;
     private FinancialReference type;
     private FinancialTarget target;
 
@@ -56,11 +55,7 @@ public class FinancialEntry {
     }
 
     public Balance getPreviewBalance() {
-        return previewBalance;
-    }
-
-    public void setPreviewBalance(Balance previewBalance) {
-        this.previewBalance = previewBalance;
+        return getBalance().calculate(getValue(), type.getCategory());
     }
 
     public FinancialTarget getTarget() {
