@@ -10,7 +10,6 @@ import org.religion.umbanda.tad.util.DateTimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -147,18 +146,13 @@ public class FinancialServiceImpl implements FinancialService {
     @RequestMapping(value = "/financial/entry", method = RequestMethod.POST)
     @Override
     public void saveFinancialEntry(@RequestBody FinancialEntryDTO financialEntryDTO) {
-        boolean newEntry = false;
-        BigDecimal oldEntryValue = null;
-
         FinancialEntry entry = financialEntryRepository.findById(financialEntryDTO.getId());
-        if (entry == null) {
-            newEntry = true;
-            entry = new FinancialEntry();
-            entry.setId(financialEntryDTO.getId());
-        } else {
-            oldEntryValue = entry.getValue();
+        if (entry != null) {
+            throw new IllegalStateException("Não é possível alterar um lançamento");
         }
 
+        entry = new FinancialEntry();
+        entry.setId(financialEntryDTO.getId());
         entry.setEntryDate(DateTimeUtils.fromString(financialEntryDTO.getDate(), "yyyy-MM-dd"));
         entry.setAdditionalText(financialEntryDTO.getAdditionalText());
         entry.setValue(financialEntryDTO.getValue());
@@ -177,23 +171,27 @@ public class FinancialServiceImpl implements FinancialService {
 
         entry.setType(financialReferenceRepository.findById(financialEntryDTO.getType().getId()));
 
-        boolean updateBalance = true;
-        if (newEntry) {
-            financialEntryRepository.create(entry);
-        } else {
-            if (oldEntryValue.equals(entry.getValue())) {
-                updateBalance = false;
+        financialEntryRepository.create(entry);
+        final Balance currentBalance = financialBalanceRepository.getBalance();
+        final Balance newBalance = currentBalance.calculate(entry.getValue(), entry.getType().getCategory());
+        financialBalanceRepository.update(newBalance);
+    }
+
+    @RequestMapping(value = "/financial/entry", method = RequestMethod.DELETE)
+    @Override
+    public void removeFinancialEntry(@PathVariable("id") String id) {
+        final FinancialEntry entry = financialEntryRepository.findById(id);
+        if (entry != null) {
+            financialEntryRepository.remove(entry.getId());
+            final Balance entryBalance = entry.getBalance();
+            Balance newInTimeBalance = entryBalance.rollback(entry.getValue(), entry.getType().getCategory());
+            final List<FinancialEntry> entries = financialEntryRepository.findBy(entry.getEntryDate(), DateTime.now());
+            for (FinancialEntry oldEntry : entries) {
+                newInTimeBalance = newInTimeBalance.calculate(oldEntry.getValue(), oldEntry.getType().getCategory());
+                oldEntry.setBalance(newInTimeBalance);
+                financialEntryRepository.update(oldEntry);
             }
-            financialEntryRepository.update(entry);
-
-            // TODO
-            // - if old entry value was changed, update every entry from this date
-        }
-
-        if (updateBalance) {
-            final Balance currentBalance = financialBalanceRepository.getBalance();
-            final Balance newBalance = currentBalance.calculate(entry.getValue(), entry.getType().getCategory());
-            financialBalanceRepository.update(newBalance);
+            financialBalanceRepository.update(newInTimeBalance);
         }
     }
 }

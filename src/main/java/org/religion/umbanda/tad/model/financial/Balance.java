@@ -38,4 +38,10 @@ public class Balance {
         final BalanceCalculatorStrategy balanceCalculatorStrategy = balanceCalculatorStrategyFactory.getBalanceCalculatorStrategy(category);
         return balanceCalculatorStrategy.calculate(this, value);
     }
+
+    public Balance rollback(BigDecimal value, Category category) {
+        final BalanceCalculatorStrategyFactory balanceCalculatorStrategyFactory = new BalanceCalculatorStrategyFactory();
+        final BalanceCalculatorStrategy balanceCalculatorStrategy = balanceCalculatorStrategyFactory.getBalanceCalculatorStrategy(category);
+        return balanceCalculatorStrategy.rollback(this, value);
+    }
 }

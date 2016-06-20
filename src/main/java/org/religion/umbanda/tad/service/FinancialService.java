@@ -10,12 +10,12 @@ import java.util.List;
 public interface FinancialService {
 
     List<FinancialReferenceVO> getFinancialReferences();
-
     List<FinancialTargetVO> getFinancialTargets();
     List<FinancialEntryDTO> findFinancialEntriesBy(String fromDateString, String toDateString);
     Balance getCurrentBalance();
     void saveFinancialReference(FinancialReferenceVO financialReferenceVO);
     void removeFinancialReferenceById(String id);
     void saveFinancialEntry(FinancialEntryDTO financialEntryDTO);
+    void removeFinancialEntry(String id);
 
 }

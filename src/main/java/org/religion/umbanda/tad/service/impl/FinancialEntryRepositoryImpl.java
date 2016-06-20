@@ -125,4 +125,10 @@ public class FinancialEntryRepositoryImpl implements FinancialEntryRepository {
                 DateTimeUtils.toString(entry.getEntryDate(), "yyyy-MM-dd"), entry.getValue().doubleValue(), entry.getBalance().getValue().doubleValue(), entry.getType().getId(),
                 entry.getAdditionalText(), entry.getTarget().getId(), entry.getId());
     }
+
+    @Transactional
+    @Override
+    public void remove(String id) {
+        jdbcTemplate.update("delete from FinancialEntry where id = ?", id);
+    }
 }
