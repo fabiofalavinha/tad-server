@@ -4,7 +4,8 @@ public enum UserRole {
 
     ADMINISTRATOR(0),
     FINANCIAL(1),
-    COLLABORATOR(2);
+    COLLABORATOR(2),
+    NONCOLLABORATOR(3);
 
     private final int value;
 
