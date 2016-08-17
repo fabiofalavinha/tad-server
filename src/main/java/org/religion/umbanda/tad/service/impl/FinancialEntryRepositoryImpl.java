@@ -72,7 +72,7 @@ public class FinancialEntryRepositoryImpl implements FinancialEntryRepository {
                         "   inner join FinancialReference r on r.id = e.reference_entry " +
                         "   inner join FinancialEntryTarget t on t.id = e.target_id  " +
                         "where " +
-                        "   strftime('%s', e.entry_date) between strftime('%s', '" + DateTimeUtils.toString(from, "yyyy-MM-dd") + "') and strftime('%s', '" + DateTimeUtils.toString(to, "yyyy-MM-dd") + "') " +
+                        "   e.entry_date >= datetime('" + DateTimeUtils.toString(from, "yyyy-MM-dd") + "') and e.entry_date <= datetime('" + DateTimeUtils.toString(to, "yyyy-MM-dd") + "') " +
                         "order by " +
                         "   e.entry_date asc";
         return jdbcTemplate.query(sql, financialEntryRowMapper);
