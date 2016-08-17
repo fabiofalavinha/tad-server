@@ -225,3 +225,4 @@ release.properties
 
 .idea/
 .out
+sqlite3.exe
