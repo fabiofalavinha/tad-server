@@ -54,7 +54,7 @@ public class Event {
         this.visibility = visibility;
     }
 
-    public  int getYear() {
+    public int getYear() {
         return date == null ? 0 : date.getYear();
     }
 

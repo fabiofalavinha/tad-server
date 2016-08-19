@@ -35,7 +35,7 @@ public class FinancialReferenceRepositoryImpl implements FinancialReferenceRepos
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Transactional(readOnly =  true)
+    @Transactional(readOnly = true)
     @Override
     public List<FinancialReference> findAll() {
         return jdbcTemplate.query("select * from FinancialReference", financialReferenceRowMapper);
@@ -55,20 +55,20 @@ public class FinancialReferenceRepositoryImpl implements FinancialReferenceRepos
     @Override
     public void create(FinancialReference financialReference) {
         jdbcTemplate.update("insert into FinancialReference (id, description, category, associated_with_collaborator) values (?, ?, ?, ?)",
-            financialReference.getId(),
-            financialReference.getDescription(),
-            financialReference.getCategory().getValue(),
-            financialReference.isAssociatedWithCollaborator());
+                financialReference.getId(),
+                financialReference.getDescription(),
+                financialReference.getCategory().getValue(),
+                financialReference.isAssociatedWithCollaborator());
     }
 
     @Transactional
     @Override
     public void update(FinancialReference financialReference) {
         jdbcTemplate.update("update FinancialReference set description=?, category=?, associated_with_collaborator=? where id=?",
-            financialReference.getDescription(),
-            financialReference.getCategory().getValue(),
-            financialReference.isAssociatedWithCollaborator(),
-            financialReference.getId());
+                financialReference.getDescription(),
+                financialReference.getCategory().getValue(),
+                financialReference.isAssociatedWithCollaborator(),
+                financialReference.getId());
     }
 
     @Transactional

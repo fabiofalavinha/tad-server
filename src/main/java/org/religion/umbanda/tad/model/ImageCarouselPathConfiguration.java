@@ -17,7 +17,7 @@ public class ImageCarouselPathConfiguration {
     public Path getLocalPath() {
         if (localPath == null || "".equals(localPath.trim())) {
             throw new IllegalArgumentException(
-                "Image carousel local path was not configured. Please, check 'application.properties' and set property 'blog.home.carousel.imagePath'");
+                    "Image carousel local path was not configured. Please, check 'application.properties' and set property 'blog.home.carousel.imagePath'");
         }
         return new File(localPath).getAbsoluteFile().toPath();
     }

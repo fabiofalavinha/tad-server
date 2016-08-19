@@ -8,8 +8,11 @@ import java.util.List;
 public interface EventService {
 
     List<EventResponse> findEventsByYear(int year);
+
     List<EventResponse> findEventsByYear(int year, String visibility);
+
     EventResponse saveEvent(EventRequest request);
+
     void removeEvent(String id);
 
 }

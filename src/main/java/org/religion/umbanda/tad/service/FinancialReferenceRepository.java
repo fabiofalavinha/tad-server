@@ -7,9 +7,13 @@ import java.util.List;
 public interface FinancialReferenceRepository {
 
     List<FinancialReference> findAll();
+
     FinancialReference findById(String id);
+
     void create(FinancialReference financialReference);
+
     void update(FinancialReference financialReference);
+
     void removeById(String id);
 
 }

@@ -72,7 +72,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
 
     @RequestMapping(value = "/collaborator", method = RequestMethod.POST)
     public void saveCollaborator(
-        @RequestBody CollaboratorVO collaboratorVO) {
+            @RequestBody CollaboratorVO collaboratorVO) {
         UUID id;
         final String collaboratorId = collaboratorVO.getId();
         if (collaboratorId != null && !"".equals(collaboratorId)) {

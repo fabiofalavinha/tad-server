@@ -14,7 +14,7 @@ public class FinancialEntry {
     private FinancialReference type;
     private FinancialTarget target;
     private FinancialEntryStatus status;
-    private CloseableFinancialEntry closeableStatus;
+    private CloseableFinancialEntry closeableFinancialEntry;
 
     public String getId() {
         return id;
@@ -76,12 +76,12 @@ public class FinancialEntry {
         this.type = type;
     }
 
-    public CloseableFinancialEntry getCloseableStatus() {
-        return closeableStatus;
+    public CloseableFinancialEntry getCloseableFinancialEntry() {
+        return closeableFinancialEntry;
     }
 
-    public void setCloseableStatus(CloseableFinancialEntry closeableStatus) {
-        this.closeableStatus = closeableStatus;
+    public void setCloseableFinancialEntry(CloseableFinancialEntry closeableFinancialEntry) {
+        this.closeableFinancialEntry = closeableFinancialEntry;
     }
 
     public FinancialEntryStatus getStatus() {

@@ -1,12 +1,15 @@
 package org.religion.umbanda.tad.model.financial;
 
-import org.apache.catalina.User;
 import org.joda.time.DateTime;
+import org.religion.umbanda.tad.model.UserCredentials;
+
+import java.util.UUID;
 
 public class CloseableBalanceFinancialEntry {
 
+    private UUID id;
     private DateTime closedDate;
-    private User closedBy;
+    private UserCredentials closedBy;
     private Balance balance;
 
     public DateTime getClosedDate() {
@@ -17,11 +20,11 @@ public class CloseableBalanceFinancialEntry {
         this.closedDate = closedDate;
     }
 
-    public User getClosedBy() {
+    public UserCredentials getClosedBy() {
         return closedBy;
     }
 
-    public void setClosedBy(User closedBy) {
+    public void setClosedBy(UserCredentials closedBy) {
         this.closedBy = closedBy;
     }
 
@@ -33,4 +36,11 @@ public class CloseableBalanceFinancialEntry {
         this.balance = balance;
     }
 
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
 }

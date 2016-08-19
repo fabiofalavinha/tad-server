@@ -4,25 +4,13 @@ import org.religion.umbanda.tad.model.ImageCarouselPathConfiguration;
 import org.religion.umbanda.tad.service.ImageCarouselService;
 import org.religion.umbanda.tad.service.vo.CarouselImage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 public class ImageCarouselServiceImpl implements ImageCarouselService {
@@ -30,10 +18,10 @@ public class ImageCarouselServiceImpl implements ImageCarouselService {
     @Autowired
     private ImageCarouselPathConfiguration imageCarouselPathConfiguration;
 
-    @RequestMapping(value="/upload", method= RequestMethod.POST)
+    @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @Override
     public void uploadImage(
-        @RequestParam("file") MultipartFile file) {
+            @RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("Não foi possivel realizar o upload da imagem: arquivo inválido (vazio)");
         }
@@ -80,7 +68,7 @@ public class ImageCarouselServiceImpl implements ImageCarouselService {
     @RequestMapping(value = "/carousel/{name}", method = RequestMethod.DELETE)
     @Override
     public void removeImage(
-        @PathVariable("name") final String imageName) {
+            @PathVariable("name") final String imageName) {
         final Path imageCarouselLocalPath = imageCarouselPathConfiguration.getLocalPath();
         final File[] selectedFiles = imageCarouselLocalPath.toFile().listFiles(new FilenameFilter() {
             @Override

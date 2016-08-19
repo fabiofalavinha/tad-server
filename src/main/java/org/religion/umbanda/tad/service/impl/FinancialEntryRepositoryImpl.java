@@ -106,6 +106,118 @@ public class FinancialEntryRepositoryImpl implements FinancialEntryRepository {
     public FinancialEntry findById(String id) {
         try {
             final String sql =
+                    "select " +
+                            "   e.id as id," +
+                            "   e.entry_date," +
+                            "   e.entry_value," +
+                            "   e.balance," +
+                            "   e.additional_text," +
+                            "   e.closed, " +
+                            "   e.status, " +
+                            "   u.id as closedByUserId, " +
+                            "   u.username as closedByUserName, " +
+                            "   u.password as closedByUserPassword, " +
+                            "   u.user_role as closedByUserRole, " +
+                            "   r.id as typeId," +
+                            "   r.description as typeDescription," +
+                            "   r.category," +
+                            "   r.associated_with_collaborator," +
+                            "   t.id as targetId," +
+                            "   t.name as targetName," +
+                            "   t.type as targetType " +
+                            "from " +
+                            "   FinancialEntry e " +
+                            "   inner join FinancialReference r on r.id = e.reference_entry " +
+                            "   inner join FinancialEntryTarget t on t.id = e.target_id " +
+                            "   left join UserCredentials u on u.id = e.closed_by " +
+                            "where " +
+                            "   e.id = ?";
+            return jdbcTemplate.queryForObject(sql, new Object[]{id}, financialEntryRowMapper);
+        } catch (EmptyResultDataAccessException ex) {
+            return null;
+        }
+    }
+
+    @Transactional
+    @Override
+    public void create(FinancialEntry entry) {
+        Long closed = null;
+        String closedBy = null;
+        final CloseableFinancialEntry closeableFinancialEntry = entry.getCloseableFinancialEntry();
+        if (closeableFinancialEntry != null) {
+            closed = closeableFinancialEntry.getClosedDate().getMillis();
+            closedBy = closeableFinancialEntry.getClosedBy().getId().toString();
+        }
+        jdbcTemplate.update(
+                "insert into FinancialEntry (id, entry_date, entry_value, balance, reference_entry, additional_text, target_id, closed, closed_by, status) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                entry.getId(), DateTimeUtils.toString(entry.getEntryDate(), "yyyy-MM-dd"),
+                entry.getValue().doubleValue(), entry.getBalance().getValue().doubleValue(), entry.getType().getId(),
+                entry.getAdditionalText(), entry.getTarget().getId(), closed, closedBy, entry.getStatus().getValue());
+    }
+
+    @Transactional
+    @Override
+    public void update(FinancialEntry entry) {
+        Long closed = null;
+        String closedBy = null;
+        final CloseableFinancialEntry closeableFinancialEntry = entry.getCloseableFinancialEntry();
+        if (closeableFinancialEntry != null) {
+            closed = closeableFinancialEntry.getClosedDate().getMillis();
+            closedBy = closeableFinancialEntry.getClosedBy().getId().toString();
+        }
+        jdbcTemplate.update(
+                "update FinancialEntry set entry_date=?, entry_value=?, balance=?, reference_entry=?, additional_text=?, target_id=?, closed=?, closed_by=?, status=? where id=?",
+                DateTimeUtils.toString(entry.getEntryDate(), "yyyy-MM-dd"), entry.getValue().doubleValue(), entry.getBalance().getValue().doubleValue(), entry.getType().getId(),
+                entry.getAdditionalText(), entry.getTarget().getId(), closed, closedBy, entry.getStatus().getValue(), entry.getId());
+    }
+
+    @Transactional
+    @Override
+    public void remove(String id) {
+        jdbcTemplate.update("delete from FinancialEntry where id = ?", id);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public FinancialEntry getFirstFinancialEntry() {
+        try {
+            final String sql =
+                    "select " +
+                            "   e.id as id," +
+                            "   e.entry_date," +
+                            "   e.entry_value," +
+                            "   e.balance," +
+                            "   e.additional_text," +
+                            "   e.closed, " +
+                            "   e.status, " +
+                            "   u.id as closedByUserId, " +
+                            "   u.username as closedByUserName, " +
+                            "   u.password as closedByUserPassword, " +
+                            "   u.user_role as closedByUserRole, " +
+                            "   r.id as typeId," +
+                            "   r.description as typeDescription," +
+                            "   r.category," +
+                            "   r.associated_with_collaborator," +
+                            "   t.id as targetId," +
+                            "   t.name as targetName," +
+                            "   t.type as targetType " +
+                            "from " +
+                            "   FinancialEntry e " +
+                            "   inner join FinancialReference r on r.id = e.reference_entry " +
+                            "   inner join FinancialEntryTarget t on t.id = e.target_id " +
+                            "   left join UserCredentials u on u.id = e.closed_by " +
+                            "order by e.entry_date asc limit 1";
+            return jdbcTemplate.queryForObject(sql, financialEntryRowMapper);
+
+        } catch (EmptyResultDataAccessException ex) {
+            return null;
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<FinancialEntry> findBy(DateTime from) {
+        final String sql =
                 "select " +
                         "   e.id as id," +
                         "   e.entry_date," +
@@ -131,49 +243,9 @@ public class FinancialEntryRepositoryImpl implements FinancialEntryRepository {
                         "   inner join FinancialEntryTarget t on t.id = e.target_id " +
                         "   left join UserCredentials u on u.id = e.closed_by " +
                         "where " +
-                        "   e.id = ?";
-            return jdbcTemplate.queryForObject(sql, new Object[]{id}, financialEntryRowMapper);
-        } catch (EmptyResultDataAccessException ex) {
-            return null;
-        }
-    }
-
-    @Transactional
-    @Override
-    public void create(FinancialEntry entry) {
-        Long closed = null;
-        String closedBy = null;
-        final CloseableFinancialEntry closeableFinancialEntry = entry.getCloseableStatus();
-        if (closeableFinancialEntry != null) {
-            closed = closeableFinancialEntry.getClosedDate().getMillis();
-            closedBy = closeableFinancialEntry.getClosedBy().getId().toString();
-        }
-        jdbcTemplate.update(
-                "insert into FinancialEntry (id, entry_date, entry_value, balance, reference_entry, additional_text, target_id, closed, closed_by, status) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                entry.getId(), DateTimeUtils.toString(entry.getEntryDate(), "yyyy-MM-dd"),
-                entry.getValue().doubleValue(), entry.getBalance().getValue().doubleValue(), entry.getType().getId(),
-                entry.getAdditionalText(), entry.getTarget().getId(), closed, closedBy, entry.getStatus().getValue());
-    }
-
-    @Transactional
-    @Override
-    public void update(FinancialEntry entry) {
-        Long closed = null;
-        String closedBy = null;
-        final CloseableFinancialEntry closeableFinancialEntry = entry.getCloseableStatus();
-        if (closeableFinancialEntry != null) {
-            closed = closeableFinancialEntry.getClosedDate().getMillis();
-            closedBy = closeableFinancialEntry.getClosedBy().getId().toString();
-        }
-        jdbcTemplate.update(
-                "update FinancialEntry set entry_date=?, entry_value=?, balance=?, reference_entry=?, additional_text=?, target_id=?, closed=?, closed_by=?, status=? where id=?",
-                DateTimeUtils.toString(entry.getEntryDate(), "yyyy-MM-dd"), entry.getValue().doubleValue(), entry.getBalance().getValue().doubleValue(), entry.getType().getId(),
-                entry.getAdditionalText(), entry.getTarget().getId(), closed, closedBy, entry.getStatus().getValue(), entry.getId());
-    }
-
-    @Transactional
-    @Override
-    public void remove(String id) {
-        jdbcTemplate.update("delete from FinancialEntry where id = ?", id);
+                        "   e.entry_date >= datetime('" + DateTimeUtils.toString(from, "yyyy-MM-dd") + "') " +
+                        "order by " +
+                        "   e.entry_date asc";
+        return jdbcTemplate.query(sql, financialEntryRowMapper);
     }
 }

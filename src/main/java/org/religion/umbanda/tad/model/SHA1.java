@@ -23,8 +23,8 @@ public final class SHA1 {
 
     private static String toHex(byte[] data) {
         final char hexDigit[] = {
-            '0', '1', '2', '3', '4', '5', '6', '7',
-            '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+                '0', '1', '2', '3', '4', '5', '6', '7',
+                '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
         };
         final StringBuilder builder = new StringBuilder();
         for (int i = 0; i < data.length; i++) {

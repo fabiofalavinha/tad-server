@@ -5,7 +5,7 @@ import org.joda.time.DateTime;
 import java.util.UUID;
 
 public class Post {
-    
+
     private UUID id;
     private String title;
     private String content;

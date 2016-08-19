@@ -1,7 +1,7 @@
 package org.religion.umbanda.tad.model;
 
 public enum VisibilityType {
-    
+
     INTERNAL(0),
     PUBLIC(1);
 

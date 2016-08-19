@@ -49,27 +49,27 @@ public class EventRepositoryImpl implements EventRepository {
     @Transactional(readOnly = true)
     @Override
     public List<Event> findEventByYear(int year) {
-        return jdbcTemplate.query("select * from Event where event_year = ?", new Object[] { year }, eventRowMapper);
+        return jdbcTemplate.query("select * from Event where event_year = ?", new Object[]{year}, eventRowMapper);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<Event> findEventByYear(int year, VisibilityType visibilityType) {
-        return jdbcTemplate.query("select * from Event where event_year = ? and visibility_type = ?", new Object[] { year, visibilityType.getValue() }, eventRowMapper);
+        return jdbcTemplate.query("select * from Event where event_year = ? and visibility_type = ?", new Object[]{year, visibilityType.getValue()}, eventRowMapper);
     }
 
     @Transactional
     @Override
     public void addEvent(Event event) {
         jdbcTemplate.update("insert into Event (id, title, notes, event_date, event_year, visibility_type, back_color, font_color) values (?, ?, ?, ?, ?, ?, ?, ?)",
-            event.getId().toString(), event.getTitle(), event.getNotes(), event.getDate().getMillis(), event.getYear(), event.getVisibility().getValue(), event.getBackColor(), event.getFontColor());
+                event.getId().toString(), event.getTitle(), event.getNotes(), event.getDate().getMillis(), event.getYear(), event.getVisibility().getValue(), event.getBackColor(), event.getFontColor());
     }
 
     @Transactional
     @Override
     public void updateEvent(Event event) {
         jdbcTemplate.update("update Event set title=?, notes=?, event_date=?, event_year=?, visibility_type=?, back_color=?, font_color=? where id=?",
-            event.getTitle(), event.getNotes(), event.getDate().getMillis(), event.getYear(), event.getVisibility().getValue(), event.getBackColor(), event.getFontColor(), event.getId().toString());
+                event.getTitle(), event.getNotes(), event.getDate().getMillis(), event.getYear(), event.getVisibility().getValue(), event.getBackColor(), event.getFontColor(), event.getId().toString());
     }
 
     @Transactional

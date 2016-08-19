@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -46,27 +45,27 @@ public class UserCredentialsRepositoryImpl implements UserCredentialsRepository 
     @Override
     public UserCredentials findByUserName(String userName) {
         return jdbcTemplate.queryForObject(
-            "select u.id, u.username, u.password, u.user_role, p.name, p.gender, p.birth_date from UserCredentials u inner join Person p on p.id = u.id where u.UserName = ?",
-            new Object[] { userName }, userCredentialsRowMapper);
+                "select u.id, u.username, u.password, u.user_role, p.name, p.gender, p.birth_date from UserCredentials u inner join Person p on p.id = u.id where u.UserName = ?",
+                new Object[]{userName}, userCredentialsRowMapper);
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserCredentials findById(UUID id) {
         return jdbcTemplate.queryForObject(
-            "select u.id, u.username, u.password, u.user_role, p.name, p.gender, p.birth_date from UserCredentials u inner join Person p on p.id = u.id where u.Id = ?",
-            new Object[] { id.toString() }, userCredentialsRowMapper);
+                "select u.id, u.username, u.password, u.user_role, p.name, p.gender, p.birth_date from UserCredentials u inner join Person p on p.id = u.id where u.Id = ?",
+                new Object[]{id.toString()}, userCredentialsRowMapper);
     }
 
     @Transactional
     @Override
     public void update(UserCredentials userCredentials) {
         jdbcTemplate.update(
-            "update UserCredentials set UserName=?, Password=?, User_Role=? where Id=?",
-            userCredentials.getUserName(),
-            userCredentials.getPassword().getSecret(),
-            userCredentials.getUserRole().name(),
-            userCredentials.getId().toString());
+                "update UserCredentials set UserName=?, Password=?, User_Role=? where Id=?",
+                userCredentials.getUserName(),
+                userCredentials.getPassword().getSecret(),
+                userCredentials.getUserRole().name(),
+                userCredentials.getId().toString());
     }
 
 }

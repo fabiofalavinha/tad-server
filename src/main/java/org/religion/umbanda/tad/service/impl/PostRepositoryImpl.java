@@ -3,11 +3,7 @@ package org.religion.umbanda.tad.service.impl;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.joda.time.DateTime;
-import org.religion.umbanda.tad.model.Archive;
-import org.religion.umbanda.tad.model.Post;
-import org.religion.umbanda.tad.model.PostType;
-import org.religion.umbanda.tad.model.UserCredentials;
-import org.religion.umbanda.tad.model.VisibilityType;
+import org.religion.umbanda.tad.model.*;
 import org.religion.umbanda.tad.service.PostRepository;
 import org.religion.umbanda.tad.service.UserCredentialsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,28 +117,28 @@ public class PostRepositoryImpl implements PostRepository {
     public List<Archive> findArchiveBy(VisibilityType visibilityType) {
         final List<Archive> archives = new ArrayList<>();
         jdbcTemplate.query(
-            "select published from Post where published > 0 and visibility_type = ? order by [order]",
-            new Object[] { visibilityType.getValue() },
-            new RowCallbackHandler() {
-                @Override
-                public void processRow(ResultSet resultSet) throws SQLException {
-                    final DateTime published = new DateTime(resultSet.getLong("published"));
-                    Archive found = (Archive) CollectionUtils.find(archives, new Predicate() {
-                        @Override
-                        public boolean evaluate(Object o) {
-                            final Archive archive = (Archive) o;
-                            return archive.getArchived().getMonthOfYear() == published.getMonthOfYear() &&
-                                    archive.getArchived().getYear() == published.getYear();
+                "select published from Post where published > 0 and visibility_type = ? order by [order]",
+                new Object[]{visibilityType.getValue()},
+                new RowCallbackHandler() {
+                    @Override
+                    public void processRow(ResultSet resultSet) throws SQLException {
+                        final DateTime published = new DateTime(resultSet.getLong("published"));
+                        Archive found = (Archive) CollectionUtils.find(archives, new Predicate() {
+                            @Override
+                            public boolean evaluate(Object o) {
+                                final Archive archive = (Archive) o;
+                                return archive.getArchived().getMonthOfYear() == published.getMonthOfYear() &&
+                                        archive.getArchived().getYear() == published.getYear();
+                            }
+                        });
+                        if (found == null) {
+                            found = new Archive();
+                            found.setArchived(published);
+                            archives.add(found);
                         }
-                    });
-                    if (found == null) {
-                        found = new Archive();
-                        found.setArchived(published);
-                        archives.add(found);
+                        found.increaseCount();
                     }
-                    found.increaseCount();
                 }
-            }
         );
         return archives;
     }
@@ -177,11 +173,11 @@ public class PostRepositoryImpl implements PostRepository {
             publishedMillis = post.getPublished().getMillis();
         }
         jdbcTemplate.update(
-            "insert into Post (id, title, content, visibility_type, post_type, created_by, created, modified_by, modified, published_by, published, [order]) " +
-            "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            post.getId().toString(), post.getTitle(), post.getContent(), post.getVisibilityType().getValue(), post.getPostType().getValue(),
-            post.getCreatedBy().getId().toString(), post.getCreated().getMillis(), post.getModifiedBy().getId().toString(), post.getModified().getMillis(),
-            publishedById, publishedMillis, post.getOrder()
+                "insert into Post (id, title, content, visibility_type, post_type, created_by, created, modified_by, modified, published_by, published, [order]) " +
+                        "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                post.getId().toString(), post.getTitle(), post.getContent(), post.getVisibilityType().getValue(), post.getPostType().getValue(),
+                post.getCreatedBy().getId().toString(), post.getCreated().getMillis(), post.getModifiedBy().getId().toString(), post.getModified().getMillis(),
+                publishedById, publishedMillis, post.getOrder()
         );
     }
 
@@ -199,10 +195,10 @@ public class PostRepositoryImpl implements PostRepository {
             publishedMillis = post.getPublished().getMillis();
         }
         jdbcTemplate.update(
-            "update Post set title=?, content=?, visibility_type=?, post_type=?, created_by=?, created=?, modified_by=?, modified=?, published_by=?, published=?, [order]=? where id=?",
-            post.getTitle(), post.getContent(), post.getVisibilityType().getValue(), post.getPostType().getValue(),
-            post.getCreatedBy().getId().toString(), post.getCreated().getMillis(), post.getModifiedBy().getId().toString(),
-            post.getModified().getMillis(), publishedById, publishedMillis, post.getOrder(), post.getId().toString()
+                "update Post set title=?, content=?, visibility_type=?, post_type=?, created_by=?, created=?, modified_by=?, modified=?, published_by=?, published=?, [order]=? where id=?",
+                post.getTitle(), post.getContent(), post.getVisibilityType().getValue(), post.getPostType().getValue(),
+                post.getCreatedBy().getId().toString(), post.getCreated().getMillis(), post.getModifiedBy().getId().toString(),
+                post.getModified().getMillis(), publishedById, publishedMillis, post.getOrder(), post.getId().toString()
         );
     }
 }

@@ -9,11 +9,7 @@ import org.religion.umbanda.tad.service.vo.EventRequest;
 import org.religion.umbanda.tad.service.vo.EventResponse;
 import org.religion.umbanda.tad.util.DateTimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +24,8 @@ public class EventServiceImpl implements EventService {
     @RequestMapping(value = "/events/{visibility}/{year}", method = RequestMethod.GET, produces = "application/json")
     @Override
     public List<EventResponse> findEventsByYear(
-        @PathVariable("year") int year,
-        @PathVariable("visibility") String visibility) {
+            @PathVariable("year") int year,
+            @PathVariable("visibility") String visibility) {
         VisibilityType visibilityType;
         try {
             visibilityType = VisibilityType.valueOf(visibility);
@@ -45,7 +41,7 @@ public class EventServiceImpl implements EventService {
     @RequestMapping(value = "/events/{year}", method = RequestMethod.GET, produces = "application/json")
     @Override
     public List<EventResponse> findEventsByYear(
-        @PathVariable("year") int year) {
+            @PathVariable("year") int year) {
         if (year > 0) {
             return doConvertEvents(eventRepository.findEventByYear(year));
         }
@@ -77,7 +73,7 @@ public class EventServiceImpl implements EventService {
     @RequestMapping(value = "/event/{id}", method = RequestMethod.DELETE)
     @Override
     public void removeEvent(
-        @PathVariable("id") String eventId) {
+            @PathVariable("id") String eventId) {
         UUID id;
         try {
             id = UUID.fromString(eventId);
@@ -90,7 +86,7 @@ public class EventServiceImpl implements EventService {
     @RequestMapping(value = "/event", method = RequestMethod.POST)
     @Override
     public EventResponse saveEvent(
-        @RequestBody EventRequest request) {
+            @RequestBody EventRequest request) {
         Event event = null;
         UUID id;
         final String eventId = request.getId();

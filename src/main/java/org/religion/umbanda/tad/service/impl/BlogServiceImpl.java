@@ -37,7 +37,7 @@ public class BlogServiceImpl implements BlogService {
     @RequestMapping("/post/{postId}")
     @Override
     public PostResponse getPostById(
-        @PathVariable("postId") String postIdAsString) {
+            @PathVariable("postId") String postIdAsString) {
         try {
             final UUID id = IdUtils.fromString(postIdAsString);
             return doConvertPost(postRepository.findById(id));
@@ -49,7 +49,7 @@ public class BlogServiceImpl implements BlogService {
     @RequestMapping("/posts/{userId}")
     @Override
     public List<PostResponse> getPostsByUserId(
-        @PathVariable("userId") String userIdAsString) {
+            @PathVariable("userId") String userIdAsString) {
         final UUID userId = IdUtils.fromString(userIdAsString);
         final UserCredentials userCredentials = userCredentialsRepository.findById(userId);
         if (userCredentials == null || userCredentials.getUserRole() != UserRole.ADMINISTRATOR) {
@@ -61,7 +61,7 @@ public class BlogServiceImpl implements BlogService {
     @RequestMapping("/post/archives/{visibility}")
     @Override
     public List<Archive> getArchives(
-        @PathVariable("visibility") String visibility) {
+            @PathVariable("visibility") String visibility) {
         final VisibilityType visibilityType = doConvertVisibilityType(visibility);
         if (visibilityType == null) {
             return new ArrayList<>();
@@ -72,20 +72,20 @@ public class BlogServiceImpl implements BlogService {
     @RequestMapping("/published/posts/{visibility}/archive/{year}/{month}")
     @Override
     public List<PostResponse> findPostByArchive(
-        @PathVariable("visibility") String visibility,
-        @PathVariable("year") int year,
-        @PathVariable("month") int month) {
+            @PathVariable("visibility") String visibility,
+            @PathVariable("year") int year,
+            @PathVariable("month") int month) {
         final VisibilityType visibilityType = doConvertVisibilityType(visibility);
         if (visibilityType == null) {
             return new ArrayList<>();
         }
         return doConvertPostList(postRepository.findPublishedPost(visibilityType, year, month));
     }
-    
+
     @RequestMapping("/published/posts/{visibility}")
     @Override
     public List<PostResponse> findPublishedPostByVisibility(
-        @PathVariable("visibility") String visibility) {
+            @PathVariable("visibility") String visibility) {
         final VisibilityType visibilityType = doConvertVisibilityType(visibility);
         if (visibilityType == null) {
             return new ArrayList<>();
@@ -96,14 +96,14 @@ public class BlogServiceImpl implements BlogService {
     @RequestMapping(value = "/post/{id}", method = RequestMethod.DELETE)
     @Override
     public void removePost(
-        @PathVariable("id") String id) {
+            @PathVariable("id") String id) {
         postRepository.removePostById(IdUtils.fromString(id));
     }
 
     @RequestMapping(value = "/post", method = RequestMethod.POST)
     @Override
     public void savePost(
-        @RequestBody PostRequest postRequest) {
+            @RequestBody PostRequest postRequest) {
 
         if (postRequest == null) {
             throw new IllegalArgumentException("Dados do post são inválido");

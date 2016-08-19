@@ -43,5 +43,5 @@ public class Password {
         hash += 17 * (secret != null && !"".equals(secret) ? secret.hashCode() : 0);
         return hash;
     }
-    
+
 }

@@ -1,6 +1,7 @@
 package org.religion.umbanda.tad.service.impl;
 
 import org.joda.time.DateTime;
+import org.religion.umbanda.tad.model.UserCredentials;
 import org.religion.umbanda.tad.model.financial.*;
 import org.religion.umbanda.tad.service.*;
 import org.religion.umbanda.tad.service.vo.FinancialEntryDTO;
@@ -28,6 +29,12 @@ public class FinancialServiceImpl implements FinancialService {
 
     @Autowired
     private FinancialEntryRepository financialEntryRepository;
+
+    @Autowired
+    private CloseableBalanceFinancialEntryRepository closeableBalanceFinancialEntryRepository;
+
+    @Autowired
+    private UserCredentialsRepository userCredentialsRepository;
 
     private FinancialReferenceVO convertFinancialReference(FinancialReference financialReference) {
         final FinancialReferenceVO vo = new FinancialReferenceVO();
@@ -177,7 +184,7 @@ public class FinancialServiceImpl implements FinancialService {
         financialBalanceRepository.update(newBalance);
     }
 
-    @RequestMapping(value = "/financial/entry", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/financial/entry/{id}", method = RequestMethod.DELETE)
     @Override
     public void removeFinancialEntry(@PathVariable("id") String id) {
         final FinancialEntry entry = financialEntryRepository.findById(id);
@@ -192,6 +199,44 @@ public class FinancialServiceImpl implements FinancialService {
                 financialEntryRepository.update(oldEntry);
             }
             financialBalanceRepository.update(newInTimeBalance);
+        }
+    }
+
+    @RequestMapping(value = "/financial/close/{userId}", method = RequestMethod.POST)
+    @Override
+    public void closeFinancialEntry(@PathVariable("userId") String userId) {
+        CloseableBalanceFinancialEntry lastCloseableBalanceFinancialEntry = closeableBalanceFinancialEntryRepository.getLastCloseableBalanceFinancialEntry();
+        DateTime closedDate = null;
+        Balance balance = null;
+        if (lastCloseableBalanceFinancialEntry != null) {
+            closedDate = lastCloseableBalanceFinancialEntry.getClosedDate();
+            balance = lastCloseableBalanceFinancialEntry.getBalance();
+        } else {
+            FinancialEntry financialEntry = financialEntryRepository.getFirstFinancialEntry();
+            if (financialEntry != null) {
+                closedDate = financialEntry.getEntryDate();
+                balance = new Balance(0);
+            }
+        }
+        if (closedDate != null) {
+            List<FinancialEntry> financialEntryList = financialEntryRepository.findBy(closedDate);
+            CloseableBalanceFinancialEntry newCloseableBalanceFinancialEntry = new CloseableBalanceFinancialEntry();
+            newCloseableBalanceFinancialEntry.setId(UUID.randomUUID());
+            newCloseableBalanceFinancialEntry.setClosedDate(DateTime.now());
+            UserCredentials closedByUser = userCredentialsRepository.findById(UUID.fromString(userId));
+            newCloseableBalanceFinancialEntry.setClosedBy(closedByUser);
+            for (FinancialEntry entry : financialEntryList) {
+                balance = balance.calculate(entry.getValue(), entry.getType().getCategory());
+                CloseableFinancialEntry closeableFinancialEntry = new CloseableFinancialEntry();
+                closeableFinancialEntry.setClosedDate(newCloseableBalanceFinancialEntry.getClosedDate());
+                closeableFinancialEntry.setClosedBy(closedByUser);
+                entry.setCloseableFinancialEntry(closeableFinancialEntry);
+                entry.setStatus(FinancialEntryStatus.CLOSED);
+                financialEntryRepository.update(entry);
+            }
+            newCloseableBalanceFinancialEntry.setBalance(balance);
+            closeableBalanceFinancialEntryRepository.create(newCloseableBalanceFinancialEntry);
+            financialBalanceRepository.update(balance);
         }
     }
 }

@@ -3,7 +3,7 @@ package org.religion.umbanda.tad.model;
 import java.util.UUID;
 
 public class UserCredentials {
-    
+
     private UUID id;
     private String userName;
     private Password password;

@@ -10,12 +10,19 @@ import java.util.UUID;
 public interface PostRepository {
 
     List<Post> findAll();
+
     List<Post> findPublishedPost(VisibilityType visibilityType);
+
     List<Post> findPublishedPost(VisibilityType visibilityType, int year, int month);
+
     List<Archive> findArchiveBy(VisibilityType visibilityType);
+
     Post findById(UUID postId);
+
     void removePostById(UUID postId);
+
     void createPost(Post post);
+
     void updatePost(Post post);
 
 }
