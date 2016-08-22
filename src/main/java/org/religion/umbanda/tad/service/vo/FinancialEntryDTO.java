@@ -31,6 +31,12 @@ public class FinancialEntryDTO {
     @JsonProperty
     private Balance previewBalance;
 
+    @JsonProperty
+    private int status;
+
+    @JsonProperty
+    private CloseableFinancialEntryDTO closeableFinancialEntry;
+
     public String getId() {
         return id;
     }
@@ -93,5 +99,21 @@ public class FinancialEntryDTO {
 
     public void setTarget(FinancialTargetVO target) {
         this.target = target;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setCloseableFinancialEntry(CloseableFinancialEntryDTO closeableFinancialEntry) {
+        this.closeableFinancialEntry = closeableFinancialEntry;
+    }
+
+    public CloseableFinancialEntryDTO getCloseableFinancialEntry() {
+        return closeableFinancialEntry;
     }
 }

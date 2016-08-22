@@ -4,9 +4,7 @@ import org.joda.time.DateTime;
 import org.religion.umbanda.tad.model.UserCredentials;
 import org.religion.umbanda.tad.model.financial.*;
 import org.religion.umbanda.tad.service.*;
-import org.religion.umbanda.tad.service.vo.FinancialEntryDTO;
-import org.religion.umbanda.tad.service.vo.FinancialReferenceVO;
-import org.religion.umbanda.tad.service.vo.FinancialTargetVO;
+import org.religion.umbanda.tad.service.vo.*;
 import org.religion.umbanda.tad.util.DateTimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -145,6 +143,19 @@ public class FinancialServiceImpl implements FinancialService {
             targetVO.setType(financialEntry.getTarget().getType().value());
             dto.setTarget(targetVO);
             dto.setType(convertFinancialReference(financialEntry.getType()));
+            dto.setStatus(financialEntry.getStatus().getValue());
+            final CloseableFinancialEntry closeableFinancialEntry = financialEntry.getCloseableFinancialEntry();
+            if (closeableFinancialEntry != null) {
+                final CloseableFinancialEntryDTO closeableFinancialEntryDTO = new CloseableFinancialEntryDTO();
+                closeableFinancialEntryDTO.setClosedDate(closeableFinancialEntry.getClosedDate());
+                final UserCredentialsVO closedByUser = new UserCredentialsVO();
+                closedByUser.setId(closeableFinancialEntry.getClosedBy().getId().toString());
+                closedByUser.setName(closeableFinancialEntry.getClosedBy().getPerson().getName());
+                closedByUser.setUserName(closeableFinancialEntry.getClosedBy().getUserName());
+                closedByUser.setUserRole(closeableFinancialEntry.getClosedBy().getUserRole());
+                closeableFinancialEntryDTO.setUserCredentialsVO(closedByUser);
+                dto.setCloseableFinancialEntry(closeableFinancialEntryDTO);
+            }
             responseList.add(dto);
         }
         return responseList;
@@ -154,8 +165,8 @@ public class FinancialServiceImpl implements FinancialService {
     @Override
     public void saveFinancialEntry(@RequestBody FinancialEntryDTO financialEntryDTO) {
         FinancialEntry entry = financialEntryRepository.findById(financialEntryDTO.getId());
-        if (entry != null) {
-            throw new IllegalStateException("Não é possível alterar um lançamento");
+        if (entry != null && entry.isClosed()) {
+            throw new IllegalStateException("Não é possível alterar um lançamento fechado!");
         }
 
         entry = new FinancialEntry();
@@ -164,6 +175,7 @@ public class FinancialServiceImpl implements FinancialService {
         entry.setAdditionalText(financialEntryDTO.getAdditionalText());
         entry.setValue(financialEntryDTO.getValue());
         entry.setBalance(financialEntryDTO.getBalance());
+        entry.setStatus(FinancialEntryStatus.OPEN);
 
         final FinancialTargetVO targetVO = financialEntryDTO.getTarget();
         FinancialTarget target = financialTargetRepository.findById(targetVO.getId());
@@ -188,7 +200,7 @@ public class FinancialServiceImpl implements FinancialService {
     @Override
     public void removeFinancialEntry(@PathVariable("id") String id) {
         final FinancialEntry entry = financialEntryRepository.findById(id);
-        if (entry != null) {
+        if (entry != null && entry.isOpened()) {
             financialEntryRepository.remove(entry.getId());
             final Balance entryBalance = entry.getBalance();
             Balance newInTimeBalance = entryBalance.rollback(entry.getValue(), entry.getType().getCategory());

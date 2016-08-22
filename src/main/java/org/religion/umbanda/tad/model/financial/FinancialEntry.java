@@ -91,4 +91,12 @@ public class FinancialEntry {
     public void setStatus(FinancialEntryStatus status) {
         this.status = status;
     }
+
+    public boolean isOpened() {
+        return status == FinancialEntryStatus.OPEN;
+    }
+
+    public boolean isClosed() {
+        return status == FinancialEntryStatus.CLOSED;
+    }
 }
