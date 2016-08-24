@@ -147,7 +147,7 @@ public class FinancialServiceImpl implements FinancialService {
             final CloseableFinancialEntry closeableFinancialEntry = financialEntry.getCloseableFinancialEntry();
             if (closeableFinancialEntry != null) {
                 final CloseableFinancialEntryDTO closeableFinancialEntryDTO = new CloseableFinancialEntryDTO();
-                closeableFinancialEntryDTO.setClosedDate(closeableFinancialEntry.getClosedDate());
+                closeableFinancialEntryDTO.setClosedDate(DateTimeUtils.toString(closeableFinancialEntry.getClosedDate(), "yyyy-MM-dd"));
                 final UserCredentialsVO closedByUser = new UserCredentialsVO();
                 closedByUser.setId(closeableFinancialEntry.getClosedBy().getId().toString());
                 closedByUser.setName(closeableFinancialEntry.getClosedBy().getPerson().getName());
