@@ -214,9 +214,10 @@ public class FinancialServiceImpl implements FinancialService {
         }
     }
 
-    @RequestMapping(value = "/financial/close/{userId}", method = RequestMethod.POST)
+    @RequestMapping(value = "/financial/close", method = RequestMethod.POST)
     @Override
-    public void closeFinancialEntry(@PathVariable("userId") String userId) {
+    public void closeFinancialEntry(@RequestBody CloseFinancialEntryBalanceDTO dto) {
+        final String userId = dto.getUserId();
         CloseableBalanceFinancialEntry lastCloseableBalanceFinancialEntry = closeableBalanceFinancialEntryRepository.getLastCloseableBalanceFinancialEntry();
         DateTime closedDate = null;
         Balance balance = null;

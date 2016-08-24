@@ -1,6 +1,7 @@
 package org.religion.umbanda.tad.service;
 
 import org.religion.umbanda.tad.model.financial.Balance;
+import org.religion.umbanda.tad.service.vo.CloseFinancialEntryBalanceDTO;
 import org.religion.umbanda.tad.service.vo.FinancialEntryDTO;
 import org.religion.umbanda.tad.service.vo.FinancialReferenceVO;
 import org.religion.umbanda.tad.service.vo.FinancialTargetVO;
@@ -25,6 +26,6 @@ public interface FinancialService {
 
     void removeFinancialEntry(String id);
 
-    void closeFinancialEntry(String userId);
+    void closeFinancialEntry(CloseFinancialEntryBalanceDTO dto);
 
 }
