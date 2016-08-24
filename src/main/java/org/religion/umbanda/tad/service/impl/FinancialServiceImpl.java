@@ -153,7 +153,7 @@ public class FinancialServiceImpl implements FinancialService {
                 closedByUser.setName(closeableFinancialEntry.getClosedBy().getPerson().getName());
                 closedByUser.setUserName(closeableFinancialEntry.getClosedBy().getUserName());
                 closedByUser.setUserRole(closeableFinancialEntry.getClosedBy().getUserRole());
-                closeableFinancialEntryDTO.setUserCredentialsVO(closedByUser);
+                closeableFinancialEntryDTO.setClosedByUser(closedByUser);
                 dto.setCloseableFinancialEntry(closeableFinancialEntryDTO);
             }
             responseList.add(dto);

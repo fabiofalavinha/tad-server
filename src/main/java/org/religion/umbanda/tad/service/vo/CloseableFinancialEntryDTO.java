@@ -8,14 +8,14 @@ public class CloseableFinancialEntryDTO {
     private String closedDate;
 
     @JsonProperty
-    private UserCredentialsVO userCredentialsVO;
+    private UserCredentialsVO closedByUser;
 
-    public UserCredentialsVO getUserCredentialsVO() {
-        return userCredentialsVO;
+    public UserCredentialsVO getClosedByUser() {
+        return closedByUser;
     }
 
-    public void setUserCredentialsVO(UserCredentialsVO userCredentialsVO) {
-        this.userCredentialsVO = userCredentialsVO;
+    public void setClosedByUser(UserCredentialsVO closedByUser) {
+        this.closedByUser = closedByUser;
     }
 
     public String getClosedDate() {
