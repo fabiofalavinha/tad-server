@@ -35,7 +35,7 @@ public class CloseableBalanceFinancialEntryRepositoryImpl implements CloseableBa
                 "insert into CloseableBalanceFinancialEntry (id, closed, closed_by, last_balance) values (?, ?, ?, ?)",
                 closeableBalanceFinancialEntry.getId(),
                 closeableBalanceFinancialEntry.getClosedDate().getMillis(),
-                closeableBalanceFinancialEntry.getClosedBy(),
+                closeableBalanceFinancialEntry.getClosedBy().getId().toString(),
                 closeableBalanceFinancialEntry.getBalance().getValue().doubleValue());
     }
 

@@ -9,6 +9,7 @@ import org.religion.umbanda.tad.util.DateTimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -169,13 +170,20 @@ public class FinancialServiceImpl implements FinancialService {
             if (entry.isClosed()) {
                 throw new IllegalStateException("Não é possível alterar um lançamento fechado!");
             }
-            entry.setId(financialEntryDTO.getId());
-            entry.setEntryDate(DateTimeUtils.fromString(financialEntryDTO.getDate(), "yyyy-MM-dd"));
             entry.setAdditionalText(financialEntryDTO.getAdditionalText());
+            final BigDecimal oldValue = entry.getValue();
             entry.setValue(financialEntryDTO.getValue());
-            entry.setBalance(financialEntryDTO.getBalance());
-            entry.setStatus(FinancialEntryStatus.OPEN);
+            final boolean valueChanged = !oldValue.equals(entry.getValue());
+            if (valueChanged) {
+                entry.setBalance(financialEntryDTO.getBalance());
+            }
             financialEntryRepository.update(entry);
+            if (valueChanged) {
+                Balance currentBalance = financialBalanceRepository.getBalance();
+                currentBalance = currentBalance.rollback(oldValue, entry.getType().getCategory());
+                final Balance newBalance = currentBalance.calculate(entry.getValue(), entry.getType().getCategory());
+                financialBalanceRepository.update(newBalance);
+            }
         } else {
             entry = new FinancialEntry();
             entry.setId(financialEntryDTO.getId());
@@ -196,10 +204,10 @@ public class FinancialServiceImpl implements FinancialService {
             entry.setTarget(target);
             entry.setType(financialReferenceRepository.findById(financialEntryDTO.getType().getId()));
             financialEntryRepository.create(entry);
+            final Balance currentBalance = financialBalanceRepository.getBalance();
+            final Balance newBalance = currentBalance.calculate(entry.getValue(), entry.getType().getCategory());
+            financialBalanceRepository.update(newBalance);
         }
-        final Balance currentBalance = financialBalanceRepository.getBalance();
-        final Balance newBalance = currentBalance.calculate(entry.getValue(), entry.getType().getCategory());
-        financialBalanceRepository.update(newBalance);
     }
 
     @RequestMapping(value = "/financial/entry/{id}", method = RequestMethod.DELETE)
@@ -208,9 +216,19 @@ public class FinancialServiceImpl implements FinancialService {
         final FinancialEntry entry = financialEntryRepository.findById(id);
         if (entry != null && entry.isOpened()) {
             financialEntryRepository.remove(entry.getId());
-            final Balance entryBalance = entry.getBalance();
-            Balance newInTimeBalance = entryBalance.rollback(entry.getValue(), entry.getType().getCategory());
-            final List<FinancialEntry> entries = financialEntryRepository.findBy(entry.getEntryDate(), DateTime.now());
+            Balance currentBalance = financialBalanceRepository.getBalance();
+            Balance newInTimeBalance = currentBalance.rollback(entry.getValue(), entry.getType().getCategory());
+            CloseableBalanceFinancialEntry lastCloseableBalanceFinancialEntry = closeableBalanceFinancialEntryRepository.getLastCloseableBalanceFinancialEntry();
+            DateTime closedDate = null;
+            if (lastCloseableBalanceFinancialEntry != null) {
+                closedDate = lastCloseableBalanceFinancialEntry.getClosedDate();
+            } else {
+                FinancialEntry financialEntry = financialEntryRepository.getFirstFinancialEntry();
+                if (financialEntry != null) {
+                    closedDate = financialEntry.getEntryDate();
+                }
+            }
+            final List<FinancialEntry> entries = financialEntryRepository.findBy(closedDate);
             for (FinancialEntry oldEntry : entries) {
                 newInTimeBalance = newInTimeBalance.calculate(oldEntry.getValue(), oldEntry.getType().getCategory());
                 oldEntry.setBalance(newInTimeBalance);
