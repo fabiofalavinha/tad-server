@@ -32,7 +32,7 @@ public class CloseableBalanceFinancialEntryRepositoryImpl implements CloseableBa
     @Override
     public void create(CloseableBalanceFinancialEntry closeableBalanceFinancialEntry) {
         jdbcTemplate.update(
-                "insert into CloseableBalanceFinancialEntry (id, closed, closed_by, last_balance) value(?, ?, ?, ?)",
+                "insert into CloseableBalanceFinancialEntry (id, closed, closed_by, last_balance) values (?, ?, ?, ?)",
                 closeableBalanceFinancialEntry.getId(),
                 closeableBalanceFinancialEntry.getClosedDate().getMillis(),
                 closeableBalanceFinancialEntry.getClosedBy(),
