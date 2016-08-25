@@ -165,32 +165,38 @@ public class FinancialServiceImpl implements FinancialService {
     @Override
     public void saveFinancialEntry(@RequestBody FinancialEntryDTO financialEntryDTO) {
         FinancialEntry entry = financialEntryRepository.findById(financialEntryDTO.getId());
-        if (entry != null && entry.isClosed()) {
-            throw new IllegalStateException("Não é possível alterar um lançamento fechado!");
+        if (entry != null) {
+            if (entry.isClosed()) {
+                throw new IllegalStateException("Não é possível alterar um lançamento fechado!");
+            }
+            entry.setId(financialEntryDTO.getId());
+            entry.setEntryDate(DateTimeUtils.fromString(financialEntryDTO.getDate(), "yyyy-MM-dd"));
+            entry.setAdditionalText(financialEntryDTO.getAdditionalText());
+            entry.setValue(financialEntryDTO.getValue());
+            entry.setBalance(financialEntryDTO.getBalance());
+            entry.setStatus(FinancialEntryStatus.OPEN);
+            financialEntryRepository.update(entry);
+        } else {
+            entry = new FinancialEntry();
+            entry.setId(financialEntryDTO.getId());
+            entry.setEntryDate(DateTimeUtils.fromString(financialEntryDTO.getDate(), "yyyy-MM-dd"));
+            entry.setAdditionalText(financialEntryDTO.getAdditionalText());
+            entry.setValue(financialEntryDTO.getValue());
+            entry.setBalance(financialEntryDTO.getBalance());
+            entry.setStatus(FinancialEntryStatus.OPEN);
+            final FinancialTargetVO targetVO = financialEntryDTO.getTarget();
+            FinancialTarget target = financialTargetRepository.findById(targetVO.getId());
+            if (target == null) {
+                target = new FinancialTarget();
+                target.setId(targetVO.getId());
+                target.setName(targetVO.getName());
+                target.setType(FinancialTargetType.fromValue(targetVO.getType()));
+                financialTargetRepository.create(target);
+            }
+            entry.setTarget(target);
+            entry.setType(financialReferenceRepository.findById(financialEntryDTO.getType().getId()));
+            financialEntryRepository.create(entry);
         }
-
-        entry = new FinancialEntry();
-        entry.setId(financialEntryDTO.getId());
-        entry.setEntryDate(DateTimeUtils.fromString(financialEntryDTO.getDate(), "yyyy-MM-dd"));
-        entry.setAdditionalText(financialEntryDTO.getAdditionalText());
-        entry.setValue(financialEntryDTO.getValue());
-        entry.setBalance(financialEntryDTO.getBalance());
-        entry.setStatus(FinancialEntryStatus.OPEN);
-
-        final FinancialTargetVO targetVO = financialEntryDTO.getTarget();
-        FinancialTarget target = financialTargetRepository.findById(targetVO.getId());
-        if (target == null) {
-            target = new FinancialTarget();
-            target.setId(targetVO.getId());
-            target.setName(targetVO.getName());
-            target.setType(FinancialTargetType.fromValue(targetVO.getType()));
-            financialTargetRepository.create(target);
-        }
-        entry.setTarget(target);
-
-        entry.setType(financialReferenceRepository.findById(financialEntryDTO.getType().getId()));
-
-        financialEntryRepository.create(entry);
         final Balance currentBalance = financialBalanceRepository.getBalance();
         final Balance newBalance = currentBalance.calculate(entry.getValue(), entry.getType().getCategory());
         financialBalanceRepository.update(newBalance);
