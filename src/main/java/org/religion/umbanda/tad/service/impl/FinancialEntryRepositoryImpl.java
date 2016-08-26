@@ -35,17 +35,18 @@ public class FinancialEntryRepositoryImpl implements FinancialEntryRepository {
             financialEntry.setBalance(new Balance(resultSet.getDouble("balance")));
             financialEntry.setAdditionalText(resultSet.getString("additional_text"));
             financialEntry.setStatus(FinancialEntryStatus.fromValue(resultSet.getInt("status")));
-            final CloseableFinancialEntry closeableFinancialEntry = new CloseableFinancialEntry();
             final String closedByUserId = resultSet.getString("closedByUserId");
             if (closedByUserId != null && !closedByUserId.isEmpty()) {
+                final CloseableFinancialEntry closeableFinancialEntry = new CloseableFinancialEntry();
                 final UserCredentials userCredentials = new UserCredentials();
                 userCredentials.setId(UUID.fromString(closedByUserId));
                 userCredentials.setUserName(resultSet.getString("closedByUserName"));
                 userCredentials.setPassword(Password.fromSecret(resultSet.getString("closedByUserPassword")));
                 userCredentials.setUserRole(UserRole.valueOf(resultSet.getString("closedByUserRole")));
                 closeableFinancialEntry.setClosedBy(userCredentials);
+                closeableFinancialEntry.setClosedDate(new DateTime(resultSet.getLong("closed")));
+                financialEntry.setCloseableFinancialEntry(closeableFinancialEntry);
             }
-            closeableFinancialEntry.setClosedDate(new DateTime(resultSet.getLong("closed")));
             final FinancialReference financialReference = new FinancialReference();
             financialReference.setId(resultSet.getString("typeId"));
             financialReference.setDescription(resultSet.getString("typeDescription"));

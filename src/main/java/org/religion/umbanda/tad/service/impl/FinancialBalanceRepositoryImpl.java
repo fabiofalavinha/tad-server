@@ -26,20 +26,29 @@ public class FinancialBalanceRepositoryImpl implements FinancialBalanceRepositor
     @Override
     public Balance getBalance() {
         try {
-            return jdbcTemplate.queryForObject("select * from FinancialBalance", new RowMapper<Balance>() {
-                @Override
-                public Balance mapRow(ResultSet resultSet, int i) throws SQLException {
-                    return new Balance(resultSet.getDouble("balance"));
-                }
-            });
+            return doGetBalance();
         } catch (EmptyResultDataAccessException ex) {
             return new Balance();
         }
     }
 
+    private Balance doGetBalance() {
+        return jdbcTemplate.queryForObject("select * from FinancialBalance", new RowMapper<Balance>() {
+            @Override
+            public Balance mapRow(ResultSet resultSet, int i) throws SQLException {
+                return new Balance(resultSet.getDouble("balance"));
+            }
+        });
+    }
+
     @Transactional
     @Override
     public void update(Balance newBalance) {
-        jdbcTemplate.update("update FinancialBalance set balance = ?", newBalance.getValue().doubleValue());
+        try {
+            doGetBalance();
+            jdbcTemplate.update("update FinancialBalance set balance = ?", newBalance.getValue().doubleValue());
+        } catch (EmptyResultDataAccessException ex) {
+            jdbcTemplate.update("insert into FinancialBalance (balance) values (?)", newBalance.getValue().doubleValue());
+        }
     }
 }
