@@ -11,14 +11,13 @@ public interface FinancialEntryRepository {
 
     FinancialEntry findById(String id);
 
-    FinancialEntry getFirstFinancialEntry();
+    FinancialEntry getFirstOpenedFinancialEntry();
 
-    List<FinancialEntry> findBy(DateTime from);
+    List<FinancialEntry> findOpenedEntries();
 
     void create(FinancialEntry entry);
 
     void update(FinancialEntry entry);
 
     void remove(String id);
-
 }

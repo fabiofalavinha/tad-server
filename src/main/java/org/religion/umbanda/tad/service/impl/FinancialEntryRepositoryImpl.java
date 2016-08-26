@@ -179,7 +179,7 @@ public class FinancialEntryRepositoryImpl implements FinancialEntryRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public FinancialEntry getFirstFinancialEntry() {
+    public FinancialEntry getFirstOpenedFinancialEntry() {
         try {
             final String sql =
                     "select " +
@@ -206,17 +206,18 @@ public class FinancialEntryRepositoryImpl implements FinancialEntryRepository {
                             "   inner join FinancialReference r on r.id = e.reference_entry " +
                             "   inner join FinancialEntryTarget t on t.id = e.target_id " +
                             "   left join UserCredentials u on u.id = e.closed_by " +
+                            "where " +
+                            "   e.status = ? " +
                             "order by e.entry_date asc limit 1";
-            return jdbcTemplate.queryForObject(sql, financialEntryRowMapper);
+            return jdbcTemplate.queryForObject(sql, new Object[]{FinancialEntryStatus.OPEN.getValue()}, financialEntryRowMapper);
 
         } catch (EmptyResultDataAccessException ex) {
             return null;
         }
     }
 
-    @Transactional(readOnly = true)
     @Override
-    public List<FinancialEntry> findBy(DateTime from) {
+    public List<FinancialEntry> findOpenedEntries() {
         final String sql =
                 "select " +
                         "   e.id as id," +
@@ -243,9 +244,9 @@ public class FinancialEntryRepositoryImpl implements FinancialEntryRepository {
                         "   inner join FinancialEntryTarget t on t.id = e.target_id " +
                         "   left join UserCredentials u on u.id = e.closed_by " +
                         "where " +
-                        "   e.entry_date >= datetime('" + DateTimeUtils.toString(from, "yyyy-MM-dd") + "') " +
+                        "   e.status = ? " +
                         "order by " +
                         "   e.entry_date asc";
-        return jdbcTemplate.query(sql, financialEntryRowMapper);
+        return jdbcTemplate.query(sql, new Object[]{FinancialEntryStatus.OPEN.getValue()}, financialEntryRowMapper);
     }
 }
