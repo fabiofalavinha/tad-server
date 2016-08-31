@@ -9,6 +9,7 @@ public class Collaborator {
     private DateTime releaseDate;
     private String observation;
     private UserCredentials userCredentials;
+    private boolean contributor;
 
     public Person getPerson() {
         return person;
@@ -49,4 +50,8 @@ public class Collaborator {
     public void setUserCredentials(UserCredentials userCredentials) {
         this.userCredentials = userCredentials;
     }
+
+    public boolean getContributor() { return contributor; }
+
+    public void setContributor(boolean contributor) { this.contributor = contributor; }
 }

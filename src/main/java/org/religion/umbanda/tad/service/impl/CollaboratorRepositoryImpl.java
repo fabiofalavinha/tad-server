@@ -39,7 +39,8 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
                         "    u.id as user_credentials_id, " +
                         "    u.username, " +
                         "    u.password, " +
-                        "    u.user_role " +
+                        "    u.user_role, " +
+                        "    c.contributor " +
                         "from " +
                         "    Collaborator c " +
                         "    inner join Person p on p.id = c.person_id " +
@@ -69,6 +70,7 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
                                 final Collaborator collaborator = new Collaborator();
                                 collaborator.setPerson(person);
                                 collaborator.setUserCredentials(userCredentials);
+                                collaborator.setContributor(resultSet.getBoolean("contributor"));
 
                                 final long startDateInMillis = resultSet.getLong("start_date");
                                 if (startDateInMillis > 0) {
@@ -123,7 +125,8 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
                         "    u.id as user_credentials_id, " +
                         "    u.username, " +
                         "    u.password, " +
-                        "    u.user_role " +
+                        "    u.user_role, " +
+                        "    c.contributor " +
                         "from " +
                         "    Collaborator c " +
                         "    inner join Person p on p.id = c.person_id " +
@@ -155,6 +158,7 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
                                 final Collaborator collaborator = new Collaborator();
                                 collaborator.setPerson(person);
                                 collaborator.setUserCredentials(userCredentials);
+                                collaborator.setContributor(resultSet.getBoolean("contributor"));
 
                                 final long startDateInMillis = resultSet.getLong("start_date");
                                 if (startDateInMillis > 0) {
@@ -232,12 +236,13 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
                     person.getId().toString());
         }
 
-        jdbcTemplate.update("insert into Collaborator (person_id, start_date, release_date, observation, usercredentials_id) values (?, ?, ?, ?, ?)",
+        jdbcTemplate.update("insert into Collaborator (person_id, start_date, release_date, observation, usercredentials_id, contributor) values (?, ?, ?, ?, ?, ?)",
                 person.getId().toString(),
                 newCollaborator.getStartDate() == null ? 0 : newCollaborator.getStartDate().getMillis(),
                 newCollaborator.getReleaseDate() == null ? 0 : newCollaborator.getReleaseDate().getMillis(),
                 newCollaborator.getObservation(),
-                userCredentials.getId().toString());
+                userCredentials.getId().toString(),
+                newCollaborator.getContributor());
 
         jdbcTemplate.update("insert into UserCredentials (id, username, password, user_role) values (?, ?, ?, ?)",
                 userCredentials.getId().toString(),
@@ -252,10 +257,11 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
         final Person person = newCollaborator.getPerson();
         final String id = person.getId().toString();
 
-        jdbcTemplate.update("update Collaborator set start_date = ?, release_date = ?, observation = ? where person_id = ?",
+        jdbcTemplate.update("update Collaborator set start_date = ?, release_date = ?, observation = ?, contributor = ? where person_id = ?",
                 newCollaborator.getStartDate() == null ? 0 : newCollaborator.getStartDate().getMillis(),
                 newCollaborator.getReleaseDate() == null ? 0 : newCollaborator.getReleaseDate().getMillis(),
                 newCollaborator.getObservation(),
+                newCollaborator.getContributor(),
                 id);
 
         jdbcTemplate.update("delete from Telephone where person_id = ?", id);

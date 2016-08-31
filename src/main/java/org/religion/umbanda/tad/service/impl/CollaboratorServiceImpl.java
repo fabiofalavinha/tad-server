@@ -43,6 +43,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
             vo.setGenderType(collaborator.getPerson().getGenderType());
             vo.setActive(collaborator.getReleaseDate() == null);
             vo.setObservation(collaborator.getObservation());
+            vo.setContributor(collaborator.getContributor());
             final List<Telephone> telephones = collaborator.getPerson().getTelephones();
             final List<TelephoneVO> telephoneVOs = new ArrayList<TelephoneVO>(telephones.size());
             for (Telephone telephone : telephones) {
@@ -107,6 +108,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         final Collaborator newCollaborator = new Collaborator();
         newCollaborator.setPerson(newPerson);
         newCollaborator.setObservation(collaboratorVO.getObservation());
+        newCollaborator.setContributor(collaboratorVO.getContributor());
 
         final String startDateAsString = collaboratorVO.getStartDate();
         if (startDateAsString != null && !"".equals(startDateAsString.trim())) {

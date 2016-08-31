@@ -18,6 +18,7 @@ public class CollaboratorVO {
     private UserRole userRole;
     private String observation;
     private boolean active;
+    private boolean contributor;
 
     public String getId() {
         return id;
@@ -106,4 +107,8 @@ public class CollaboratorVO {
     public void setActive(boolean active) {
         this.active = active;
     }
+
+    public boolean getContributor() { return contributor; }
+
+    public void setContributor(boolean contributor) { this.contributor = contributor; }
 }
