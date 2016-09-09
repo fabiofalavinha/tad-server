@@ -189,6 +189,7 @@ public class FinancialServiceImpl implements FinancialService {
                 financialBalanceRepository.update(newBalance);
             }
         } else {
+            log.info("Adding new financial entry [date=%s, value=%f]...", financialEntryDTO.getDate(), financialEntryDTO.getValue().doubleValue());
             entry = new FinancialEntry();
             entry.setId(financialEntryDTO.getId());
             entry.setEntryDate(DateTimeUtils.fromString(financialEntryDTO.getDate(), "yyyy-MM-dd"));
