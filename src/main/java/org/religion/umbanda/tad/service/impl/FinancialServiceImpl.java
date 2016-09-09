@@ -195,7 +195,6 @@ public class FinancialServiceImpl implements FinancialService {
             entry.setEntryDate(DateTimeUtils.fromString(financialEntryDTO.getDate(), "yyyy-MM-dd"));
             entry.setAdditionalText(financialEntryDTO.getAdditionalText());
             entry.setValue(financialEntryDTO.getValue());
-            // entry.setBalance(financialEntryDTO.getBalance());
             entry.setStatus(FinancialEntryStatus.OPEN);
             final FinancialTargetVO targetVO = financialEntryDTO.getTarget();
             FinancialTarget target = financialTargetRepository.findById(targetVO.getId());

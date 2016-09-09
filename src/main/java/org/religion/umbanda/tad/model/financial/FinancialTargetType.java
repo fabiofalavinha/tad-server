@@ -3,7 +3,8 @@ package org.religion.umbanda.tad.model.financial;
 public enum FinancialTargetType {
 
     COLLABORATOR(0),
-    NON_COLLABORATOR(1);
+    NON_COLLABORATOR(1),
+    OTHER(2);
 
     private final int value;
 
@@ -18,6 +19,7 @@ public enum FinancialTargetType {
     public static FinancialTargetType fromValue(int value) {
         if (COLLABORATOR.value() == value) return COLLABORATOR;
         if (NON_COLLABORATOR.value() == value) return NON_COLLABORATOR;
+        if (OTHER.value == value) return OTHER;
         throw new IllegalArgumentException(String.format("Could not find financial target by value [%d]", value));
     }
 }
