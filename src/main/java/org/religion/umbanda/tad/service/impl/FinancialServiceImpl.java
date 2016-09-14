@@ -307,4 +307,21 @@ public class FinancialServiceImpl implements FinancialService {
             log.warn("No financial entry is available for closing");
         }
     }
+
+    @RequestMapping(value = "/financial/close/last", method = RequestMethod.GET)
+    public CloseableFinancialEntryDTO getLastCloseableFinancialEntry() {
+        final CloseableBalanceFinancialEntry closeableFinancialEntry = closeableBalanceFinancialEntryRepository.getLastCloseableBalanceFinancialEntry();
+        if (closeableFinancialEntry != null) {
+            final CloseableFinancialEntryDTO closeableFinancialEntryDTO = new CloseableFinancialEntryDTO();
+            closeableFinancialEntryDTO.setClosedDate(DateTimeUtils.toString(closeableFinancialEntry.getClosedDate(), "yyyy-MM-dd"));
+            final UserCredentialsVO closedByUser = new UserCredentialsVO();
+            closedByUser.setId(closeableFinancialEntry.getClosedBy().getId().toString());
+            closedByUser.setUserName(closeableFinancialEntry.getClosedBy().getUserName());
+            closedByUser.setName(closedByUser.getUserName());
+            closedByUser.setUserRole(closeableFinancialEntry.getClosedBy().getUserRole());
+            closeableFinancialEntryDTO.setClosedBy(closedByUser);
+            return closeableFinancialEntryDTO;
+        }
+        return null;
+    }
 }
