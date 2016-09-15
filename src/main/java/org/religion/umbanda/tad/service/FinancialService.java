@@ -17,6 +17,8 @@ public interface FinancialService {
 
     CloseableFinancialEntryDTO getLastCloseableFinancialEntry();
 
+    CollaboratorVO sendFinancialEntryReceipt(String id);
+
     void saveFinancialReference(FinancialReferenceVO financialReferenceVO);
 
     void removeFinancialReferenceById(String id);

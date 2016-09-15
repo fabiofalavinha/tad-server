@@ -335,8 +335,8 @@ public class FinancialServiceImpl implements FinancialService {
         return null;
     }
 
-    @RequestMapping(value = "/financial/receipt", method = RequestMethod.POST)
-    public void sendFinancialEntryReceipt(String id) {
+    @RequestMapping(value = "/financial/receipt/{id}", method = RequestMethod.POST)
+    public CollaboratorVO sendFinancialEntryReceipt(@PathVariable("iSd") String id) {
         final FinancialEntry financialEntry = financialEntryRepository.findById(id);
         if (financialEntry == null) {
             throw new IllegalArgumentException(String.format("Lançamento financeiro não foi encontrado [id=%s]", id));
@@ -359,5 +359,7 @@ public class FinancialServiceImpl implements FinancialService {
         } catch (Exception ex) {
             log.error("Error sending financial receipt mail: %s", ExceptionUtils.getMessage(ex));
         }
+
+        return CollaboratorParserUtils.parse(collaborator);
     }
 }
