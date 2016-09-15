@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @Configuration
-@PropertySource("classpath:mail-template.properties")
+@PropertySource("classpath:mail-template.yml")
 public class NewCollaboratorConfigurationMailTemplate {
 
     private final String key = "newCollaborator";
