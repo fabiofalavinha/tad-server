@@ -336,7 +336,7 @@ public class FinancialServiceImpl implements FinancialService {
     }
 
     @RequestMapping(value = "/financial/receipt/{id}", method = RequestMethod.POST)
-    public CollaboratorVO sendFinancialEntryReceipt(@PathVariable("iSd") String id) {
+    public CollaboratorVO sendFinancialEntryReceipt(@PathVariable("id") String id) {
         final FinancialEntry financialEntry = financialEntryRepository.findById(id);
         if (financialEntry == null) {
             throw new IllegalArgumentException(String.format("Lançamento financeiro não foi encontrado [id=%s]", id));
