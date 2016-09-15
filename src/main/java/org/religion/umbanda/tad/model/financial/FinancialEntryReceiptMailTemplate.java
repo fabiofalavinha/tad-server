@@ -3,8 +3,11 @@ package org.religion.umbanda.tad.model.financial;
 import org.religion.umbanda.tad.model.Collaborator;
 import org.religion.umbanda.tad.model.MailMessage;
 import org.religion.umbanda.tad.model.MailTemplate;
+import org.religion.umbanda.tad.util.DateTimeUtils;
 
-public class FinancialEntryReceiptMailTemplate implements MailTemplate<Collaborator> {
+import java.text.NumberFormat;
+
+public class FinancialEntryReceiptMailTemplate implements MailTemplate<FinancialReceipt> {
 
     private final String key;
     private final String subject;
@@ -21,12 +24,18 @@ public class FinancialEntryReceiptMailTemplate implements MailTemplate<Collabora
     }
 
     @Override
-    public MailMessage createMailMessage(Collaborator collaborator) {
+    public MailMessage createMailMessage(FinancialReceipt financialReceipt) {
+        final Collaborator collaborator = financialReceipt.getCollaborator();
         final MailMessage mailMessage = new MailMessage();
         mailMessage.setTo(collaborator.getUserCredentials().getUserName());
         mailMessage.setSubject(subject);
-        // mailMessage.setText(String.format(body, collaborator.getPerson().getName(), collaborator.getPerson().getId()));
-        mailMessage.setText("Teste de envio de email do recibo do lançamento financeiro");
+        mailMessage.setText(
+            String.format(body,
+                collaborator.getPerson().getName(),
+                financialReceipt.getKey().value(),
+                DateTimeUtils.toString(financialReceipt.getFinancialEntry().getEntryDate(), "dd/MMM/yyyy"),
+                NumberFormat.getCurrencyInstance().format(financialReceipt.getFinancialEntry().getValue()),
+                financialReceipt.getFinancialEntry().getType().getDescription()));
         return mailMessage;
     }
 }

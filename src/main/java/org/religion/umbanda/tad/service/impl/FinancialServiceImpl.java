@@ -49,6 +49,9 @@ public class FinancialServiceImpl implements FinancialService {
     @Autowired
     private UserCredentialsRepository userCredentialsRepository;
 
+    @Autowired
+    private FinancialReceiptRepository financialReceiptRepository;
+
     private FinancialReferenceVO convertFinancialReference(FinancialReference financialReference) {
         final FinancialReferenceVO vo = new FinancialReferenceVO();
         vo.setId(financialReference.getId());
@@ -336,7 +339,7 @@ public class FinancialServiceImpl implements FinancialService {
     }
 
     @RequestMapping(value = "/financial/receipt/{id}", method = RequestMethod.POST)
-    public CollaboratorVO sendFinancialEntryReceipt(@PathVariable("id") String id) {
+    public FinancialReceiptResultVO sendFinancialEntryReceipt(@PathVariable("id") String id) {
         final FinancialEntry financialEntry = financialEntryRepository.findById(id);
         if (financialEntry == null) {
             throw new IllegalArgumentException(String.format("Lançamento financeiro não foi encontrado [id=%s]", id));
@@ -352,14 +355,36 @@ public class FinancialServiceImpl implements FinancialService {
             throw new IllegalStateException(String.format("Colaborador não foi encontrado [id=%s]", target.getId()));
         }
 
+        final FinancialReceipt newFinancialReceipt = new FinancialReceipt();
+        newFinancialReceipt.setKey(financialReceiptRepository.generateKey());
+        newFinancialReceipt.setFinancialEntry(financialEntry);
+        newFinancialReceipt.setCollaborator(collaborator);
+        financialReceiptRepository.create(newFinancialReceipt);
+
         try {
             final MailTemplate<Collaborator> mailTemplate = mailTemplateFactory.getTemplate(FinancialEntryReceiptMailTemplateConfiguration.KEY);
             final MailMessage mailMessage = mailTemplate.createMailMessage(collaborator);
             mailService.send(mailMessage);
+
+            newFinancialReceipt.setSent(DateTime.now());
+            newFinancialReceipt.setStatus(FinancialReceiptStatus.SENT);
+            financialReceiptRepository.update(newFinancialReceipt);
         } catch (Exception ex) {
             log.error("Error sending financial receipt mail: %s", ExceptionUtils.getMessage(ex));
+            newFinancialReceipt.setStatus(FinancialReceiptStatus.ERROR);
+            financialReceiptRepository.update(newFinancialReceipt);
         }
 
-        return CollaboratorParserUtils.parse(collaborator);
+        final FinancialReceiptResultVO result = new FinancialReceiptResultVO();
+        result.setId(newFinancialReceipt.getKey().value());
+        result.setCreated(DateTimeUtils.toString(newFinancialReceipt.getCreated()));
+        final DateTime receiptSentDate = newFinancialReceipt.getSent();
+        if (receiptSentDate != null) {
+            result.setSent(DateTimeUtils.toString(receiptSentDate));
+        }
+        result.setStatus(newFinancialReceipt.getStatus().name());
+        result.setTarget(CollaboratorParserUtils.parse(collaborator));
+
+        return result;
     }
 }
