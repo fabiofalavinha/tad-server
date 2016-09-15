@@ -9,6 +9,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 @Service
@@ -26,8 +27,11 @@ public class MailServiceImpl implements MailService {
         final JavaMailSender javaMailSender = mailConfiguration.createMailSender();
         final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
-            mimeMessage.setContent(message.getText(), "utf-8");
-            mimeMessage.setSubject(message.getSubject());
+            mimeMessage.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(message.getTo()));
+            mimeMessage.addFrom(new InternetAddress[] { new InternetAddress(mailConfiguration.getFrom()) });
+            mimeMessage.setSubject(message.getSubject(), "UTF-8");
+            mimeMessage.setText(message.getText(), "UTF-8");
+
             final MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "utf-8");
             helper.setTo(message.getTo());
             helper.setFrom(mailConfiguration.getFrom());

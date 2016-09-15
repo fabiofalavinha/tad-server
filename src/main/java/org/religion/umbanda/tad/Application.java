@@ -12,6 +12,7 @@ public class Application {
 
     public static void main(String[] args) {
         final SpringApplication app = new SpringApplication(Application.class);
+        System.setProperty("mail.mime.charset", "utf8");
         Locale.setDefault(new Locale("pt", "BR"));
         app.run(args);
     }

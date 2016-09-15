@@ -32,10 +32,6 @@ public class MailConfiguration {
     @Value("${mail.password}")
     private String password;
 
-    public String getFrom() {
-        return from;
-    }
-
     @Autowired
     private NewCollaboratorMailTemplate newCollaboratorMailTemplate;
 
@@ -44,6 +40,10 @@ public class MailConfiguration {
 
     @Autowired
     private FinancialEntryReceiptMailTemplate financialEntryReceiptMailTemplate;
+
+    public String getFrom() {
+        return from;
+    }
 
     @Bean
     public MailTemplateFactory mailTemplateFactory() {
