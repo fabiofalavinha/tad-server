@@ -1,0 +1,2 @@
+# Custom PropertySource Loaders
+org.springframework.boot.env.PropertySourceLoader=org.religion.umbanda.tad.util.UnicodePropertiesPropertySourceLoader
