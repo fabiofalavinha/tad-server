@@ -5,18 +5,18 @@ import java.util.Map;
 
 public class MailTemplateFactory {
 
-    private final Map<String, MailTemplate> mailTemplateMap;
+    private final Map<String, MailTemplate<?>> mailTemplateMap;
 
     public MailTemplateFactory() {
-        mailTemplateMap = new Hashtable<String, MailTemplate>();
+        mailTemplateMap = new Hashtable<>();
     }
 
     public void addTemplate(MailTemplate mailTemplate) {
         mailTemplateMap.put(mailTemplate.getKey(), mailTemplate);
     }
 
-    public MailTemplate getTemplate(String key) {
-        return mailTemplateMap.get(key);
+    public <R> MailTemplate<R> getTemplate(String key) {
+        return (MailTemplate<R>) mailTemplateMap.get(key);
     }
 
 }

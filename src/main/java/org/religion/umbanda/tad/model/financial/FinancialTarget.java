@@ -2,6 +2,8 @@ package org.religion.umbanda.tad.model.financial;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.UUID;
+
 public class FinancialTarget {
 
     @JsonProperty
@@ -35,5 +37,9 @@ public class FinancialTarget {
 
     public void setType(FinancialTargetType type) {
         this.type = type;
+    }
+
+    public UUID getIdAsUUID() {
+        return UUID.fromString(id);
     }
 }

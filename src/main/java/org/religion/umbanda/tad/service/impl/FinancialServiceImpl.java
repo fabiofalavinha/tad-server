@@ -1,9 +1,10 @@
 package org.religion.umbanda.tad.service.impl;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.joda.time.DateTime;
 import org.religion.umbanda.tad.log.Log;
 import org.religion.umbanda.tad.log.LogFactory;
-import org.religion.umbanda.tad.model.UserCredentials;
+import org.religion.umbanda.tad.model.*;
 import org.religion.umbanda.tad.model.financial.*;
 import org.religion.umbanda.tad.service.*;
 import org.religion.umbanda.tad.service.vo.*;
@@ -35,6 +36,15 @@ public class FinancialServiceImpl implements FinancialService {
 
     @Autowired
     private CloseableBalanceFinancialEntryRepository closeableBalanceFinancialEntryRepository;
+
+    @Autowired
+    private CollaboratorRepository collaboratorRepository;
+
+    @Autowired
+    private MailService mailService;
+
+    @Autowired
+    private MailTemplateFactory mailTemplateFactory;
 
     @Autowired
     private UserCredentialsRepository userCredentialsRepository;
@@ -323,5 +333,31 @@ public class FinancialServiceImpl implements FinancialService {
             return closeableFinancialEntryDTO;
         }
         return null;
+    }
+
+    @RequestMapping(value = "/financial/receipt", method = RequestMethod.POST)
+    public void sendFinancialEntryReceipt(String id) {
+        final FinancialEntry financialEntry = financialEntryRepository.findById(id);
+        if (financialEntry == null) {
+            throw new IllegalArgumentException(String.format("Lançamento financeiro não foi encontrado [id=%s]", id));
+        }
+
+        final FinancialTarget target = financialEntry.getTarget();
+        if (target.getType() == FinancialTargetType.OTHER) {
+            throw new IllegalStateException(String.format("Não é possível enviar recibo para lançamentos que não são origem de pessoas (colaboradores / não colaboradores) [id=%s]", id));
+        }
+
+        final Collaborator collaborator = collaboratorRepository.findById(target.getIdAsUUID());
+        if (collaborator == null) {
+            throw new IllegalStateException(String.format("Colaborador não foi encontrado [id=%s]", target.getId()));
+        }
+
+        try {
+            final MailTemplate<Collaborator> mailTemplate = mailTemplateFactory.getTemplate(FinancialEntryReceiptMailTemplateConfiguration.KEY);
+            final MailMessage mailMessage = mailTemplate.createMailMessage(collaborator);
+            mailService.send(mailMessage);
+        } catch (Exception ex) {
+            log.error("Error sending financial receipt mail: %s", ExceptionUtils.getMessage(ex));
+        }
     }
 }

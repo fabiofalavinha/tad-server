@@ -9,7 +9,7 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:mail-template.properties")
 public class ForgotPasswordConfigurationMailTemplate {
 
-    private final String key = "forgotPassword";
+    private static final String KEY = "forgotPassword";
 
     @Value("${mail.template.forgotPassword.subject}")
     private String subject;
@@ -19,7 +19,6 @@ public class ForgotPasswordConfigurationMailTemplate {
 
     @Bean
     public ForgotPasswordMailTemplate forgotPasswordMailTemplate() {
-        return new ForgotPasswordMailTemplate(key, subject, body);
+        return new ForgotPasswordMailTemplate(KEY, subject, body);
     }
-
 }

@@ -21,5 +21,4 @@ public class NewCollaboratorConfigurationMailTemplate {
     public NewCollaboratorMailTemplate newCollaboratorMailTemplate() {
         return new NewCollaboratorMailTemplate(key, subject, body);
     }
-
 }

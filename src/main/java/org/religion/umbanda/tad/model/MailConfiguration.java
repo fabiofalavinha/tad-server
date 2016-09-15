@@ -1,5 +1,6 @@
 package org.religion.umbanda.tad.model;
 
+import org.religion.umbanda.tad.model.financial.FinancialEntryReceiptMailTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -41,11 +42,15 @@ public class MailConfiguration {
     @Autowired
     private ForgotPasswordMailTemplate forgotPasswordMailTemplate;
 
+    @Autowired
+    private FinancialEntryReceiptMailTemplate financialEntryReceiptMailTemplate;
+
     @Bean
     public MailTemplateFactory mailTemplateFactory() {
         final MailTemplateFactory mailTemplateFactory = new MailTemplateFactory();
         mailTemplateFactory.addTemplate(newCollaboratorMailTemplate);
         mailTemplateFactory.addTemplate(forgotPasswordMailTemplate);
+        mailTemplateFactory.addTemplate(financialEntryReceiptMailTemplate);
         return mailTemplateFactory;
     }
 
@@ -63,5 +68,4 @@ public class MailConfiguration {
         mailSender.setPassword(password);
         return mailSender;
     }
-
 }
