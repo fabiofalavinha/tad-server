@@ -72,7 +72,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         newPerson.setName(collaboratorVO.getName());
         newPerson.setBirthDate(DateTime.parse(collaboratorVO.getBirthDate()));
         newPerson.setGenderType(collaboratorVO.getGenderType());
-        final List<Telephone> newTelephones = new ArrayList<Telephone>();
+        final List<Telephone> newTelephones = new ArrayList<>();
         for (TelephoneVO telephoneVO : collaboratorVO.getTelephones()) {
             final Telephone newTelephone = new Telephone();
             newTelephone.setId(UUID.randomUUID());
@@ -105,7 +105,8 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         } else {
             collaboratorRepository.addCollaborator(newCollaborator);
             try {
-                final MailMessage mailMessage = mailTemplateFactory.getTemplate("newCollaborator").createMailMessage(newCollaborator);
+                final MailTemplate<Collaborator> template = mailTemplateFactory.getTemplate(NewCollaboratorConfigurationMailTemplate.KEY);
+                final MailMessage mailMessage = template.createMailMessage(newCollaborator);
                 mailService.send(mailMessage);
             } catch (Exception ex) {
                 ex.printStackTrace();

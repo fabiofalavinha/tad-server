@@ -9,7 +9,7 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:mail-template.yml")
 public class NewCollaboratorConfigurationMailTemplate {
 
-    private final String key = "newCollaborator";
+    public static final String KEY = "newCollaborator";
 
     @Value("${mail.template.newCollaborator.subject}")
     private String subject;
@@ -19,6 +19,6 @@ public class NewCollaboratorConfigurationMailTemplate {
 
     @Bean
     public NewCollaboratorMailTemplate newCollaboratorMailTemplate() {
-        return new NewCollaboratorMailTemplate(key, subject, body);
+        return new NewCollaboratorMailTemplate(KEY, subject, body);
     }
 }
