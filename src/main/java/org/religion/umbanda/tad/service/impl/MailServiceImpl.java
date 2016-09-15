@@ -33,13 +33,6 @@ public class MailServiceImpl implements MailService {
         } catch (MessagingException e) {
             throw new IllegalStateException("Error creating mime message", e);
         }
-        /*
-        final SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(message.getTo());
-        mailMessage.setFrom(mailConfiguration.getFrom());
-        mailMessage.setSubject(message.getSubject());
-        mailMessage.setText(message.getText());
-        */
         javaMailSender.send(mimeMessage);
     }
 }
