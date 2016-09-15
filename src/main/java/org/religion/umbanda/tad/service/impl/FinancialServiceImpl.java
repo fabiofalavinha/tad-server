@@ -381,6 +381,7 @@ public class FinancialServiceImpl implements FinancialService {
         result.setId(newFinancialReceipt.getKey().value());
         result.setCreated(DateTimeUtils.toString(newFinancialReceipt.getCreated()));
         final DateTime receiptSentDate = newFinancialReceipt.getSent();
+        result.setEntry(newFinancialReceipt.getFinancialEntry());
         if (receiptSentDate != null) {
             result.setSent(DateTimeUtils.toString(receiptSentDate));
         }

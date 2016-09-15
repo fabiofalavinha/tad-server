@@ -1,5 +1,7 @@
 package org.religion.umbanda.tad.service.vo;
 
+import org.religion.umbanda.tad.model.financial.FinancialEntry;
+
 public class FinancialReceiptResultVO {
 
     private String id;
@@ -7,6 +9,7 @@ public class FinancialReceiptResultVO {
     private String sent;
     private String status;
     private CollaboratorVO target;
+    private FinancialEntry entry;
 
     public String getId() {
         return id;
@@ -46,5 +49,13 @@ public class FinancialReceiptResultVO {
 
     public void setTarget(CollaboratorVO target) {
         this.target = target;
+    }
+
+    public void setEntry(FinancialEntry entry) {
+        this.entry = entry;
+    }
+
+    public FinancialEntry getEntry() {
+        return entry;
     }
 }
