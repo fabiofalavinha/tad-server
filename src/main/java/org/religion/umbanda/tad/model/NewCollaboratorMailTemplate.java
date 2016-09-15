@@ -21,7 +21,7 @@ public class NewCollaboratorMailTemplate implements MailTemplate<Collaborator> {
         final MailMessage mailMessage = new MailMessage();
         mailMessage.setTo(collaborator.getUserCredentials().getUserName());
         mailMessage.setSubject(subject);
-        mailMessage.setText(String.format(body, collaborator.getPerson().getName(), collaborator.getPerson().getId()));
+        mailMessage.setText(String.format(body, collaborator.getPerson().getName()));
         return mailMessage;
     }
 }
