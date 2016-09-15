@@ -148,35 +148,40 @@ public class FinancialServiceImpl implements FinancialService {
         final List<FinancialEntry> list = financialEntryRepository.findBy(fromDate, toDate);
         final List<FinancialEntryDTO> responseList = new ArrayList<>();
         for (FinancialEntry financialEntry : list) {
-            final FinancialEntryDTO dto = new FinancialEntryDTO();
-            dto.setId(financialEntry.getId());
-            dto.setAdditionalText(financialEntry.getAdditionalText());
-            dto.setBalance(financialEntry.getBalance());
-            dto.setDate(DateTimeUtils.toString(financialEntry.getEntryDate(), "yyyy-MM-dd"));
-            dto.setPreviewBalance(financialEntry.getPreviewBalance());
-            dto.setValue(financialEntry.getValue());
-            final FinancialTargetVO targetVO = new FinancialTargetVO();
-            targetVO.setId(financialEntry.getTarget().getId());
-            targetVO.setName(financialEntry.getTarget().getName());
-            targetVO.setType(financialEntry.getTarget().getType().value());
-            dto.setTarget(targetVO);
-            dto.setType(convertFinancialReference(financialEntry.getType()));
-            dto.setStatus(financialEntry.getStatus().getValue());
-            final CloseableFinancialEntry closeableFinancialEntry = financialEntry.getCloseableFinancialEntry();
-            if (closeableFinancialEntry != null) {
-                final CloseableFinancialEntryDTO closeableFinancialEntryDTO = new CloseableFinancialEntryDTO();
-                closeableFinancialEntryDTO.setClosedDate(DateTimeUtils.toString(closeableFinancialEntry.getClosedDate(), "yyyy-MM-dd"));
-                final UserCredentialsVO closedByUser = new UserCredentialsVO();
-                closedByUser.setId(closeableFinancialEntry.getClosedBy().getId().toString());
-                closedByUser.setUserName(closeableFinancialEntry.getClosedBy().getUserName());
-                closedByUser.setName(closedByUser.getUserName());
-                closedByUser.setUserRole(closeableFinancialEntry.getClosedBy().getUserRole());
-                closeableFinancialEntryDTO.setClosedBy(closedByUser);
-                dto.setCloseableFinancialEntry(closeableFinancialEntryDTO);
-            }
+            final FinancialEntryDTO dto = parseFinancialEntry(financialEntry);
             responseList.add(dto);
         }
         return responseList;
+    }
+
+    private FinancialEntryDTO parseFinancialEntry(FinancialEntry financialEntry) {
+        final FinancialEntryDTO dto = new FinancialEntryDTO();
+        dto.setId(financialEntry.getId());
+        dto.setAdditionalText(financialEntry.getAdditionalText());
+        dto.setBalance(financialEntry.getBalance());
+        dto.setDate(DateTimeUtils.toString(financialEntry.getEntryDate(), "yyyy-MM-dd"));
+        dto.setPreviewBalance(financialEntry.getPreviewBalance());
+        dto.setValue(financialEntry.getValue());
+        final FinancialTargetVO targetVO = new FinancialTargetVO();
+        targetVO.setId(financialEntry.getTarget().getId());
+        targetVO.setName(financialEntry.getTarget().getName());
+        targetVO.setType(financialEntry.getTarget().getType().value());
+        dto.setTarget(targetVO);
+        dto.setType(convertFinancialReference(financialEntry.getType()));
+        dto.setStatus(financialEntry.getStatus().getValue());
+        final CloseableFinancialEntry closeableFinancialEntry = financialEntry.getCloseableFinancialEntry();
+        if (closeableFinancialEntry != null) {
+            final CloseableFinancialEntryDTO closeableFinancialEntryDTO = new CloseableFinancialEntryDTO();
+            closeableFinancialEntryDTO.setClosedDate(DateTimeUtils.toString(closeableFinancialEntry.getClosedDate(), "yyyy-MM-dd"));
+            final UserCredentialsVO closedByUser = new UserCredentialsVO();
+            closedByUser.setId(closeableFinancialEntry.getClosedBy().getId().toString());
+            closedByUser.setUserName(closeableFinancialEntry.getClosedBy().getUserName());
+            closedByUser.setName(closedByUser.getUserName());
+            closedByUser.setUserRole(closeableFinancialEntry.getClosedBy().getUserRole());
+            closeableFinancialEntryDTO.setClosedBy(closedByUser);
+            dto.setCloseableFinancialEntry(closeableFinancialEntryDTO);
+        }
+        return dto;
     }
 
     @RequestMapping(value = "/financial/entry", method = RequestMethod.POST)
@@ -381,7 +386,7 @@ public class FinancialServiceImpl implements FinancialService {
         result.setId(newFinancialReceipt.getKey().value());
         result.setCreated(DateTimeUtils.toString(newFinancialReceipt.getCreated()));
         final DateTime receiptSentDate = newFinancialReceipt.getSent();
-        result.setEntry(newFinancialReceipt.getFinancialEntry());
+        result.setEntry(parseFinancialEntry(newFinancialReceipt.getFinancialEntry()));
         if (receiptSentDate != null) {
             result.setSent(DateTimeUtils.toString(receiptSentDate));
         }
