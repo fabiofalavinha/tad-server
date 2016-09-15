@@ -362,8 +362,8 @@ public class FinancialServiceImpl implements FinancialService {
         financialReceiptRepository.create(newFinancialReceipt);
 
         try {
-            final MailTemplate<Collaborator> mailTemplate = mailTemplateFactory.getTemplate(FinancialEntryReceiptMailTemplateConfiguration.KEY);
-            final MailMessage mailMessage = mailTemplate.createMailMessage(collaborator);
+            final MailTemplate<FinancialReceipt> mailTemplate = mailTemplateFactory.getTemplate(FinancialEntryReceiptMailTemplateConfiguration.KEY);
+            final MailMessage mailMessage = mailTemplate.createMailMessage(newFinancialReceipt);
             mailService.send(mailMessage);
 
             newFinancialReceipt.setSent(DateTime.now());
