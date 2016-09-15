@@ -322,6 +322,7 @@ public class FinancialServiceImpl implements FinancialService {
     }
 
     @RequestMapping(value = "/financial/close/last", method = RequestMethod.GET)
+    @Override
     public CloseableFinancialEntryDTO getLastCloseableFinancialEntry() {
         final CloseableBalanceFinancialEntry closeableFinancialEntry = closeableBalanceFinancialEntryRepository.getLastCloseableBalanceFinancialEntry();
         if (closeableFinancialEntry != null) {
@@ -339,6 +340,7 @@ public class FinancialServiceImpl implements FinancialService {
     }
 
     @RequestMapping(value = "/financial/receipt/{id}", method = RequestMethod.POST)
+    @Override
     public FinancialReceiptResultVO sendFinancialEntryReceipt(@PathVariable("id") String id) {
         final FinancialEntry financialEntry = financialEntryRepository.findById(id);
         if (financialEntry == null) {

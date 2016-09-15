@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @Configuration
-@PropertySource("classpath:mail-template.yml")
+@PropertySource("classpath:mail-template.properties")
 public class ForgotPasswordConfigurationMailTemplate {
 
     private static final String KEY = "forgotPassword";
