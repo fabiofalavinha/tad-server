@@ -169,6 +169,10 @@ public class FinancialServiceImpl implements FinancialService {
         dto.setTarget(targetVO);
         dto.setType(convertFinancialReference(financialEntry.getType()));
         dto.setStatus(financialEntry.getStatus().getValue());
+        final FinancialReceiptInfoDTO financialReceiptInfoDTO = new FinancialReceiptInfoDTO();
+        financialReceiptInfoDTO.setNumber(financialEntry.getFinancialReceiptInfo().getNumber());
+        financialReceiptInfoDTO.setSent(DateTimeUtils.toString(financialEntry.getFinancialReceiptInfo().getSent(), "yyyy-MM-dd"));
+        dto.setFinancialReceipt(financialReceiptInfoDTO);
         final CloseableFinancialEntry closeableFinancialEntry = financialEntry.getCloseableFinancialEntry();
         if (closeableFinancialEntry != null) {
             final CloseableFinancialEntryDTO closeableFinancialEntryDTO = new CloseableFinancialEntryDTO();
@@ -352,46 +356,50 @@ public class FinancialServiceImpl implements FinancialService {
             throw new IllegalArgumentException(String.format("Lançamento financeiro não foi encontrado [id=%s]", id));
         }
 
-        final FinancialTarget target = financialEntry.getTarget();
-        if (target.getType() == FinancialTargetType.OTHER) {
-            throw new IllegalStateException(String.format("Não é possível enviar recibo para lançamentos que não são origem de pessoas (colaboradores / não colaboradores) [id=%s]", id));
-        }
+        FinancialReceipt financialReceipt = financialReceiptRepository.findByEntryId(financialEntry.getId());
+        if (financialReceipt == null) {
+            financialReceipt = new FinancialReceipt();
+            financialReceipt.setFinancialEntry(financialEntry);
 
-        final Collaborator collaborator = collaboratorRepository.findById(target.getIdAsUUID());
-        if (collaborator == null) {
-            throw new IllegalStateException(String.format("Colaborador não foi encontrado [id=%s]", target.getId()));
-        }
+            final FinancialTarget target = financialEntry.getTarget();
+            if (target.getType() == FinancialTargetType.OTHER) {
+                throw new IllegalStateException(String.format("Não é possível enviar recibo para lançamentos que não são origem de pessoas (colaboradores / não colaboradores) [id=%s]", id));
+            }
 
-        final FinancialReceipt newFinancialReceipt = new FinancialReceipt();
-        newFinancialReceipt.setKey(financialReceiptRepository.generateKey());
-        newFinancialReceipt.setFinancialEntry(financialEntry);
-        newFinancialReceipt.setCollaborator(collaborator);
-        financialReceiptRepository.create(newFinancialReceipt);
+            final Collaborator collaborator = collaboratorRepository.findById(target.getIdAsUUID());
+            if (collaborator == null) {
+                throw new IllegalStateException(String.format("Colaborador não foi encontrado [id=%s]", target.getId()));
+            }
+
+            financialReceipt.setCollaborator(collaborator);
+            financialReceipt.setKey(financialReceiptRepository.generateKey());
+            financialReceiptRepository.create(financialReceipt);
+        }
 
         try {
             final MailTemplate<FinancialReceipt> mailTemplate = mailTemplateFactory.getTemplate(FinancialEntryReceiptMailTemplateConfiguration.KEY);
-            final MailMessage mailMessage = mailTemplate.createMailMessage(newFinancialReceipt);
+            final MailMessage mailMessage = mailTemplate.createMailMessage(financialReceipt);
             mailService.send(mailMessage);
 
-            newFinancialReceipt.setSent(DateTime.now());
-            newFinancialReceipt.setStatus(FinancialReceiptStatus.SENT);
-            financialReceiptRepository.update(newFinancialReceipt);
+            financialReceipt.setSent(DateTime.now());
+            financialReceipt.setStatus(FinancialReceiptStatus.SENT);
+            financialReceiptRepository.update(financialReceipt);
         } catch (Exception ex) {
             log.error("Error sending financial receipt mail: %s", ExceptionUtils.getMessage(ex));
-            newFinancialReceipt.setStatus(FinancialReceiptStatus.ERROR);
-            financialReceiptRepository.update(newFinancialReceipt);
+            financialReceipt.setStatus(FinancialReceiptStatus.ERROR);
+            financialReceiptRepository.update(financialReceipt);
         }
 
         final FinancialReceiptResultVO result = new FinancialReceiptResultVO();
-        result.setId(newFinancialReceipt.getKey().value());
-        result.setCreated(DateTimeUtils.toString(newFinancialReceipt.getCreated()));
-        final DateTime receiptSentDate = newFinancialReceipt.getSent();
-        result.setEntry(parseFinancialEntry(newFinancialReceipt.getFinancialEntry()));
+        result.setId(financialReceipt.getKey().value());
+        result.setCreated(DateTimeUtils.toString(financialReceipt.getCreated()));
+        final DateTime receiptSentDate = financialReceipt.getSent();
+        result.setEntry(parseFinancialEntry(financialReceipt.getFinancialEntry()));
         if (receiptSentDate != null) {
             result.setSent(DateTimeUtils.toString(receiptSentDate));
         }
-        result.setStatus(newFinancialReceipt.getStatus().name());
-        result.setTarget(CollaboratorParserUtils.parse(collaborator));
+        result.setStatus(financialReceipt.getStatus().name());
+        result.setTarget(CollaboratorParserUtils.parse(financialReceipt.getCollaborator()));
 
         return result;
     }

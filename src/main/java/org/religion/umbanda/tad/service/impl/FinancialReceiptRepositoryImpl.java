@@ -1,40 +1,68 @@
 package org.religion.umbanda.tad.service.impl;
 
 import org.joda.time.DateTime;
+import org.religion.umbanda.tad.model.financial.FinancialEntry;
 import org.religion.umbanda.tad.model.financial.FinancialReceipt;
 import org.religion.umbanda.tad.model.financial.FinancialReceiptKey;
+import org.religion.umbanda.tad.model.financial.FinancialReceiptStatus;
+import org.religion.umbanda.tad.service.CollaboratorRepository;
+import org.religion.umbanda.tad.service.FinancialEntryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.Optional;
 
 @Repository
 class FinancialReceiptRepositoryImpl implements FinancialReceiptRepository {
 
     private final JdbcTemplate jdbcTemplate;
+    private final FinancialEntryRepository financialEntryRepository;
+    private final CollaboratorRepository collaboratorRepository;
 
     @Autowired
-    FinancialReceiptRepositoryImpl(JdbcTemplate jdbcTemplate) {
+    FinancialReceiptRepositoryImpl(JdbcTemplate jdbcTemplate, FinancialEntryRepository financialEntryRepository, CollaboratorRepository collaboratorRepository) {
         this.jdbcTemplate = jdbcTemplate;
+        this.financialEntryRepository = financialEntryRepository;
+        this.collaboratorRepository = collaboratorRepository;
     }
 
     @Override
     @Transactional(readOnly = true)
     public FinancialReceiptKey generateKey() {
         try {
-            return jdbcTemplate.queryForObject("select MAX(keyNumber) as keyNumber from FinancialReceiptId", new RowMapper<FinancialReceiptKey>() {
-                @Override
-                public FinancialReceiptKey mapRow(ResultSet resultSet, int i) throws SQLException {
-                    return new FinancialReceiptKey(resultSet.getInt("keyNumber") + 1, DateTime.now().getYear());
-                }
-            });
+            return jdbcTemplate.queryForObject("select MAX(keyNumber) as keyNumber from FinancialReceiptId", (resultSet, i) -> new FinancialReceiptKey(resultSet.getInt("keyNumber") + 1, DateTime.now().getYear()));
         } catch (Exception ex) {
             return FinancialReceiptKey.geneterateDefault();
         }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public FinancialReceipt findByEntryId(String entryId) {
+        Optional<FinancialReceipt> financialReceiptMaybe;
+        try {
+            financialReceiptMaybe = jdbcTemplate.queryForObject("select * from FinancialReceipt where entry_id = ?", ((resultSet, i) -> {
+                FinancialReceipt receipt = new FinancialReceipt();
+                receipt.setKey(new FinancialReceiptKey(resultSet.getInt("keyNumber"), resultSet.getInt("keyYear")));
+                receipt.setCreated(new DateTime(resultSet.getLong("created")));
+                receipt.setSent(new DateTime(resultSet.getLong("sent")));
+                receipt.setStatus(FinancialReceiptStatus.fromValue(resultSet.getInt("status")));
+                return Optional.of(receipt);
+            }), entryId);
+        } catch (EmptyResultDataAccessException ex) {
+            financialReceiptMaybe = Optional.empty();
+        }
+        if (financialReceiptMaybe.isPresent()) {
+            FinancialReceipt financialReceipt = financialReceiptMaybe.get();
+            FinancialEntry financialEntry = financialEntryRepository.findById(entryId);
+            financialReceipt.setFinancialEntry(financialEntry);
+            financialReceipt.setCollaborator(collaboratorRepository.findById(financialEntry.getTarget().getIdAsUUID()));
+            return financialReceipt;
+        }
+        return null;
     }
 
     @Override

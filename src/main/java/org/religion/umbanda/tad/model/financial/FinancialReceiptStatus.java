@@ -15,4 +15,13 @@ public enum FinancialReceiptStatus {
     public int value() {
         return value;
     }
+
+    public static FinancialReceiptStatus fromValue(int value) {
+        for (FinancialReceiptStatus status : FinancialReceiptStatus.values()) {
+            if (status.value() == value) {
+                return status;
+            }
+        }
+        throw new IllegalArgumentException(String.format("Could not find financial receipt status by value [%d]", value));
+    }
 }

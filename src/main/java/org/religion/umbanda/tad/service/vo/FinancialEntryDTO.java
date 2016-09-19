@@ -37,6 +37,9 @@ public class FinancialEntryDTO {
     @JsonProperty
     private CloseableFinancialEntryDTO closeableFinancialEntry;
 
+    @JsonProperty
+    private FinancialReceiptInfoDTO financialReceipt;
+
     public String getId() {
         return id;
     }
@@ -115,5 +118,13 @@ public class FinancialEntryDTO {
 
     public CloseableFinancialEntryDTO getCloseableFinancialEntry() {
         return closeableFinancialEntry;
+    }
+
+    public FinancialReceiptInfoDTO getFinancialReceipt() {
+        return financialReceipt;
+    }
+
+    public void setFinancialReceipt(FinancialReceiptInfoDTO financialReceipt) {
+        this.financialReceipt = financialReceipt;
     }
 }

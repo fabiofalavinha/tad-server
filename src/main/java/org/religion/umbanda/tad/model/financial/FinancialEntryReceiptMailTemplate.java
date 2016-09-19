@@ -34,8 +34,8 @@ public class FinancialEntryReceiptMailTemplate implements MailTemplate<Financial
                 collaborator.getPerson().getName(),
                 financialReceipt.getKey().value(),
                 DateTimeUtils.toString(financialReceipt.getFinancialEntry().getEntryDate(), "dd/MMM/yyyy"),
-                NumberFormat.getCurrencyInstance().format(financialReceipt.getFinancialEntry().getValue()),
-                financialReceipt.getFinancialEntry().getType().getDescription()));
+                financialReceipt.getFinancialEntry().getType().getDescription(),
+                NumberFormat.getCurrencyInstance().format(financialReceipt.getFinancialEntry().getValue())));
         return mailMessage;
     }
 }

@@ -15,6 +15,7 @@ public class FinancialEntry {
     private FinancialTarget target;
     private FinancialEntryStatus status;
     private CloseableFinancialEntry closeableFinancialEntry;
+    private FinancialReceiptInfo financialReceiptInfo;
 
     public String getId() {
         return id;
@@ -98,5 +99,13 @@ public class FinancialEntry {
 
     public boolean isClosed() {
         return status == FinancialEntryStatus.CLOSED;
+    }
+
+    public FinancialReceiptInfo getFinancialReceiptInfo() {
+        return financialReceiptInfo;
+    }
+
+    public void setFinancialReceiptInfo(FinancialReceiptInfo financialReceiptInfo) {
+        this.financialReceiptInfo = financialReceiptInfo;
     }
 }

@@ -8,6 +8,10 @@ public class FinancialReceiptKey {
         return new FinancialReceiptKey(1, DateTime.now().getYear());
     }
 
+    public static String from(int receiptNumber, int receiptYear) {
+        return receiptNumber + "/" + receiptYear;
+    }
+
     private final int number;
     private final int year;
 
