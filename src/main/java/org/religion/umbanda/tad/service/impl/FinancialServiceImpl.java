@@ -300,7 +300,7 @@ public class FinancialServiceImpl implements FinancialService {
                 log.info("Retrieved [%d] opened financial entries", openedEntries.size());
                 final CloseableBalanceFinancialEntry newCloseableBalanceFinancialEntry = new CloseableBalanceFinancialEntry();
                 newCloseableBalanceFinancialEntry.setId(UUID.randomUUID());
-                newCloseableBalanceFinancialEntry.setClosedDate(DateTime.now());
+                newCloseableBalanceFinancialEntry.setClosedDate(closedDate);
                 UserCredentials closedByUser = userCredentialsRepository.findById(UUID.fromString(userId));
                 newCloseableBalanceFinancialEntry.setClosedBy(closedByUser);
                 for (FinancialEntry entry : openedEntries) {
