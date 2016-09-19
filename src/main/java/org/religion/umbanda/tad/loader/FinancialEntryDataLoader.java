@@ -112,7 +112,7 @@ class FinancialEntryDataLoader implements DataLoader {
                     currentBalance = currentBalance.calculate(newFinancialEntry.getValue(), newFinancialEntry.getType().getCategory());
                     newFinancialEntry.setBalance(currentBalance);
                     financialEntryRepository.create(newFinancialEntry);
-                    financialBalanceRepository.update(newFinancialEntry.getBalance());
+                    financialBalanceRepository.update(currentBalance);
                 } catch (IllegalStateException | IllegalArgumentException ex) {
                     log.exception(ex, "Error parsing financial entry [%s]", l);
                 }

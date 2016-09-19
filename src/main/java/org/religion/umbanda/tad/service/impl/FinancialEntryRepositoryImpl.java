@@ -70,6 +70,7 @@ public class FinancialEntryRepositoryImpl implements FinancialEntryRepository {
     @Transactional(readOnly = true)
     @Override
     public List<FinancialEntry> findBy(DateTime from, DateTime to) {
+        from = from.minusDays(1);
         final String sql =
                 "select " +
                         "   e.id as id," +
