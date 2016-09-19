@@ -10,10 +10,12 @@ public final class NumberUtils {
 
     public static BigDecimal parseNumber(String number) {
         try {
+            number = number.replace(".", "");
+            number = number.replace(",", ".");
             DecimalFormatSymbols symbols = new DecimalFormatSymbols(new Locale("pt", "BR"));
             symbols.setGroupingSeparator(',');
             symbols.setDecimalSeparator('.');
-            String pattern = "#,##0.0#";
+            String pattern = "#0.0#";
             DecimalFormat decimalFormat = new DecimalFormat(pattern, symbols);
             decimalFormat.setParseBigDecimal(true);
             return (BigDecimal) decimalFormat.parse(number);
