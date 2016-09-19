@@ -38,5 +38,4 @@ public class FinancialReference {
     public void setAssociatedWithCollaborator(boolean associatedWithCollaborator) {
         this.associatedWithCollaborator = associatedWithCollaborator;
     }
-
 }

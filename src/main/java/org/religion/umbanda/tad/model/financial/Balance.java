@@ -1,10 +1,15 @@
 package org.religion.umbanda.tad.model.financial;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.religion.umbanda.tad.util.NumberUtils;
 
 import java.math.BigDecimal;
 
 public class Balance {
+
+    public static Balance fromString(String balance) {
+        return new Balance(NumberUtils.parseNumber(balance));
+    }
 
     @JsonProperty
     private BigDecimal value;

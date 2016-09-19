@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class FinancialReferenceRepositoryImpl implements FinancialReferenceRepository {
@@ -48,6 +49,16 @@ public class FinancialReferenceRepositoryImpl implements FinancialReferenceRepos
             return jdbcTemplate.queryForObject("select * from FinancialReference where id = ?", new Object[]{id}, financialReferenceRowMapper);
         } catch (EmptyResultDataAccessException ex) {
             return null;
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<FinancialReference> findByDescription(String description) {
+        try {
+            return Optional.of(jdbcTemplate.queryForObject("select * from FinancialReference where description like ?", financialReferenceRowMapper, "%" + description + "%"));
+        } catch (EmptyResultDataAccessException ex) {
+            return Optional.empty();
         }
     }
 

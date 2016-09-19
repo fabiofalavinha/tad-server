@@ -4,14 +4,13 @@ import org.joda.time.DateTime;
 import org.religion.umbanda.tad.model.*;
 import org.religion.umbanda.tad.service.CollaboratorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -52,40 +51,37 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
                 jdbcTemplate.query(
                         query,
                         new Object[]{},
-                        new RowMapper<Collaborator>() {
-                            @Override
-                            public Collaborator mapRow(ResultSet resultSet, int i) throws SQLException {
-                                final Person person = new Person();
-                                person.setId(UUID.fromString(resultSet.getString("id")));
-                                person.setName(resultSet.getString("name"));
-                                person.setGenderType(GenderType.valueOf(resultSet.getString("gender")));
-                                person.setBirthDate(new DateTime(resultSet.getLong("birth_date")));
+                        (resultSet, i) -> {
+                            final Person person = new Person();
+                            person.setId(UUID.fromString(resultSet.getString("id")));
+                            person.setName(resultSet.getString("name"));
+                            person.setGenderType(GenderType.valueOf(resultSet.getString("gender")));
+                            person.setBirthDate(new DateTime(resultSet.getLong("birth_date")));
 
-                                final UserCredentials userCredentials = new UserCredentials();
-                                userCredentials.setId(UUID.fromString(resultSet.getString("user_credentials_id")));
-                                userCredentials.setUserName(resultSet.getString("username"));
-                                userCredentials.setPassword(Password.fromSecret(resultSet.getString("password")));
-                                userCredentials.setUserRole(UserRole.valueOf(resultSet.getString("user_role")));
+                            final UserCredentials userCredentials = new UserCredentials();
+                            userCredentials.setId(UUID.fromString(resultSet.getString("user_credentials_id")));
+                            userCredentials.setUserName(resultSet.getString("username"));
+                            userCredentials.setPassword(Password.fromSecret(resultSet.getString("password")));
+                            userCredentials.setUserRole(UserRole.valueOf(resultSet.getString("user_role")));
 
-                                final Collaborator collaborator = new Collaborator();
-                                collaborator.setPerson(person);
-                                collaborator.setUserCredentials(userCredentials);
-                                collaborator.setContributor(resultSet.getBoolean("contributor"));
+                            final Collaborator collaborator = new Collaborator();
+                            collaborator.setPerson(person);
+                            collaborator.setUserCredentials(userCredentials);
+                            collaborator.setContributor(resultSet.getBoolean("contributor"));
 
-                                final long startDateInMillis = resultSet.getLong("start_date");
-                                if (startDateInMillis > 0) {
-                                    collaborator.setStartDate(new DateTime(startDateInMillis));
-                                }
-
-                                final long releaseDateTimeInMillis = resultSet.getLong("release_date");
-                                if (releaseDateTimeInMillis > 0) {
-                                    collaborator.setReleaseDate(new DateTime(releaseDateTimeInMillis));
-                                }
-
-                                collaborator.setObservation(resultSet.getString("observation"));
-
-                                return collaborator;
+                            final long startDateInMillis = resultSet.getLong("start_date");
+                            if (startDateInMillis > 0) {
+                                collaborator.setStartDate(new DateTime(startDateInMillis));
                             }
+
+                            final long releaseDateTimeInMillis = resultSet.getLong("release_date");
+                            if (releaseDateTimeInMillis > 0) {
+                                collaborator.setReleaseDate(new DateTime(releaseDateTimeInMillis));
+                            }
+
+                            collaborator.setObservation(resultSet.getString("observation"));
+
+                            return collaborator;
                         });
 
         for (Collaborator collaborator : collaborators) {
@@ -93,16 +89,13 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
                     jdbcTemplate.query(
                             "select * from Telephone where person_id = ?",
                             new Object[]{collaborator.getPerson().getId().toString()},
-                            new RowMapper<Telephone>() {
-                                @Override
-                                public Telephone mapRow(ResultSet resultSet, int i) throws SQLException {
-                                    final Telephone telephone = new Telephone();
-                                    telephone.setId(UUID.fromString(resultSet.getString("id")));
-                                    telephone.setAreaCode(resultSet.getInt("area_code"));
-                                    telephone.setNumber(resultSet.getInt("number"));
-                                    telephone.setPhoneType(PhoneType.valueOf(resultSet.getString("phone_type")));
-                                    return telephone;
-                                }
+                            (resultSet, i) -> {
+                                final Telephone telephone = new Telephone();
+                                telephone.setId(UUID.fromString(resultSet.getString("id")));
+                                telephone.setAreaCode(resultSet.getInt("area_code"));
+                                telephone.setNumber(resultSet.getInt("number"));
+                                telephone.setPhoneType(PhoneType.valueOf(resultSet.getString("phone_type")));
+                                return telephone;
                             });
             collaborator.getPerson().setTelephones(telephones);
         }
@@ -140,61 +133,118 @@ public class CollaboratorRepositoryImpl implements CollaboratorRepository {
                 jdbcTemplate.queryForObject(
                         query,
                         new Object[]{id.toString()},
-                        new RowMapper<Collaborator>() {
-                            @Override
-                            public Collaborator mapRow(ResultSet resultSet, int i) throws SQLException {
-                                final Person person = new Person();
-                                person.setId(UUID.fromString(resultSet.getString("id")));
-                                person.setName(resultSet.getString("name"));
-                                person.setGenderType(GenderType.valueOf(resultSet.getString("gender")));
-                                person.setBirthDate(new DateTime(resultSet.getLong("birth_date")));
+                        (resultSet, i) -> {
+                            final Person person = new Person();
+                            person.setId(UUID.fromString(resultSet.getString("id")));
+                            person.setName(resultSet.getString("name"));
+                            person.setGenderType(GenderType.valueOf(resultSet.getString("gender")));
+                            person.setBirthDate(new DateTime(resultSet.getLong("birth_date")));
 
-                                final UserCredentials userCredentials = new UserCredentials();
-                                userCredentials.setId(UUID.fromString(resultSet.getString("user_credentials_id")));
-                                userCredentials.setUserName(resultSet.getString("username"));
-                                userCredentials.setPassword(Password.fromSecret(resultSet.getString("password")));
-                                userCredentials.setUserRole(UserRole.valueOf(resultSet.getString("user_role")));
+                            final UserCredentials userCredentials = new UserCredentials();
+                            userCredentials.setId(UUID.fromString(resultSet.getString("user_credentials_id")));
+                            userCredentials.setUserName(resultSet.getString("username"));
+                            userCredentials.setPassword(Password.fromSecret(resultSet.getString("password")));
+                            userCredentials.setUserRole(UserRole.valueOf(resultSet.getString("user_role")));
 
-                                final Collaborator collaborator = new Collaborator();
-                                collaborator.setPerson(person);
-                                collaborator.setUserCredentials(userCredentials);
-                                collaborator.setContributor(resultSet.getBoolean("contributor"));
+                            final Collaborator collaborator1 = new Collaborator();
+                            collaborator1.setPerson(person);
+                            collaborator1.setUserCredentials(userCredentials);
+                            collaborator1.setContributor(resultSet.getBoolean("contributor"));
 
-                                final long startDateInMillis = resultSet.getLong("start_date");
-                                if (startDateInMillis > 0) {
-                                    collaborator.setStartDate(new DateTime(startDateInMillis));
-                                }
-
-                                final long releaseDateTimeInMillis = resultSet.getLong("release_date");
-                                if (releaseDateTimeInMillis > 0) {
-                                    collaborator.setReleaseDate(new DateTime(releaseDateTimeInMillis));
-                                }
-
-                                collaborator.setObservation(resultSet.getString("observation"));
-
-                                return collaborator;
+                            final long startDateInMillis = resultSet.getLong("start_date");
+                            if (startDateInMillis > 0) {
+                                collaborator1.setStartDate(new DateTime(startDateInMillis));
                             }
+
+                            final long releaseDateTimeInMillis = resultSet.getLong("release_date");
+                            if (releaseDateTimeInMillis > 0) {
+                                collaborator1.setReleaseDate(new DateTime(releaseDateTimeInMillis));
+                            }
+
+                            collaborator1.setObservation(resultSet.getString("observation"));
+
+                            return collaborator1;
                         });
 
         final List<Telephone> telephones =
                 jdbcTemplate.query(
                         "select * from Telephone where person_id = ?",
                         new Object[]{collaborator.getPerson().getId().toString()},
-                        new RowMapper<Telephone>() {
-                            @Override
-                            public Telephone mapRow(ResultSet resultSet, int i) throws SQLException {
-                                final Telephone telephone = new Telephone();
-                                telephone.setId(UUID.fromString(resultSet.getString("id")));
-                                telephone.setAreaCode(resultSet.getInt("area_code"));
-                                telephone.setNumber(resultSet.getInt("number"));
-                                telephone.setPhoneType(PhoneType.valueOf(resultSet.getString("phone_type")));
-                                return telephone;
-                            }
+                        (resultSet, i) -> {
+                            final Telephone telephone = new Telephone();
+                            telephone.setId(UUID.fromString(resultSet.getString("id")));
+                            telephone.setAreaCode(resultSet.getInt("area_code"));
+                            telephone.setNumber(resultSet.getInt("number"));
+                            telephone.setPhoneType(PhoneType.valueOf(resultSet.getString("phone_type")));
+                            return telephone;
                         });
 
         collaborator.getPerson().setTelephones(telephones);
 
         return collaborator;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<Collaborator> findByPersonName(String personName) {
+        try {
+            String query =
+                    "select " +
+                            "    p.id, " +
+                            "    p.name, " +
+                            "    p.gender, " +
+                            "    p.birth_date, " +
+                            "    c.start_date, " +
+                            "    c.release_date, " +
+                            "    c.observation, " +
+                            "    u.id as user_credentials_id, " +
+                            "    u.username, " +
+                            "    u.password, " +
+                            "    u.user_role, " +
+                            "    c.contributor " +
+                            "from " +
+                            "    Collaborator c " +
+                            "    inner join Person p on p.id = c.person_id " +
+                            "    inner join UserCredentials u on u.id = c.usercredentials_id " +
+                            "where " +
+                            "     p.name like ?" +
+                            "order by " +
+                            "    p.name";
+            return jdbcTemplate.queryForObject(query, (resultSet, i) -> {
+                final Person person = new Person();
+                person.setId(UUID.fromString(resultSet.getString("id")));
+                person.setName(resultSet.getString("name"));
+                person.setGenderType(GenderType.valueOf(resultSet.getString("gender")));
+                person.setBirthDate(new DateTime(resultSet.getLong("birth_date")));
+
+                final UserCredentials userCredentials = new UserCredentials();
+                userCredentials.setId(UUID.fromString(resultSet.getString("user_credentials_id")));
+                userCredentials.setUserName(resultSet.getString("username"));
+                userCredentials.setPassword(Password.fromSecret(resultSet.getString("password")));
+                userCredentials.setUserRole(UserRole.valueOf(resultSet.getString("user_role")));
+
+                final Collaborator collaborator = new Collaborator();
+                collaborator.setPerson(person);
+                collaborator.setUserCredentials(userCredentials);
+                collaborator.setContributor(resultSet.getBoolean("contributor"));
+
+                final long startDateInMillis = resultSet.getLong("start_date");
+                if (startDateInMillis > 0) {
+                    collaborator.setStartDate(new DateTime(startDateInMillis));
+                }
+
+                final long releaseDateTimeInMillis = resultSet.getLong("release_date");
+                if (releaseDateTimeInMillis > 0) {
+                    collaborator.setReleaseDate(new DateTime(releaseDateTimeInMillis));
+                }
+
+                collaborator.setObservation(resultSet.getString("observation"));
+
+                return Optional.of(collaborator);
+            }, "%" + personName + "%");
+        } catch (EmptyResultDataAccessException ex) {
+            return Optional.empty();
+        }
     }
 
     @Transactional(readOnly = true)
