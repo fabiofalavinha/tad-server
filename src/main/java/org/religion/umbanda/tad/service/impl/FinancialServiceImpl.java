@@ -170,8 +170,11 @@ public class FinancialServiceImpl implements FinancialService {
         dto.setType(convertFinancialReference(financialEntry.getType()));
         dto.setStatus(financialEntry.getStatus().getValue());
         final FinancialReceiptInfoDTO financialReceiptInfoDTO = new FinancialReceiptInfoDTO();
-        financialReceiptInfoDTO.setNumber(financialEntry.getFinancialReceiptInfo().getNumber());
-        financialReceiptInfoDTO.setSent(DateTimeUtils.toString(financialEntry.getFinancialReceiptInfo().getSent(), "yyyy-MM-dd"));
+        FinancialReceiptInfo financialReceiptInfo = financialEntry.getFinancialReceiptInfo();
+        if (financialReceiptInfo != null) {
+            financialReceiptInfoDTO.setNumber(financialReceiptInfo.getNumber());
+            financialReceiptInfoDTO.setSent(DateTimeUtils.toString(financialReceiptInfo.getSent(), "yyyy-MM-dd"));
+        }
         dto.setFinancialReceipt(financialReceiptInfoDTO);
         final CloseableFinancialEntry closeableFinancialEntry = financialEntry.getCloseableFinancialEntry();
         if (closeableFinancialEntry != null) {
