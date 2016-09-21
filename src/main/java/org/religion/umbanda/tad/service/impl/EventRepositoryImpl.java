@@ -5,6 +5,7 @@ import org.religion.umbanda.tad.model.Event;
 import org.religion.umbanda.tad.model.VisibilityType;
 import org.religion.umbanda.tad.service.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -44,6 +46,16 @@ public class EventRepositoryImpl implements EventRepository {
     @Override
     public boolean existsById(UUID id) {
         return jdbcTemplate.queryForObject("select count(*) as Count from Event where id = ?", Integer.class, id.toString()) == 1;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<Event> findByTitleAndDate(String title, DateTime date) {
+        try {
+            return Optional.of(jdbcTemplate.queryForObject("select * from Event where title = ? and event_date = ?", eventRowMapper, title, date.getMillis()));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Transactional(readOnly = true)

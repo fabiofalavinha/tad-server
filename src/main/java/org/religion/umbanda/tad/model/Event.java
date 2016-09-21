@@ -14,6 +14,10 @@ public class Event {
     private String backColor;
     private String fontColor;
 
+    public Event() {
+        id = UUID.randomUUID();
+    }
+
     public String getTitle() {
         return title;
     }
