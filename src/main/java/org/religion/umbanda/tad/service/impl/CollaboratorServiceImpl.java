@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 public class CollaboratorServiceImpl implements CollaboratorService {
@@ -29,12 +30,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
 
     @RequestMapping(value = "/collaborators", method = RequestMethod.GET, produces = "application/json")
     public List<CollaboratorVO> findAll() {
-        final List<Collaborator> collaborators = collaboratorRepository.findAll();
-        final List<CollaboratorVO> result = new ArrayList<>();
-        for (Collaborator collaborator : collaborators) {
-            result.add(CollaboratorParserUtils.parse(collaborator));
-        }
-        return result;
+        return collaboratorRepository.findAll().stream().map(CollaboratorParserUtils::parse).collect(Collectors.toList());
     }
 
     @RequestMapping(value = "/collaborator/{id}", method = RequestMethod.DELETE)

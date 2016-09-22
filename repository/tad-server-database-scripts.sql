@@ -141,3 +141,9 @@ drop table [FinancialReference];
 create table [FinancialBalance] (
     [balance] real not null
 );
+
+create table [NewsletterUser] (
+    [id] varchar not null,
+    [name] varchar not null,
+    [email] varchar not null
+);
