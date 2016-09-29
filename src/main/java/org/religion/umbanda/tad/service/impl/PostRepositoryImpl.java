@@ -130,7 +130,11 @@ public class PostRepositoryImpl implements PostRepository {
         }
 
         final int start = previousPage * MAX_PAGE_ITEMS_COUNT;
-        final List<Post> postsSubList = posts.subList(start, start + MAX_PAGE_ITEMS_COUNT);
+        int end = start + MAX_PAGE_ITEMS_COUNT;
+        if (end > posts.size()) {
+            end = posts.size();
+        }
+        final List<Post> postsSubList = posts.subList(start, end);
 
         final PostPageable postPageable = new PostPageable();
         postPageable.setPosts(postsSubList);
