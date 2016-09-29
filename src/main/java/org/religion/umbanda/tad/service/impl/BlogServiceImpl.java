@@ -121,6 +121,7 @@ public class BlogServiceImpl implements BlogService {
         dto.setHasPrevious(postPageable.isHasPrevious());
         dto.setPageCount(postPageable.getPageCount());
         dto.setCount(postPageable.getCount());
+        dto.setPageNumber(postPageable.getPageNumber());
 
         return dto;
     }
