@@ -1,6 +1,7 @@
 package org.religion.umbanda.tad.service;
 
 import org.religion.umbanda.tad.model.NewsletterUser;
+
 import java.util.List;
 
 public interface NewsletterUserRepository {
@@ -10,5 +11,7 @@ public interface NewsletterUserRepository {
     boolean existsByEmail(String email);
 
     void add(NewsletterUser newsletterUser);
+
+    void removeById(String id);
 
 }

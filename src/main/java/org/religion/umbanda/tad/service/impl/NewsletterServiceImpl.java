@@ -1,15 +1,12 @@
 package org.religion.umbanda.tad.service.impl;
 
 import org.religion.umbanda.tad.model.NewsletterUser;
-import org.religion.umbanda.tad.service.NewsletterUserRepository;
 import org.religion.umbanda.tad.service.NewsletterService;
+import org.religion.umbanda.tad.service.NewsletterUserRepository;
 import org.religion.umbanda.tad.service.vo.NewsletterUserVO;
 import org.religion.umbanda.tad.validator.MailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,5 +52,14 @@ public class NewsletterServiceImpl implements NewsletterService {
             newsletterUserVO.setEmail(u.getEmail());
             return newsletterUserVO;
         }).collect(Collectors.toList());
+    }
+
+    @RequestMapping(value = "/newsletter/{id}", method = RequestMethod.DELETE)
+    @Override
+    public void removeNewsletterById(@PathVariable("id") String id) {
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("Id is required");
+        }
+        newsletterUserRepository.removeById(id);
     }
 }

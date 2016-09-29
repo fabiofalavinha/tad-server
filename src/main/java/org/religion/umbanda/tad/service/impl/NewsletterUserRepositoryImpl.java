@@ -29,6 +29,12 @@ public class NewsletterUserRepositoryImpl implements NewsletterUserRepository {
             newsletterUser.getEmail());
     }
 
+    @Transactional
+    @Override
+    public void removeById(String id) {
+        jdbcTemplate.update("delete from NewsletterUser where id=?", id);
+    }
+
     @Transactional(readOnly = true)
     @Override
     public List<NewsletterUser> findAll() {
