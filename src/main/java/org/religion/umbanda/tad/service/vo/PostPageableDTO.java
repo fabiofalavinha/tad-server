@@ -22,6 +22,9 @@ public class PostPageableDTO {
     @JsonProperty("hasPrevious")
     private boolean hasPrevious;
 
+    @JsonProperty("pageNumber")
+    private int pageNumber;
+
     public PostPageableDTO() {
         posts = new ArrayList<>();
     }
@@ -64,5 +67,13 @@ public class PostPageableDTO {
 
     public void setHasPrevious(boolean hasPrevious) {
         this.hasPrevious = hasPrevious;
+    }
+
+    public void setPageNumber(int pageNumber) {
+        this.pageNumber = pageNumber;
+    }
+
+    public int getPageNumber() {
+        return pageNumber;
     }
 }

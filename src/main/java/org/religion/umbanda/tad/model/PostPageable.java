@@ -9,6 +9,7 @@ public class PostPageable {
     private int pageCount;
     private boolean hasNext;
     private boolean hasPrevious;
+    private int pageNumber;
 
     public List<Post> getPosts() {
         return posts;
@@ -48,5 +49,13 @@ public class PostPageable {
 
     public void setHasPrevious(boolean hasPrevious) {
         this.hasPrevious = hasPrevious;
+    }
+
+    public void setPageNumber(int pageNumber) {
+        this.pageNumber = pageNumber;
+    }
+
+    public int getPageNumber() {
+        return pageNumber;
     }
 }

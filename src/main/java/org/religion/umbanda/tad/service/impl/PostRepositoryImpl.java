@@ -137,6 +137,7 @@ public class PostRepositoryImpl implements PostRepository {
         postPageable.setPageCount(MAX_PAGE_ITEMS_COUNT);
         postPageable.setHasNext(start + MAX_PAGE_ITEMS_COUNT < count);
         postPageable.setHasPrevious(start > 0);
+        postPageable.setPageNumber(pageNumber);
 
         return postPageable;
     }
