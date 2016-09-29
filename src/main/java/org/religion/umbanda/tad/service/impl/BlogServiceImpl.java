@@ -70,13 +70,13 @@ public class BlogServiceImpl implements BlogService {
         return postRepository.findArchiveBy(visibilityType);
     }
 
-    @RequestMapping("/published/posts/{visibility}/archive/{year}/{month}?p={pageNumber}")
+    @RequestMapping("/published/posts/{visibility}/archive/{year}/{month}/{pageNumber}")
     @Override
     public PostPageableDTO findPostByArchive(
             @PathVariable("visibility") String visibility,
             @PathVariable("year") int year,
             @PathVariable("month") int month,
-            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber) {
+            @PathVariable("pageNumber") int pageNumber) {
         final VisibilityType visibilityType = doConvertVisibilityType(visibility);
         if (visibilityType == null) {
             return new PostPageableDTO();
@@ -99,11 +99,11 @@ public class BlogServiceImpl implements BlogService {
         return dto;
     }
 
-    @RequestMapping("/published/posts/{visibility}?p={pageNumber}")
+    @RequestMapping("/published/posts/{visibility}/{pageNumber}")
     @Override
     public PostPageableDTO findPublishedPostByVisibility(
             @PathVariable("visibility") String visibility,
-            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber) {
+            @PathVariable("pageNumber") int pageNumber) {
         final VisibilityType visibilityType = doConvertVisibilityType(visibility);
         if (visibilityType == null) {
             return new PostPageableDTO();
