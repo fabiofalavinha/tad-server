@@ -47,7 +47,8 @@ public class NewsletterServiceImpl implements NewsletterService {
     @Override
     public List<NewsletterUserVO> findAll() {
         return newsletterUserRepository.findAll().stream().map(u -> {
-            NewsletterUserVO newsletterUserVO = new NewsletterUserVO();
+            final NewsletterUserVO newsletterUserVO = new NewsletterUserVO();
+            newsletterUserVO.setId(u.getId().toString());
             newsletterUserVO.setName(u.getName());
             newsletterUserVO.setEmail(u.getEmail());
             return newsletterUserVO;
