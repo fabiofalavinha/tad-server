@@ -2,6 +2,7 @@ package org.religion.umbanda.tad.service;
 
 import org.religion.umbanda.tad.model.Archive;
 import org.religion.umbanda.tad.model.Post;
+import org.religion.umbanda.tad.model.PostPageable;
 import org.religion.umbanda.tad.model.VisibilityType;
 
 import java.util.List;
@@ -11,9 +12,9 @@ public interface PostRepository {
 
     List<Post> findAll();
 
-    List<Post> findPublishedPost(VisibilityType visibilityType);
+    PostPageable findPublishedPost(VisibilityType visibilityType, int pageNumber);
 
-    List<Post> findPublishedPost(VisibilityType visibilityType, int year, int month);
+    PostPageable findPublishedPost(VisibilityType visibilityType, int year, int month, int pageNumber);
 
     List<Archive> findArchiveBy(VisibilityType visibilityType);
 

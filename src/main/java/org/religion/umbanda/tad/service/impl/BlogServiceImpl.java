@@ -5,6 +5,7 @@ import org.religion.umbanda.tad.model.*;
 import org.religion.umbanda.tad.service.BlogService;
 import org.religion.umbanda.tad.service.PostRepository;
 import org.religion.umbanda.tad.service.UserCredentialsRepository;
+import org.religion.umbanda.tad.service.vo.PostPageableDTO;
 import org.religion.umbanda.tad.service.vo.PostRequest;
 import org.religion.umbanda.tad.service.vo.PostResponse;
 import org.religion.umbanda.tad.service.vo.UserCredentialsVO;
@@ -69,28 +70,58 @@ public class BlogServiceImpl implements BlogService {
         return postRepository.findArchiveBy(visibilityType);
     }
 
-    @RequestMapping("/published/posts/{visibility}/archive/{year}/{month}")
+    @RequestMapping("/published/posts/{visibility}/archive/{year}/{month}?p={pageNumber}")
     @Override
-    public List<PostResponse> findPostByArchive(
+    public PostPageableDTO findPostByArchive(
             @PathVariable("visibility") String visibility,
             @PathVariable("year") int year,
-            @PathVariable("month") int month) {
+            @PathVariable("month") int month,
+            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber) {
         final VisibilityType visibilityType = doConvertVisibilityType(visibility);
         if (visibilityType == null) {
-            return new ArrayList<>();
+            return new PostPageableDTO();
         }
-        return doConvertPostList(postRepository.findPublishedPost(visibilityType, year, month));
+
+        if (pageNumber <= 0) {
+            pageNumber = 1;
+        }
+
+        final PostPageable postPageable = postRepository.findPublishedPost(visibilityType, year, month, pageNumber);
+
+        final PostPageableDTO dto = new PostPageableDTO();
+        dto.setPosts(doConvertPostList(postPageable.getPosts()));
+        dto.setHasNext(postPageable.isHasNext());
+        dto.setHasPrevious(postPageable.isHasPrevious());
+        dto.setPageCount(postPageable.getPageCount());
+        dto.setCount(postPageable.getCount());
+
+        return dto;
     }
 
-    @RequestMapping("/published/posts/{visibility}")
+    @RequestMapping("/published/posts/{visibility}?p={pageNumber}")
     @Override
-    public List<PostResponse> findPublishedPostByVisibility(
-            @PathVariable("visibility") String visibility) {
+    public PostPageableDTO findPublishedPostByVisibility(
+            @PathVariable("visibility") String visibility,
+            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber) {
         final VisibilityType visibilityType = doConvertVisibilityType(visibility);
         if (visibilityType == null) {
-            return new ArrayList<>();
+            return new PostPageableDTO();
         }
-        return doConvertPostList(postRepository.findPublishedPost(visibilityType));
+
+        if (pageNumber <= 0) {
+            pageNumber = 1;
+        }
+
+        final PostPageable postPageable = postRepository.findPublishedPost(visibilityType, pageNumber);
+
+        final PostPageableDTO dto = new PostPageableDTO();
+        dto.setPosts(doConvertPostList(postPageable.getPosts()));
+        dto.setHasNext(postPageable.isHasNext());
+        dto.setHasPrevious(postPageable.isHasPrevious());
+        dto.setPageCount(postPageable.getPageCount());
+        dto.setCount(postPageable.getCount());
+
+        return dto;
     }
 
     @RequestMapping(value = "/post/{id}", method = RequestMethod.DELETE)

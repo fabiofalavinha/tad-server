@@ -8,7 +8,6 @@ import org.religion.umbanda.tad.service.PostRepository;
 import org.religion.umbanda.tad.service.UserCredentialsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +17,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Repository
 public class PostRepositoryImpl implements PostRepository {
+
+    private static final int MAX_PAGE_ITEMS_COUNT = 5;
 
     private final JdbcTemplate jdbcTemplate;
     private final UserCredentialsRepository userCredentialsRepository;
@@ -89,21 +91,54 @@ public class PostRepositoryImpl implements PostRepository {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Post> findPublishedPost(VisibilityType visibilityType) {
-        return doFindPost("select * from Post where visibility_type = ? and published > 0 order by [order]", visibilityType.getValue());
+    public PostPageable findPublishedPost(VisibilityType visibilityType, int pageNumber) {
+        int previousPage = 0;
+        if (pageNumber > 1) {
+            previousPage = pageNumber - 1;
+        }
+
+        final int start = previousPage * MAX_PAGE_ITEMS_COUNT;
+        final int count = jdbcTemplate.queryForObject("select count(*) from Post where visibility_type = ? and published > 0 order by [order]", Integer.class, visibilityType.getValue());
+
+        final String queryTemplate = "select * from Post where visibility_type = ? and published > 0 order by [order] limit %d, %d";
+        final String query = String.format(queryTemplate, start, MAX_PAGE_ITEMS_COUNT);
+
+        final List<Post> posts = doFindPost(query, visibilityType.getValue());
+
+        final PostPageable postPageable = new PostPageable();
+        postPageable.setPosts(posts);
+        postPageable.setCount(count);
+        postPageable.setPageCount(MAX_PAGE_ITEMS_COUNT);
+        postPageable.setHasNext(start + MAX_PAGE_ITEMS_COUNT < count);
+        postPageable.setHasPrevious(start > 0);
+
+        return postPageable;
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<Post> findPublishedPost(VisibilityType visibilityType, int year, int month) {
-        final List<Post> posts = doFindPost("select * from Post where visibility_type = ? and published > 0 order by [order]", visibilityType.getValue());
-        for (Post post : posts.toArray(new Post[posts.size()])) {
-            final DateTime published = post.getPublished();
-            if (published != null && (published.getYear() != year || published.getMonthOfYear() != month)) {
-                posts.remove(post);
-            }
+    public PostPageable findPublishedPost(VisibilityType visibilityType, int year, int month, int pageNumber) {
+        final List<Post> posts =
+            doFindPost("select * from Post where visibility_type = ? and published > 0 order by [order]", visibilityType.getValue())
+                .stream().filter(p -> p.getPublished().getYear() == year && p.getPublished().getMonthOfYear() == month).collect(Collectors.toList());
+
+        final int count = posts.size();
+        int previousPage = 0;
+        if (pageNumber > 1) {
+            previousPage = pageNumber - 1;
         }
-        return posts;
+
+        final int start = previousPage * MAX_PAGE_ITEMS_COUNT;
+        final List<Post> postsSubList = posts.subList(start, start + MAX_PAGE_ITEMS_COUNT);
+
+        final PostPageable postPageable = new PostPageable();
+        postPageable.setPosts(postsSubList);
+        postPageable.setCount(count);
+        postPageable.setPageCount(MAX_PAGE_ITEMS_COUNT);
+        postPageable.setHasNext(start + MAX_PAGE_ITEMS_COUNT < count);
+        postPageable.setHasPrevious(start > 0);
+
+        return postPageable;
     }
 
     private List<Post> doFindPost(String queryString, Object... parameters) {
@@ -119,25 +154,22 @@ public class PostRepositoryImpl implements PostRepository {
         jdbcTemplate.query(
                 "select published from Post where published > 0 and visibility_type = ? order by [order]",
                 new Object[]{visibilityType.getValue()},
-                new RowCallbackHandler() {
-                    @Override
-                    public void processRow(ResultSet resultSet) throws SQLException {
-                        final DateTime published = new DateTime(resultSet.getLong("published"));
-                        Archive found = (Archive) CollectionUtils.find(archives, new Predicate() {
-                            @Override
-                            public boolean evaluate(Object o) {
-                                final Archive archive = (Archive) o;
-                                return archive.getArchived().getMonthOfYear() == published.getMonthOfYear() &&
-                                        archive.getArchived().getYear() == published.getYear();
-                            }
-                        });
-                        if (found == null) {
-                            found = new Archive();
-                            found.setArchived(published);
-                            archives.add(found);
+                resultSet -> {
+                    final DateTime published = new DateTime(resultSet.getLong("published"));
+                    Archive found = (Archive) CollectionUtils.find(archives, new Predicate() {
+                        @Override
+                        public boolean evaluate(Object o) {
+                            final Archive archive = (Archive) o;
+                            return archive.getArchived().getMonthOfYear() == published.getMonthOfYear() &&
+                                    archive.getArchived().getYear() == published.getYear();
                         }
-                        found.increaseCount();
+                    });
+                    if (found == null) {
+                        found = new Archive();
+                        found.setArchived(published);
+                        archives.add(found);
                     }
+                    found.increaseCount();
                 }
         );
         return archives;
