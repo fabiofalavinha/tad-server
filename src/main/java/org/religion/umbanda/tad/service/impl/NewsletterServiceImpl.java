@@ -45,6 +45,11 @@ public class NewsletterServiceImpl implements NewsletterService {
         if (newsletterUser == null) {
             newsletterUser = new NewsletterUser();
         }
+        if (newsletterUser.getEmail() == null || !newsletterUser.getEmail().equals(email)) {
+            if (newsletterUserRepository.existsByEmail(email)) {
+                throw new IllegalStateException(String.format("e-Mail já cadastrado [%s]", email));
+            }
+        }
         newsletterUser.setName(name);
         newsletterUser.setEmail(email);
         newsletterUserRepository.save(newsletterUser);
