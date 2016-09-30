@@ -30,6 +30,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private MailTemplateFactory mailTemplateFactory;
 
+    @Autowired
+    private MailValidator mailValidator;
+
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     @Override
     public UserCredentialsVO authenticate(
@@ -74,8 +77,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void forgotPassword(
             @RequestBody ForgotPasswordRequest request) {
-        final MailValidator mailValidator = new MailValidator();
-
         if (!mailValidator.validate(request.getEmail())) {
             throw new IllegalArgumentException("Email inválido");
         }

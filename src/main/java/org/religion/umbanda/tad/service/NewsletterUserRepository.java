@@ -10,7 +10,9 @@ public interface NewsletterUserRepository {
 
     boolean existsByEmail(String email);
 
-    void add(NewsletterUser newsletterUser);
+    NewsletterUser findById(String id);
+
+    void save(NewsletterUser newsletterUser);
 
     void removeById(String id);
 
