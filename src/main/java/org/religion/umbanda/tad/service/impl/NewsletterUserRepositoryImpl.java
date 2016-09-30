@@ -3,6 +3,7 @@ package org.religion.umbanda.tad.service.impl;
 import org.religion.umbanda.tad.model.NewsletterUser;
 import org.religion.umbanda.tad.service.NewsletterUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -67,6 +68,10 @@ public class NewsletterUserRepositoryImpl implements NewsletterUserRepository {
     @Transactional(readOnly = true)
     @Override
     public NewsletterUser findById(String id) {
-        return jdbcTemplate.queryForObject("select * from NewsletterUser where id = ?", new Object[] { id} , newsletterUserRowMapper);
+        try {
+            return jdbcTemplate.queryForObject("select * from NewsletterUser where id = ?", new Object[] { id} , newsletterUserRowMapper);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 }
