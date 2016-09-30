@@ -33,17 +33,12 @@ public class NewsletterUserRepositoryImpl implements NewsletterUserRepository {
     @Transactional
     @Override
     public void save(NewsletterUser newsletterUser) {
-        final UUID id = newsletterUser.getId();
-        if (id == null) {
-            jdbcTemplate.update("insert into NewsletterUser (id, name, email) values (?, ?, ?)",
-                newsletterUser.getId().toString(),
-                newsletterUser.getName(),
-                newsletterUser.getEmail());
+        final String id = newsletterUser.getId().toString();
+        final boolean existed = jdbcTemplate.queryForObject("select count(*) from NewsletterUser where id = ?", Integer.class, id) == 1;
+        if (existed) {
+            jdbcTemplate.update("update NewsletterUser set name=?, email=? where id=?", newsletterUser.getName(), newsletterUser.getEmail(), id);
         } else {
-            jdbcTemplate.update("update NewsletterUser set name=?, email=? where id=?",
-                newsletterUser.getName(),
-                newsletterUser.getEmail(),
-                newsletterUser.getId().toString());
+            jdbcTemplate.update("insert into NewsletterUser (id, name, email) values (?, ?, ?)", id, newsletterUser.getName(), newsletterUser.getEmail());
         }
     }
 
@@ -69,7 +64,7 @@ public class NewsletterUserRepositoryImpl implements NewsletterUserRepository {
     @Override
     public NewsletterUser findById(String id) {
         try {
-            return jdbcTemplate.queryForObject("select * from NewsletterUser where id = ?", new Object[] { id} , newsletterUserRowMapper);
+            return jdbcTemplate.queryForObject("select * from NewsletterUser where id = ?", new Object[] { id } , newsletterUserRowMapper);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
