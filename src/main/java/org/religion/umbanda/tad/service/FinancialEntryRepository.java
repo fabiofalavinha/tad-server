@@ -14,10 +14,14 @@ public interface FinancialEntryRepository {
     FinancialEntry getFirstOpenedFinancialEntry();
 
     List<FinancialEntry> findOpenedEntries();
+    List<FinancialEntry> findOpenedEntriesUntil(DateTime date);
+
+    FinancialEntry getLastOpenedFinancialEntry();
 
     void create(FinancialEntry entry);
 
     void update(FinancialEntry entry);
 
     void remove(String id);
+
 }

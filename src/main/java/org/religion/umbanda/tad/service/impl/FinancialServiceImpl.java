@@ -250,29 +250,19 @@ public class FinancialServiceImpl implements FinancialService {
             financialEntryRepository.remove(entry.getId());
             log.info("Re-calculating financial balance...");
             CloseableBalanceFinancialEntry lastCloseableBalanceFinancialEntry = closeableBalanceFinancialEntryRepository.getLastCloseableBalanceFinancialEntry();
+            Balance balance = new Balance();
             if (lastCloseableBalanceFinancialEntry != null) {
-                Balance lastBalance = lastCloseableBalanceFinancialEntry.getBalance();
-                final List<FinancialEntry> entries = financialEntryRepository.findOpenedEntries();
-                for (FinancialEntry oldEntry : entries) {
-                    lastBalance = lastBalance.calculate(oldEntry.getValue(), oldEntry.getType().getCategory());
-                    oldEntry.setBalance(lastBalance);
-                    log.info("Updating financial entry balance [id=%s] with new balance [v=%f]...", oldEntry.getId(), lastBalance.getValue().doubleValue());
-                    financialEntryRepository.update(oldEntry);
-                }
-                log.info("Updating financial total balance [v=%f]...", lastBalance.getValue().doubleValue());
-                financialBalanceRepository.update(lastBalance);
-            } else {
-                Balance balance = new Balance(0);
-                final List<FinancialEntry> entries = financialEntryRepository.findOpenedEntries();
-                for (FinancialEntry oldEntry : entries) {
-                    balance = balance.calculate(oldEntry.getValue(), oldEntry.getType().getCategory());
-                    oldEntry.setBalance(balance);
-                    log.info("Updating financial entry balance [id=%s] with new balance [v=%f]...", oldEntry.getId(), balance.getValue().doubleValue());
-                    financialEntryRepository.update(oldEntry);
-                }
-                log.info("Updating financial total balance [v=%f]...", balance.getValue().doubleValue());
-                financialBalanceRepository.update(balance);
+                balance = lastCloseableBalanceFinancialEntry.getBalance();
             }
+            final List<FinancialEntry> entries = financialEntryRepository.findOpenedEntries();
+            for (FinancialEntry oldEntry : entries) {
+                balance = balance.calculate(oldEntry.getValue(), oldEntry.getType().getCategory());
+                oldEntry.setBalance(balance);
+                log.info("Updating financial entry balance [id=%s] with new balance [v=%f]...", oldEntry.getId(), balance.getValue().doubleValue());
+                financialEntryRepository.update(oldEntry);
+            }
+            log.info("Updating financial total balance [v=%f]...", balance.getValue().doubleValue());
+            financialBalanceRepository.update(balance);
         } else {
             log.info("Financial entry [id=%s] can't be deleted because is closed", id);
         }
@@ -285,49 +275,43 @@ public class FinancialServiceImpl implements FinancialService {
         final String userId = dto.getUserId();
         log.info("Retrieving last closeable financial entry balance...");
         CloseableBalanceFinancialEntry lastCloseableBalanceFinancialEntry = closeableBalanceFinancialEntryRepository.getLastCloseableBalanceFinancialEntry();
-        DateTime closedDate = DateTime.now();
+
         Balance balance = new Balance(0);
         if (lastCloseableBalanceFinancialEntry != null) {
             log.info("Last closeable financial entry balance was retrieved");
             balance = lastCloseableBalanceFinancialEntry.getBalance();
         }
-        log.info("Retrieving first opened financial entry...");
-        FinancialEntry financialEntry = financialEntryRepository.getFirstOpenedFinancialEntry();
-        if (financialEntry != null) {
-            log.info("First opened financial entry was retrieved");
-            closedDate = financialEntry.getEntryDate();
-        }
-        if (closedDate != null) {
-            log.info("Retrieving opened financial entries...");
-            final List<FinancialEntry> openedEntries = financialEntryRepository.findOpenedEntries();
-            if (!openedEntries.isEmpty()) {
-                log.info("Retrieved [%d] opened financial entries", openedEntries.size());
-                final CloseableBalanceFinancialEntry newCloseableBalanceFinancialEntry = new CloseableBalanceFinancialEntry();
-                newCloseableBalanceFinancialEntry.setId(UUID.randomUUID());
-                newCloseableBalanceFinancialEntry.setClosedDate(closedDate);
-                UserCredentials closedByUser = userCredentialsRepository.findById(UUID.fromString(userId));
-                newCloseableBalanceFinancialEntry.setClosedBy(closedByUser);
-                for (FinancialEntry entry : openedEntries) {
-                    balance = balance.calculate(entry.getValue(), entry.getType().getCategory());
-                    entry.setBalance(balance);
-                    CloseableFinancialEntry closeableFinancialEntry = new CloseableFinancialEntry();
-                    closeableFinancialEntry.setClosedDate(newCloseableBalanceFinancialEntry.getClosedDate());
-                    closeableFinancialEntry.setClosedBy(closedByUser);
-                    entry.setCloseableFinancialEntry(closeableFinancialEntry);
-                    entry.setStatus(FinancialEntryStatus.CLOSED);
-                    log.info("Update financial entry status [id=%s]", entry.getId());
-                    financialEntryRepository.update(entry);
-                }
-                newCloseableBalanceFinancialEntry.setBalance(balance);
-                log.info("Creating closeable financial entry balance...");
-                closeableBalanceFinancialEntryRepository.create(newCloseableBalanceFinancialEntry);
-                log.info("Updating financial total balance...");
-                financialBalanceRepository.update(balance);
-            } else {
-                log.info("No opened financial entries were found");
+        log.info("Retrieving opened financial entries...");
+        final DateTime closingDate = DateTimeUtils.fromString(dto.getClosingDate(), "yyyy-MM-dd");
+        final List<FinancialEntry> openedEntries = financialEntryRepository.findOpenedEntriesUntil(closingDate);
+        if (!openedEntries.isEmpty()) {
+            log.info("Retrieving first opened financial entry...");
+            FinancialEntry financialEntry = openedEntries.iterator().next();
+            DateTime closedDate = financialEntry.getEntryDate();
+            log.info("Retrieved [%d] opened financial entries", openedEntries.size());
+            final CloseableBalanceFinancialEntry newCloseableBalanceFinancialEntry = new CloseableBalanceFinancialEntry();
+            newCloseableBalanceFinancialEntry.setId(UUID.randomUUID());
+            newCloseableBalanceFinancialEntry.setClosedDate(closedDate);
+            UserCredentials closedByUser = userCredentialsRepository.findById(UUID.fromString(userId));
+            newCloseableBalanceFinancialEntry.setClosedBy(closedByUser);
+            for (FinancialEntry entry : openedEntries) {
+                balance = balance.calculate(entry.getValue(), entry.getType().getCategory());
+                entry.setBalance(balance);
+                CloseableFinancialEntry closeableFinancialEntry = new CloseableFinancialEntry();
+                closeableFinancialEntry.setClosedDate(newCloseableBalanceFinancialEntry.getClosedDate());
+                closeableFinancialEntry.setClosedBy(closedByUser);
+                entry.setCloseableFinancialEntry(closeableFinancialEntry);
+                entry.setStatus(FinancialEntryStatus.CLOSED);
+                log.info("Update financial entry status [id=%s]", entry.getId());
+                financialEntryRepository.update(entry);
             }
+            newCloseableBalanceFinancialEntry.setBalance(balance);
+            log.info("Creating closeable financial entry balance...");
+            closeableBalanceFinancialEntryRepository.create(newCloseableBalanceFinancialEntry);
+            log.info("Updating financial total balance...");
+            financialBalanceRepository.update(balance);
         } else {
-            log.warn("No financial entry is available for closing");
+            log.info("No opened financial entries were found");
         }
     }
 
@@ -403,5 +387,25 @@ public class FinancialServiceImpl implements FinancialService {
         result.setTarget(CollaboratorParserUtils.parse(financialReceipt.getCollaborator()));
 
         return result;
+    }
+
+    @RequestMapping(value = "/financial/opened/last", method = RequestMethod.GET)
+    @Override
+    public FinancialEntryDTO getLastOpenedEntry() {
+        final FinancialEntry entry = financialEntryRepository.getLastOpenedFinancialEntry();
+        if (entry != null) {
+            return parseFinancialEntry(entry);
+        }
+        return null;
+    }
+
+    @RequestMapping(value = "/financial/opened/first", method = RequestMethod.GET)
+    @Override
+    public FinancialEntryDTO getFirstOpenedEntry() {
+        final FinancialEntry entry = financialEntryRepository.getFirstOpenedFinancialEntry();
+        if (entry != null) {
+            return parseFinancialEntry(entry);
+        }
+        return null;
     }
 }

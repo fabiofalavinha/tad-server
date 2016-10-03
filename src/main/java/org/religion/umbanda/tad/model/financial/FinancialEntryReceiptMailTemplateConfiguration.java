@@ -26,6 +26,7 @@ public class FinancialEntryReceiptMailTemplateConfiguration {
             "Data Pagto: %s\n\n" +
             "Referente: %s\n\n" +
             "Valor: %s\n\n" +
+            "Obs.: %s\n\n" +
             "Secretaria TAD\n";
         return new FinancialEntryReceiptMailTemplate(KEY, subject, body);
     }

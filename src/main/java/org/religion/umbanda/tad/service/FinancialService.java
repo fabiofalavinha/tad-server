@@ -19,6 +19,10 @@ public interface FinancialService {
 
     FinancialReceiptResultVO sendFinancialEntryReceipt(String id);
 
+    FinancialEntryDTO getLastOpenedEntry();
+
+    FinancialEntryDTO getFirstOpenedEntry();
+
     void saveFinancialReference(FinancialReferenceVO financialReferenceVO);
 
     void removeFinancialReferenceById(String id);

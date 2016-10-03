@@ -9,11 +9,14 @@ import java.text.NumberFormat;
 
 public class FinancialEntryReceiptMailTemplate implements MailTemplate<FinancialReceipt> {
 
+    private static final int MAX_ADDITIONAL_TEXT_LENGTH = 40;
+    private static final String ADDITIONAL_TEXT_SUFFIX = "...";
+
     private final String key;
     private final String subject;
     private final String body;
 
-    public FinancialEntryReceiptMailTemplate(String key, String subject, String body) {
+    FinancialEntryReceiptMailTemplate(String key, String subject, String body) {
         this.key = key;
         this.subject = subject;
         this.body = body;
@@ -35,7 +38,20 @@ public class FinancialEntryReceiptMailTemplate implements MailTemplate<Financial
                 financialReceipt.getKey().value(),
                 DateTimeUtils.toString(financialReceipt.getFinancialEntry().getEntryDate(), "dd/MMM/yyyy"),
                 financialReceipt.getFinancialEntry().getType().getDescription(),
-                NumberFormat.getCurrencyInstance().format(financialReceipt.getFinancialEntry().getValue())));
+                NumberFormat.getCurrencyInstance().format(financialReceipt.getFinancialEntry().getValue()),
+                getAdditionalText(financialReceipt.getFinancialEntry().getAdditionalText())));
         return mailMessage;
+    }
+
+    private String getAdditionalText(String additionalText) {
+        String suffix = "";
+        int size = additionalText.length();
+        int end = MAX_ADDITIONAL_TEXT_LENGTH;
+        if (size <= MAX_ADDITIONAL_TEXT_LENGTH) {
+            end = size;
+        } else {
+            suffix = ADDITIONAL_TEXT_SUFFIX;
+        }
+        return additionalText.substring(0, end).concat(suffix);
     }
 }

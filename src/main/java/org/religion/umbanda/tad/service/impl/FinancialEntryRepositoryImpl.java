@@ -21,6 +21,22 @@ import java.util.UUID;
 @Repository
 public class FinancialEntryRepositoryImpl implements FinancialEntryRepository {
 
+    private enum OpenedFinancialEntryDirection {
+
+        FIRST("asc"),
+        LAST("desc");
+
+        private final String sortDirection;
+
+        OpenedFinancialEntryDirection(String sortDirection) {
+            this.sortDirection = sortDirection;
+        }
+
+        public String sortDirection() {
+            return sortDirection;
+        }
+    }
+
     private final JdbcTemplate jdbcTemplate;
 
     private final RowMapper<FinancialEntry> financialEntryRowMapper = (resultSet, i) -> {
@@ -192,8 +208,18 @@ public class FinancialEntryRepositoryImpl implements FinancialEntryRepository {
     @Transactional(readOnly = true)
     @Override
     public FinancialEntry getFirstOpenedFinancialEntry() {
+        return getOpenedEntry(OpenedFinancialEntryDirection.FIRST);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public FinancialEntry getLastOpenedFinancialEntry() {
+        return getOpenedEntry(OpenedFinancialEntryDirection.LAST);
+    }
+
+    private FinancialEntry getOpenedEntry(OpenedFinancialEntryDirection direction) {
         try {
-            final String sql =
+            String sql =
                 "select " +
                 "   e.id as id," +
                 "   e.entry_date," +
@@ -224,15 +250,17 @@ public class FinancialEntryRepositoryImpl implements FinancialEntryRepository {
                 "   left join UserCredentials u on u.id = e.closed_by " +
                 "where " +
                 "   e.status = ? " +
-                "order by e.entry_date asc limit 1";
-            return jdbcTemplate.queryForObject(sql, new Object[] { FinancialEntryStatus.OPEN.getValue() }, financialEntryRowMapper);
+                "order by e.entry_date %s limit 1";
 
+            sql = String.format(sql, direction.sortDirection());
+
+            return jdbcTemplate.queryForObject(sql, new Object[] { FinancialEntryStatus.OPEN.getValue() }, financialEntryRowMapper);
         } catch (EmptyResultDataAccessException ex) {
             return null;
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public List<FinancialEntry> findOpenedEntries() {
         final String sql =
@@ -266,6 +294,46 @@ public class FinancialEntryRepositoryImpl implements FinancialEntryRepository {
             "   left join UserCredentials u on u.id = e.closed_by " +
             "where " +
             "   e.status = ? " +
+            "order by " +
+            "   e.entry_date asc";
+        return jdbcTemplate.query(sql, new Object[] { FinancialEntryStatus.OPEN.getValue() }, financialEntryRowMapper);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<FinancialEntry> findOpenedEntriesUntil(DateTime date) {
+        final String sql =
+            "select " +
+            "   e.id as id," +
+            "   e.entry_date," +
+            "   e.entry_value," +
+            "   e.balance," +
+            "   e.additional_text," +
+            "   e.closed, " +
+            "   e.status, " +
+            "   u.id as closedByUserId, " +
+            "   u.username as closedByUserName, " +
+            "   u.password as closedByUserPassword, " +
+            "   u.user_role as closedByUserRole, " +
+            "   r.id as typeId," +
+            "   r.description as typeDescription," +
+            "   r.category," +
+            "   r.associated_with_collaborator," +
+            "   t.id as targetId," +
+            "   t.name as targetName," +
+            "   t.type as targetType, " +
+            "   s.keyNumber as receiptNumber, " +
+            "   s.keyYear as receiptYear, " +
+            "   s.sent as receiptSentDateMillis " +
+            "from " +
+            "   FinancialEntry e " +
+            "   inner join FinancialReference r on r.id = e.reference_entry " +
+            "   inner join FinancialEntryTarget t on t.id = e.target_id " +
+            "   left join FinancialReceipt s on s.entry_id = e.id " +
+            "   left join UserCredentials u on u.id = e.closed_by " +
+            "where " +
+            "   e.status = ? and " +
+            "   e.entry_date <= datetime('" + DateTimeUtils.toString(date, "yyyy-MM-dd") + "') " +
             "order by " +
             "   e.entry_date asc";
         return jdbcTemplate.query(sql, new Object[] { FinancialEntryStatus.OPEN.getValue() }, financialEntryRowMapper);
