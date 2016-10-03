@@ -285,20 +285,17 @@ public class FinancialServiceImpl implements FinancialService {
         final String userId = dto.getUserId();
         log.info("Retrieving last closeable financial entry balance...");
         CloseableBalanceFinancialEntry lastCloseableBalanceFinancialEntry = closeableBalanceFinancialEntryRepository.getLastCloseableBalanceFinancialEntry();
-        DateTime closedDate = null;
-        Balance balance = null;
+        DateTime closedDate = DateTime.now();
+        Balance balance = new Balance(0);
         if (lastCloseableBalanceFinancialEntry != null) {
             log.info("Last closeable financial entry balance was retrieved");
-            closedDate = lastCloseableBalanceFinancialEntry.getClosedDate();
             balance = lastCloseableBalanceFinancialEntry.getBalance();
-        } else {
-            log.info("Last closeable financial entry balance was NOT found. Retrieving first opened financial entry...");
-            FinancialEntry financialEntry = financialEntryRepository.getFirstOpenedFinancialEntry();
-            if (financialEntry != null) {
-                log.info("First opened financial entry was retrieved");
-                closedDate = financialEntry.getEntryDate();
-                balance = new Balance(0);
-            }
+        }
+        log.info("Retrieving first opened financial entry...");
+        FinancialEntry financialEntry = financialEntryRepository.getFirstOpenedFinancialEntry();
+        if (financialEntry != null) {
+            log.info("First opened financial entry was retrieved");
+            closedDate = financialEntry.getEntryDate();
         }
         if (closedDate != null) {
             log.info("Retrieving opened financial entries...");
@@ -312,6 +309,7 @@ public class FinancialServiceImpl implements FinancialService {
                 newCloseableBalanceFinancialEntry.setClosedBy(closedByUser);
                 for (FinancialEntry entry : openedEntries) {
                     balance = balance.calculate(entry.getValue(), entry.getType().getCategory());
+                    entry.setBalance(balance);
                     CloseableFinancialEntry closeableFinancialEntry = new CloseableFinancialEntry();
                     closeableFinancialEntry.setClosedDate(newCloseableBalanceFinancialEntry.getClosedDate());
                     closeableFinancialEntry.setClosedBy(closedByUser);

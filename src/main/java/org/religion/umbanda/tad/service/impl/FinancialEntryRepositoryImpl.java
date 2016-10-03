@@ -232,6 +232,7 @@ public class FinancialEntryRepositoryImpl implements FinancialEntryRepository {
         }
     }
 
+    @Transactional
     @Override
     public List<FinancialEntry> findOpenedEntries() {
         final String sql =

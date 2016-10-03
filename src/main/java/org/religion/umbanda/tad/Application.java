@@ -16,5 +16,4 @@ public class Application {
         Locale.setDefault(new Locale("pt", "BR"));
         app.run(args);
     }
-
 }
