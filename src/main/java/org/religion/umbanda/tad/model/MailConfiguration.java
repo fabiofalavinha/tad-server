@@ -41,6 +41,9 @@ public class MailConfiguration {
     @Autowired
     private FinancialEntryReceiptMailTemplate financialEntryReceiptMailTemplate;
 
+    @Autowired
+    private NotifyNewsletterUsersPostPublishedMailTemplate notifyNewsletterUsersPostPublishedMailTemplate;
+
     public String getFrom() {
         return from;
     }
@@ -51,6 +54,7 @@ public class MailConfiguration {
         mailTemplateFactory.addTemplate(newCollaboratorMailTemplate);
         mailTemplateFactory.addTemplate(forgotPasswordMailTemplate);
         mailTemplateFactory.addTemplate(financialEntryReceiptMailTemplate);
+        mailTemplateFactory.addTemplate(notifyNewsletterUsersPostPublishedMailTemplate);
         return mailTemplateFactory;
     }
 
