@@ -282,8 +282,14 @@ public class FinancialServiceImpl implements FinancialService {
             balance = lastCloseableBalanceFinancialEntry.getBalance();
         }
         log.info("Retrieving opened financial entries...");
-        final DateTime closingDate = DateTimeUtils.fromString(dto.getClosingDate(), "yyyy-MM-dd");
-        final List<FinancialEntry> openedEntries = financialEntryRepository.findOpenedEntriesUntil(closingDate);
+        final List<FinancialEntry> openedEntries;
+        final String closingDateString = dto.getClosingDate();
+        if (closingDateString == null || closingDateString.isEmpty()) {
+            openedEntries = financialEntryRepository.findOpenedEntries();
+        } else {
+            final DateTime closingDate = DateTimeUtils.fromString(closingDateString, "yyyy-MM-dd");
+            openedEntries = financialEntryRepository.findOpenedEntriesUntil(closingDate);
+        }
         if (!openedEntries.isEmpty()) {
             log.info("Retrieving first opened financial entry...");
             FinancialEntry financialEntry = openedEntries.iterator().next();
