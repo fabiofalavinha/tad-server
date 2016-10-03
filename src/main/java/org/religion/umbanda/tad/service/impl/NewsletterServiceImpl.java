@@ -1,14 +1,17 @@
 package org.religion.umbanda.tad.service.impl;
 
-import org.religion.umbanda.tad.model.NewsletterUser;
+import org.religion.umbanda.tad.model.*;
+import org.religion.umbanda.tad.service.MailService;
 import org.religion.umbanda.tad.service.NewsletterService;
 import org.religion.umbanda.tad.service.NewsletterUserRepository;
+import org.religion.umbanda.tad.service.PostRepository;
 import org.religion.umbanda.tad.service.vo.NewsletterUserVO;
 import org.religion.umbanda.tad.validator.MailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -19,6 +22,15 @@ public class NewsletterServiceImpl implements NewsletterService {
 
     @Autowired
     private MailValidator mailValidator;
+
+    @Autowired
+    private PostRepository postRepository;
+
+    @Autowired
+    private MailService mailService;
+
+    @Autowired
+    private MailTemplateFactory mailTemplateFactory;
 
     @RequestMapping(value = "/newsletters", method = RequestMethod.POST)
     @Override
@@ -74,5 +86,24 @@ public class NewsletterServiceImpl implements NewsletterService {
             throw new IllegalArgumentException("Id is required");
         }
         newsletterUserRepository.removeById(id);
+    }
+
+    @RequestMapping(value = "/newsletter/notify/post/{postId}", method = RequestMethod.POST)
+    @Override
+    public void notifyUsersByPostPublished(@PathVariable("postId") String postIdString) {
+        UUID postId;
+        try {
+            postId = UUID.fromString(postIdString);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid post id", e);
+        }
+        final Post post = postRepository.findById(postId);
+        if (post != null) {
+            final MailTemplate<NewsletterContent> mailTemplate = mailTemplateFactory.getTemplate(NotifyNewsletterUsersPostPublishedMailTemplateConfiguration.KEY);
+            for (NewsletterUser newsletterUser : newsletterUserRepository.findAll()) {
+                final MailMessage mailMessage = mailTemplate.createMailMessage(new NotifyNewsletterUsersPostPublishedContent(newsletterUser, post));
+                mailService.send(mailMessage);
+            }
+        }
     }
 }

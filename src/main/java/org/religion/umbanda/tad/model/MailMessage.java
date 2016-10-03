@@ -4,7 +4,12 @@ public class MailMessage {
 
     private String to;
     private String subject;
-    private String text;
+    private String content;
+    private MailMessageType type;
+
+    public MailMessage() {
+        type = MailMessageType.TEXT;
+    }
 
     public String getTo() {
         return to;
@@ -22,11 +27,19 @@ public class MailMessage {
         this.subject = subject;
     }
 
-    public String getText() {
-        return text;
+    public String getContent() {
+        return content;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public MailMessageType getType() {
+        return type;
+    }
+
+    public void setType(MailMessageType type) {
+        this.type = type;
     }
 }

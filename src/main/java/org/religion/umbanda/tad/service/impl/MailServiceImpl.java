@@ -2,6 +2,7 @@ package org.religion.umbanda.tad.service.impl;
 
 import org.religion.umbanda.tad.model.MailConfiguration;
 import org.religion.umbanda.tad.model.MailMessage;
+import org.religion.umbanda.tad.model.MailMessageType;
 import org.religion.umbanda.tad.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -29,7 +30,11 @@ public class MailServiceImpl implements MailService {
             mimeMessage.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(message.getTo()));
             mimeMessage.addFrom(new InternetAddress[] { new InternetAddress(mailConfiguration.getFrom()) });
             mimeMessage.setSubject(message.getSubject(), "UTF-8");
-            mimeMessage.setText(message.getText(), "UTF-8");
+            if (message.getType() == MailMessageType.HTML) {
+                mimeMessage.setContent(message.getContent(), "text/html; charset=utf-8");
+            } else {
+                mimeMessage.setText(message.getContent(), "UTF-8");
+            }
         } catch (MessagingException e) {
             throw new IllegalStateException("Error creating mime message", e);
         }

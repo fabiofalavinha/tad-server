@@ -32,7 +32,7 @@ public class FinancialEntryReceiptMailTemplate implements MailTemplate<Financial
         final MailMessage mailMessage = new MailMessage();
         mailMessage.setTo(collaborator.getUserCredentials().getUserName());
         mailMessage.setSubject(subject);
-        mailMessage.setText(
+        mailMessage.setContent(
             String.format(body,
                 collaborator.getPerson().getName(),
                 financialReceipt.getKey().value(),

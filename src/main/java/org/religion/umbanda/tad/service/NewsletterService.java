@@ -14,4 +14,7 @@ public interface NewsletterService {
 
     @RequestMapping(value = "/newsletter/{id}", method = RequestMethod.DELETE)
     void removeNewsletterById(@PathVariable("id") String id);
+
+    @RequestMapping(value = "/newsletter/post/{postId}", method = RequestMethod.POST)
+    void notifyUsersByPostPublished(@PathVariable("postId") String postIdString);
 }
