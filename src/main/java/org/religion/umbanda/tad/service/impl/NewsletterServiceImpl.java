@@ -53,11 +53,8 @@ public class NewsletterServiceImpl implements NewsletterService {
             throw new IllegalArgumentException("Por favor, informe um e-mail válido");
         }
 
-        boolean newUser = false;
-
         NewsletterUser newsletterUser = newsletterUserRepository.findById(newsletterUserVO.getId());
         if (newsletterUser == null) {
-            newUser = true;
             newsletterUser = new NewsletterUser();
         }
         if (newsletterUser.getEmail() == null || !newsletterUser.getEmail().equals(email)) {
@@ -69,7 +66,7 @@ public class NewsletterServiceImpl implements NewsletterService {
         newsletterUser.setEmail(email);
         newsletterUserRepository.save(newsletterUser);
 
-        if (newUser) {
+        if (newsletterUser.isConfirmationPending()) {
             final MailTemplate<NewsletterContent> mailTemplate = mailTemplateFactory.getTemplate(ConfirmNewsletterUserMailTemplateConfiguration.KEY);
             final MailMessage mailMessage = mailTemplate.createMailMessage(new ConfirmNewsletterUserContent(newsletterUser));
             mailService.send(mailMessage);
