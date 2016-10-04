@@ -145,5 +145,6 @@ create table [FinancialBalance] (
 create table [NewsletterUser] (
     [id] varchar not null,
     [name] varchar not null,
-    [email] varchar not null
+    [email] varchar not null,
+    [status] int not null
 );

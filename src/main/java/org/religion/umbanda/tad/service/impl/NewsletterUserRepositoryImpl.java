@@ -1,6 +1,7 @@
 package org.religion.umbanda.tad.service.impl;
 
 import org.religion.umbanda.tad.model.NewsletterUser;
+import org.religion.umbanda.tad.model.NewsletterUserConfirmationStatus;
 import org.religion.umbanda.tad.service.NewsletterUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -22,6 +24,10 @@ public class NewsletterUserRepositoryImpl implements NewsletterUserRepository {
         newsletterUser.setId(UUID.fromString(resultSet.getString("id")));
         newsletterUser.setName(resultSet.getString("name"));
         newsletterUser.setEmail(resultSet.getString("email"));
+        final Optional<NewsletterUserConfirmationStatus> statusMaybe = NewsletterUserConfirmationStatus.fromValue(resultSet.getInt("status"));
+        if (statusMaybe.isPresent()) {
+            newsletterUser.setStatus(statusMaybe.get());
+        }
         return newsletterUser;
     };
 
@@ -36,9 +42,9 @@ public class NewsletterUserRepositoryImpl implements NewsletterUserRepository {
         final String id = newsletterUser.getId().toString();
         final boolean existed = jdbcTemplate.queryForObject("select count(*) from NewsletterUser where id = ?", Integer.class, id) == 1;
         if (existed) {
-            jdbcTemplate.update("update NewsletterUser set name=?, email=? where id=?", newsletterUser.getName(), newsletterUser.getEmail(), id);
+            jdbcTemplate.update("update NewsletterUser set name=?, email=?, status=? where id=?", newsletterUser.getName(), newsletterUser.getEmail(), newsletterUser.getStatus().value(), id);
         } else {
-            jdbcTemplate.update("insert into NewsletterUser (id, name, email) values (?, ?, ?)", id, newsletterUser.getName(), newsletterUser.getEmail());
+            jdbcTemplate.update("insert into NewsletterUser (id, name, email, status) values (?, ?, ?, ?)", id, newsletterUser.getName(), newsletterUser.getEmail(), newsletterUser.getStatus().value());
         }
     }
 

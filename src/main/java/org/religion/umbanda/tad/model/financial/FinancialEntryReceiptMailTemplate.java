@@ -2,6 +2,7 @@ package org.religion.umbanda.tad.model.financial;
 
 import org.religion.umbanda.tad.model.Collaborator;
 import org.religion.umbanda.tad.model.MailMessage;
+import org.religion.umbanda.tad.model.MailSender;
 import org.religion.umbanda.tad.model.MailTemplate;
 import org.religion.umbanda.tad.util.DateTimeUtils;
 
@@ -15,6 +16,8 @@ public class FinancialEntryReceiptMailTemplate implements MailTemplate<Financial
     private final String key;
     private final String subject;
     private final String body;
+
+    private MailSender mailSender;
 
     FinancialEntryReceiptMailTemplate(String key, String subject, String body) {
         this.key = key;
@@ -30,6 +33,7 @@ public class FinancialEntryReceiptMailTemplate implements MailTemplate<Financial
     public MailMessage createMailMessage(FinancialReceipt financialReceipt) {
         final Collaborator collaborator = financialReceipt.getCollaborator();
         final MailMessage mailMessage = new MailMessage();
+        mailMessage.setFrom(mailSender.getFinancial());
         mailMessage.setTo(collaborator.getUserCredentials().getUserName());
         mailMessage.setSubject(subject);
         mailMessage.setContent(
@@ -41,6 +45,11 @@ public class FinancialEntryReceiptMailTemplate implements MailTemplate<Financial
                 NumberFormat.getCurrencyInstance().format(financialReceipt.getFinancialEntry().getValue()),
                 getAdditionalText(financialReceipt.getFinancialEntry().getAdditionalText())));
         return mailMessage;
+    }
+
+    @Override
+    public void setSender(MailSender mailSender) {
+        this.mailSender = mailSender;
     }
 
     private String getAdditionalText(String additionalText) {

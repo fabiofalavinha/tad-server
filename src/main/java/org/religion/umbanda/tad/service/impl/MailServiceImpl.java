@@ -24,11 +24,15 @@ public class MailServiceImpl implements MailService {
 
     @Override
     public void send(MailMessage message) {
+        String from = message.getFrom();
+        if (from == null || from.isEmpty()) {
+            from = mailConfiguration.getFromGeneral();
+        }
         final JavaMailSender javaMailSender = mailConfiguration.createMailSender();
         final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
             mimeMessage.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(message.getTo()));
-            mimeMessage.addFrom(new InternetAddress[] { new InternetAddress(mailConfiguration.getFrom()) });
+            mimeMessage.addFrom(new InternetAddress[] { new InternetAddress(from) });
             mimeMessage.setSubject(message.getSubject(), "UTF-8");
             if (message.getType() == MailMessageType.HTML) {
                 mimeMessage.setContent(message.getContent(), "text/html; charset=utf-8");

@@ -6,9 +6,11 @@ import java.util.Map;
 public class MailTemplateFactory {
 
     private final Map<String, MailTemplate<?>> mailTemplateMap;
+    private final MailSender mailSender;
 
-    public MailTemplateFactory() {
+    public MailTemplateFactory(MailSender mailSender) {
         mailTemplateMap = new Hashtable<>();
+        this.mailSender = mailSender;
     }
 
     public void addTemplate(MailTemplate mailTemplate) {
@@ -16,7 +18,12 @@ public class MailTemplateFactory {
     }
 
     public <R> MailTemplate<R> getTemplate(String key) {
-        return (MailTemplate<R>) mailTemplateMap.get(key);
+        MailTemplate<R> mailTemplate = (MailTemplate<R>) mailTemplateMap.get(key);
+        mailTemplate.setSender(mailSender);
+        return mailTemplate;
     }
 
+    public MailSender getMailSender() {
+        return mailSender;
+    }
 }

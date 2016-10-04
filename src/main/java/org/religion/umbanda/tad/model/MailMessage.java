@@ -2,6 +2,7 @@ package org.religion.umbanda.tad.model;
 
 public class MailMessage {
 
+    private String from;
     private String to;
     private String subject;
     private String content;
@@ -41,5 +42,13 @@ public class MailMessage {
 
     public void setType(MailMessageType type) {
         this.type = type;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
     }
 }

@@ -6,4 +6,6 @@ public interface MailTemplate<T> {
 
     MailMessage createMailMessage(T arg);
 
+    void setSender(MailSender mailSender);
+
 }

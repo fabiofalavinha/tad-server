@@ -53,8 +53,11 @@ public class NewsletterServiceImpl implements NewsletterService {
             throw new IllegalArgumentException("Por favor, informe um e-mail válido");
         }
 
+        boolean newUser = false;
+
         NewsletterUser newsletterUser = newsletterUserRepository.findById(newsletterUserVO.getId());
         if (newsletterUser == null) {
+            newUser = true;
             newsletterUser = new NewsletterUser();
         }
         if (newsletterUser.getEmail() == null || !newsletterUser.getEmail().equals(email)) {
@@ -65,6 +68,12 @@ public class NewsletterServiceImpl implements NewsletterService {
         newsletterUser.setName(name);
         newsletterUser.setEmail(email);
         newsletterUserRepository.save(newsletterUser);
+
+        if (newUser) {
+            final MailTemplate<NewsletterContent> mailTemplate = mailTemplateFactory.getTemplate(ConfirmNewsletterUserMailTemplateConfiguration.KEY);
+            final MailMessage mailMessage = mailTemplate.createMailMessage(new ConfirmNewsletterUserContent(newsletterUser));
+            mailService.send(mailMessage);
+        }
     }
 
     @RequestMapping(value = "/newsletters", method = RequestMethod.GET, produces = "application/json")
@@ -105,5 +114,19 @@ public class NewsletterServiceImpl implements NewsletterService {
                 mailService.send(mailMessage);
             }
         }
+    }
+
+    @RequestMapping(value = "/newsletter/confirmation/{id}", method = RequestMethod.GET)
+    @Override
+    public String confirmUserMail(@PathVariable("id") String id) {
+        NewsletterUser newsletterUser = newsletterUserRepository.findById(id);
+        if (newsletterUser != null) {
+            if (newsletterUser.isConfirmationPending()) {
+                newsletterUser.setStatus(NewsletterUserConfirmationStatus.CONFIRMED);
+                newsletterUserRepository.save(newsletterUser);
+                return "Obrigado! Seu e-mail foi confirmado em nossa newsletter. Daqui pra frente, você receberá nosso conteúdo e saberá quais os próximos eventos e cursos do Templo do Amor Divino.";
+            }
+        }
+        return "Desculpa! Não foi possível encontrar o seu registro. Caso você queria se registrar em nossa newsletter, entre no site - wwww.temploamordivino.com.br";
     }
 }

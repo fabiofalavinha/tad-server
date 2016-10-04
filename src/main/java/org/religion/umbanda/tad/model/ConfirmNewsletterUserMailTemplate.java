@@ -1,6 +1,6 @@
 package org.religion.umbanda.tad.model;
 
-public class ForgotPasswordMailTemplate implements MailTemplate<Collaborator> {
+public class ConfirmNewsletterUserMailTemplate implements MailTemplate<NewsletterContent> {
 
     private final String key;
     private final String subject;
@@ -8,7 +8,7 @@ public class ForgotPasswordMailTemplate implements MailTemplate<Collaborator> {
 
     private MailSender mailSender;
 
-    public ForgotPasswordMailTemplate(String key, String subject, String body) {
+    ConfirmNewsletterUserMailTemplate(String key, String subject, String body) {
         this.key = key;
         this.subject = subject;
         this.body = body;
@@ -19,12 +19,13 @@ public class ForgotPasswordMailTemplate implements MailTemplate<Collaborator> {
     }
 
     @Override
-    public MailMessage createMailMessage(Collaborator collaborator) {
+    public MailMessage createMailMessage(NewsletterContent newsletterContent) {
         final MailMessage mailMessage = new MailMessage();
         mailMessage.setFrom(mailSender.getGeneral());
-        mailMessage.setTo(collaborator.getUserCredentials().getUserName());
+        mailMessage.setTo(newsletterContent.getRecipientMail());
         mailMessage.setSubject(subject);
-        mailMessage.setContent(String.format(body, collaborator.getPerson().getName(), collaborator.getPerson().getId()));
+        mailMessage.setType(MailMessageType.HTML);
+        mailMessage.setContent(String.format(body, newsletterContent.getRecipientName(), newsletterContent.getContent()));
         return mailMessage;
     }
 

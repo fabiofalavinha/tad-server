@@ -17,18 +17,28 @@ public class MailConfiguration {
 
     @Value("${mail.protocol}")
     private String protocol;
+
     @Value("${mail.host}")
     private String host;
+
     @Value("${mail.port}")
     private int port;
+
     @Value("${mail.smtp.auth}")
     private boolean auth;
+
     @Value("${mail.smtp.starttls.enable}")
     private boolean starttls;
-    @Value("${mail.from}")
-    private String from;
+
+    @Value("${mail.from.financial}")
+    private String fromFinancial;
+
+    @Value("${mail.from.general}")
+    private String fromGeneral;
+
     @Value("${mail.username}")
     private String username;
+
     @Value("${mail.password}")
     private String password;
 
@@ -44,17 +54,25 @@ public class MailConfiguration {
     @Autowired
     private NotifyNewsletterUsersPostPublishedMailTemplate notifyNewsletterUsersPostPublishedMailTemplate;
 
-    public String getFrom() {
-        return from;
+    @Autowired
+    private ConfirmNewsletterUserMailTemplate confirmNewsletterUserMailTemplate;
+
+    public String getFromFinancial() {
+        return fromFinancial;
+    }
+
+    public String getFromGeneral() {
+        return fromGeneral;
     }
 
     @Bean
     public MailTemplateFactory mailTemplateFactory() {
-        final MailTemplateFactory mailTemplateFactory = new MailTemplateFactory();
+        final MailTemplateFactory mailTemplateFactory = new MailTemplateFactory(new MailSender(getFromGeneral(), getFromFinancial()));
         mailTemplateFactory.addTemplate(newCollaboratorMailTemplate);
         mailTemplateFactory.addTemplate(forgotPasswordMailTemplate);
         mailTemplateFactory.addTemplate(financialEntryReceiptMailTemplate);
         mailTemplateFactory.addTemplate(notifyNewsletterUsersPostPublishedMailTemplate);
+        mailTemplateFactory.addTemplate(confirmNewsletterUserMailTemplate);
         return mailTemplateFactory;
     }
 
