@@ -1,6 +1,5 @@
 package org.religion.umbanda.tad.model;
 
-import org.religion.umbanda.tad.log.LogFactory;
 import org.religion.umbanda.tad.model.financial.FinancialEntryReceiptMailTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,9 +67,6 @@ public class MailConfiguration {
 
     @Bean
     public MailTemplateFactory mailTemplateFactory() {
-
-        LogFactory.createLog(this.getClass()).debug("getFromGeneral() ==> " + getFromGeneral());
-
         final MailTemplateFactory mailTemplateFactory = new MailTemplateFactory(new MailSender(getFromGeneral(), getFromFinancial()));
         mailTemplateFactory.addTemplate(newCollaboratorMailTemplate);
         mailTemplateFactory.addTemplate(forgotPasswordMailTemplate);
