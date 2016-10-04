@@ -31,8 +31,8 @@ public class MailServiceImpl implements MailService {
         final JavaMailSender javaMailSender = mailConfiguration.createMailSender();
         final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         try {
-            mimeMessage.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(message.getTo()));
             mimeMessage.addFrom(new InternetAddress[] { new InternetAddress(from) });
+            mimeMessage.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(message.getTo()));
             mimeMessage.setSubject(message.getSubject(), "UTF-8");
             if (message.getType() == MailMessageType.HTML) {
                 mimeMessage.setContent(message.getContent(), "text/html; charset=utf-8");
