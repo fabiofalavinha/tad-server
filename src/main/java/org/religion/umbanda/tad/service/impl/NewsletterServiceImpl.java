@@ -84,6 +84,7 @@ public class NewsletterServiceImpl implements NewsletterService {
             newsletterUserVO.setId(u.getId().toString());
             newsletterUserVO.setName(u.getName());
             newsletterUserVO.setEmail(u.getEmail());
+            newsletterUserVO.setStatus(u.getStatus().value());
             return newsletterUserVO;
         }).collect(Collectors.toList());
     }

@@ -5,6 +5,7 @@ public class NewsletterUserVO {
     private String id;
     private String name;
     private String email;
+    private int status;
 
     public String getName() {
         return name;
@@ -28,5 +29,13 @@ public class NewsletterUserVO {
 
     public String getId() {
         return id;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public int getStatus() {
+        return status;
     }
 }
