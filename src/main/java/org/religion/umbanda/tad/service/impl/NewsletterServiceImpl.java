@@ -119,11 +119,9 @@ public class NewsletterServiceImpl implements NewsletterService {
     public String confirmUserMail(@PathVariable("id") String id) {
         NewsletterUser newsletterUser = newsletterUserRepository.findById(id);
         if (newsletterUser != null) {
-            if (newsletterUser.isConfirmationPending()) {
-                newsletterUser.setStatus(NewsletterUserConfirmationStatus.CONFIRMED);
-                newsletterUserRepository.save(newsletterUser);
-                return "Obrigado! Seu e-mail foi confirmado em nossa newsletter. Daqui pra frente, você receberá nosso conteúdo e saberá quais os próximos eventos e cursos do Templo do Amor Divino.";
-            }
+            newsletterUser.setStatus(NewsletterUserConfirmationStatus.CONFIRMED);
+            newsletterUserRepository.save(newsletterUser);
+            return "Obrigado! Seu e-mail foi confirmado em nossa newsletter. Daqui pra frente, você receberá nosso conteúdo e saberá quais os próximos eventos e cursos do Templo do Amor Divino.";
         }
         return "Desculpa! Não foi possível encontrar o seu registro. Caso você queria se registrar em nossa newsletter, entre no site - wwww.temploamordivino.com.br";
     }
