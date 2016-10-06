@@ -9,8 +9,6 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:mail-template.properties")
 public class ConfirmNewsletterUserMailTemplateConfiguration {
 
-    public static final String KEY = "confirmNewsletterUserMail";
-
     @Value("${mail.template.newsletter.user.confirmation.subject}")
     private String subject;
 
@@ -19,7 +17,7 @@ public class ConfirmNewsletterUserMailTemplateConfiguration {
 
     @Bean
     public ConfirmNewsletterUserMailTemplate confirmNewsletterUserMailTemplate() {
-        return new ConfirmNewsletterUserMailTemplate(KEY, subject, body);
+        return new ConfirmNewsletterUserMailTemplate(subject, body);
     }
 
 }

@@ -30,7 +30,10 @@ public class NewsletterServiceImpl implements NewsletterService {
     private MailService mailService;
 
     @Autowired
-    private MailTemplateFactory mailTemplateFactory;
+    private ConfirmNewsletterUserMailTemplate confirmNewsletterUserMailTemplate;
+
+    @Autowired
+    private NotifyNewsletterUsersPostPublishedMailTemplate notifyNewsletterUsersPostPublishedMailTemplate;
 
     @RequestMapping(value = "/newsletters", method = RequestMethod.POST)
     @Override
@@ -67,9 +70,7 @@ public class NewsletterServiceImpl implements NewsletterService {
         newsletterUserRepository.save(newsletterUser);
 
         if (newsletterUser.isConfirmationPending()) {
-            final MailTemplate<NewsletterContent> mailTemplate = mailTemplateFactory.getTemplate(ConfirmNewsletterUserMailTemplateConfiguration.KEY);
-            final MailMessage mailMessage = mailTemplate.createMailMessage(new ConfirmNewsletterUserContent(newsletterUser));
-            mailService.send(mailMessage);
+            mailService.send(confirmNewsletterUserMailTemplate.createMailMessage(new ConfirmNewsletterUserContent(newsletterUser)));
         }
     }
 
@@ -106,9 +107,10 @@ public class NewsletterServiceImpl implements NewsletterService {
         }
         final Post post = postRepository.findById(postId);
         if (post != null) {
-            final MailTemplate<NewsletterContent> mailTemplate = mailTemplateFactory.getTemplate(NotifyNewsletterUsersPostPublishedMailTemplateConfiguration.KEY);
             for (NewsletterUser newsletterUser : newsletterUserRepository.findAll()) {
-                final MailMessage mailMessage = mailTemplate.createMailMessage(new NotifyNewsletterUsersPostPublishedContent(newsletterUser, post));
+                final MailMessage mailMessage =
+                    notifyNewsletterUsersPostPublishedMailTemplate.createMailMessage(
+                        new NotifyNewsletterUsersPostPublishedContent(newsletterUser, post));
                 mailService.send(mailMessage);
             }
         }

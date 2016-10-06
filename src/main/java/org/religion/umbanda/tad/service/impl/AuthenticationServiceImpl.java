@@ -28,7 +28,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private MailService mailService;
 
     @Autowired
-    private MailTemplateFactory mailTemplateFactory;
+    private ForgotPasswordMailTemplate forgotPasswordMailTemplate;
 
     @Autowired
     private MailValidator mailValidator;
@@ -91,8 +91,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new IllegalStateException("Não foi possível encontrar as informações do colaborador");
         }
 
-        final MailMessage mailMessage = mailTemplateFactory.getTemplate("forgotPassword").createMailMessage(collaborator);
-        mailService.send(mailMessage);
+        mailService.send(forgotPasswordMailTemplate.createMailMessage(collaborator));
     }
 
     @RequestMapping(value = "/changePassword", method = RequestMethod.POST, consumes = "application/json")

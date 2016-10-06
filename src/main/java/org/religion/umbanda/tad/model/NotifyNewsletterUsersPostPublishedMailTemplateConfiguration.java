@@ -9,8 +9,6 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:mail-template.properties")
 public class NotifyNewsletterUsersPostPublishedMailTemplateConfiguration {
 
-    public static final String KEY = "notifyNewsletterUsersPostPublished";
-
     @Value("${mail.template.newsletter.post.published.subject}")
     private String subject;
 
@@ -19,6 +17,6 @@ public class NotifyNewsletterUsersPostPublishedMailTemplateConfiguration {
 
     @Bean
     public NotifyNewsletterUsersPostPublishedMailTemplate notifyNewsletterUsersPostPublishedMailTemplate() {
-        return new NotifyNewsletterUsersPostPublishedMailTemplate(KEY, subject, body);
+        return new NotifyNewsletterUsersPostPublishedMailTemplate(subject, body);
     }
 }

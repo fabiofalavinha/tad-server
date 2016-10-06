@@ -7,18 +7,18 @@ import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @PropertySource("classpath:mail-template.properties")
-public class NewCollaboratorConfigurationMailTemplate {
+public class ForgotPasswordMailTemplateConfiguration {
 
-    public static final String KEY = "newCollaborator";
+    private static final String KEY = "forgotPassword";
 
-    @Value("${mail.template.newCollaborator.subject}")
+    @Value("${mail.template.forgotPassword.subject}")
     private String subject;
 
-    @Value("${mail.template.newCollaborator.body}")
+    @Value("${mail.template.forgotPassword.body}")
     private String body;
 
     @Bean
-    public NewCollaboratorMailTemplate newCollaboratorMailTemplate() {
-        return new NewCollaboratorMailTemplate(KEY, subject, body);
+    public ForgotPasswordMailTemplate forgotPasswordMailTemplate() {
+        return new ForgotPasswordMailTemplate(subject, body);
     }
 }

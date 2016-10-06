@@ -2,14 +2,15 @@ package org.religion.umbanda.tad.model;
 
 public class MailMessage {
 
-    private String from;
     private String to;
     private String subject;
     private String content;
     private MailMessageType type;
+    private MailMessageSenderType senderType;
 
     public MailMessage() {
         type = MailMessageType.TEXT;
+        senderType = MailMessageSenderType.GENERAL;
     }
 
     public String getTo() {
@@ -44,11 +45,11 @@ public class MailMessage {
         this.type = type;
     }
 
-    public String getFrom() {
-        return from;
+    public MailMessageSenderType getSenderType() {
+        return senderType;
     }
 
-    public void setFrom(String from) {
-        this.from = from;
+    public void setSenderType(MailMessageSenderType senderType) {
+        this.senderType = senderType;
     }
 }

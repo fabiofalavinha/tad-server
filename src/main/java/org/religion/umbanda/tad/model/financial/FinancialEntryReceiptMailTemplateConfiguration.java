@@ -9,8 +9,6 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource("classpath:mail-template.properties")
 public class FinancialEntryReceiptMailTemplateConfiguration {
 
-    public static final String KEY = "financialEntryReceipt";
-
     @Value("${mail.template.financialEntry.receipt.subject}")
     private String subject;
 
@@ -28,6 +26,6 @@ public class FinancialEntryReceiptMailTemplateConfiguration {
             "Valor: %s\n\n" +
             "Obs.: %s\n\n" +
             "Secretaria TAD\n";
-        return new FinancialEntryReceiptMailTemplate(KEY, subject, body);
+        return new FinancialEntryReceiptMailTemplate(subject, body);
     }
 }

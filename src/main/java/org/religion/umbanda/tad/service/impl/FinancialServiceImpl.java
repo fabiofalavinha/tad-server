@@ -44,7 +44,7 @@ public class FinancialServiceImpl implements FinancialService {
     private MailService mailService;
 
     @Autowired
-    private MailTemplateFactory mailTemplateFactory;
+    private FinancialEntryReceiptMailTemplate financialEntryReceiptMailTemplate;
 
     @Autowired
     private UserCredentialsRepository userCredentialsRepository;
@@ -368,9 +368,7 @@ public class FinancialServiceImpl implements FinancialService {
         }
 
         try {
-            final MailTemplate<FinancialReceipt> mailTemplate = mailTemplateFactory.getTemplate(FinancialEntryReceiptMailTemplateConfiguration.KEY);
-            final MailMessage mailMessage = mailTemplate.createMailMessage(financialReceipt);
-            mailService.send(mailMessage);
+            mailService.send(financialEntryReceiptMailTemplate.createMailMessage(financialReceipt));
 
             financialReceipt.setSent(DateTime.now());
             financialReceipt.setStatus(FinancialReceiptStatus.SENT);

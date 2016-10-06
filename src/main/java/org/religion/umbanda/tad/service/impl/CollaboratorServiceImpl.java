@@ -26,7 +26,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     private MailService mailService;
 
     @Autowired
-    private MailTemplateFactory mailTemplateFactory;
+    private NewCollaboratorMailTemplate newCollaboratorMailTemplate;
 
     @RequestMapping(value = "/collaborators", method = RequestMethod.GET, produces = "application/json")
     public List<CollaboratorVO> findAll() {
@@ -101,9 +101,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
         } else {
             collaboratorRepository.addCollaborator(newCollaborator);
             try {
-                final MailTemplate<Collaborator> template = mailTemplateFactory.getTemplate(NewCollaboratorConfigurationMailTemplate.KEY);
-                final MailMessage mailMessage = template.createMailMessage(newCollaborator);
-                mailService.send(mailMessage);
+                mailService.send(newCollaboratorMailTemplate.createMailMessage(newCollaborator));
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
