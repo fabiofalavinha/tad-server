@@ -17,15 +17,6 @@ public class FinancialEntryReceiptMailTemplateConfiguration {
 
     @Bean
     public FinancialEntryReceiptMailTemplate financialEntryReceiptMailTemplate() {
-        body =
-            "Prezado %s,\n\n" +
-            "Obrigado pela sua colaboração, abaixo segue o detalhamento de sua contribuição.\n\n" +
-            "Recibo No.: %s\n\n" +
-            "Data Pagto: %s\n\n" +
-            "Referente: %s\n\n" +
-            "Valor: %s\n\n" +
-            "Obs.: %s\n\n" +
-            "Secretaria TAD\n";
         return new FinancialEntryReceiptMailTemplate(subject, body);
     }
 }

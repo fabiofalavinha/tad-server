@@ -1,5 +1,6 @@
 package org.religion.umbanda.tad.model.financial;
 
+import org.joda.time.DateTime;
 import org.religion.umbanda.tad.model.*;
 import org.religion.umbanda.tad.util.DateTimeUtils;
 
@@ -23,6 +24,7 @@ public class FinancialEntryReceiptMailTemplate implements FinancialMailTemplate<
         final Collaborator collaborator = financialReceipt.getCollaborator();
         final MailMessage mailMessage = new MailMessage();
         mailMessage.setSenderType(MailMessageSenderType.FINANCIAL);
+        mailMessage.setType(MailMessageType.HTML);
         mailMessage.setTo(collaborator.getUserCredentials().getUserName());
         mailMessage.setSubject(subject);
         mailMessage.setContent(
@@ -31,8 +33,9 @@ public class FinancialEntryReceiptMailTemplate implements FinancialMailTemplate<
                 financialReceipt.getKey().value(),
                 DateTimeUtils.toString(financialReceipt.getFinancialEntry().getEntryDate(), "dd/MMM/yyyy"),
                 financialReceipt.getFinancialEntry().getType().getDescription(),
+                getAdditionalText(financialReceipt.getFinancialEntry().getAdditionalText()),
                 NumberFormat.getCurrencyInstance().format(financialReceipt.getFinancialEntry().getValue()),
-                getAdditionalText(financialReceipt.getFinancialEntry().getAdditionalText())));
+                DateTimeUtils.toString(DateTime.now(), "dd/MMM/yyyy")));
         return mailMessage;
     }
 
