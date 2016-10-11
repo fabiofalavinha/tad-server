@@ -1,7 +1,6 @@
 package org.religion.umbanda.tad.model.financial;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,31 +12,30 @@ import java.util.Properties;
 @PropertySource("classpath:mail-financial.properties")
 public class FinancialMailConfiguration {
 
-    @Value("${mail.protocol}")
+    @Value("${financial.mail.protocol}")
     private String protocol;
 
-    @Value("${mail.host}")
+    @Value("${financial.mail.host}")
     private String host;
 
-    @Value("${mail.port}")
+    @Value("${financial.mail.port}")
     private int port;
 
-    @Value("${mail.smtp.auth}")
+    @Value("${financial.mail.smtp.auth}")
     private boolean auth;
 
-    @Value("${mail.smtp.starttls.enable}")
+    @Value("${financial.mail.smtp.starttls.enable}")
     private boolean starttls;
 
-    @Value("${mail.from}")
+    @Value("${financial.mail.from}")
     private String from;
 
-    @Value("${mail.username}")
+    @Value("${financial.mail.username}")
     private String username;
 
-    @Value("${mail.password}")
+    @Value("${financial.mail.password}")
     private String password;
 
-    @Bean
     public JavaMailSender createMailSender() {
         final JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         final Properties mailProperties = new Properties();

@@ -1,7 +1,6 @@
 package org.religion.umbanda.tad.model;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -37,7 +36,6 @@ public class GeneralMailConfiguration {
     @Value("${mail.password}")
     private String password;
 
-    @Bean
     public JavaMailSender createMailSender() {
         final JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         final Properties mailProperties = new Properties();
