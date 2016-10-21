@@ -6,9 +6,10 @@ public class EventRequest {
     private String title;
     private String notes;
     private String date;
-    private int visibility;
     private String backColor;
     private String fontColor;
+    private int visibility;
+    private int category;
 
     public String getId() {
         return id;
@@ -64,5 +65,13 @@ public class EventRequest {
 
     public void setBackColor(String backColor) {
         this.backColor = backColor;
+    }
+
+    public int getCategory() {
+        return category;
+    }
+
+    public void setCategory(int category) {
+        this.category = category;
     }
 }

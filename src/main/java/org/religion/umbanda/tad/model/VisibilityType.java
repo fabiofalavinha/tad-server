@@ -23,5 +23,4 @@ public enum VisibilityType {
         }
         throw new IllegalArgumentException(String.format("Could not found visibility type: %d", value));
     }
-
 }

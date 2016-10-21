@@ -13,6 +13,7 @@ public class Event {
     private VisibilityType visibility;
     private String backColor;
     private String fontColor;
+    private EventCategory eventCategory;
 
     public Event() {
         id = UUID.randomUUID();
@@ -76,5 +77,13 @@ public class Event {
 
     public void setBackColor(String backColor) {
         this.backColor = backColor;
+    }
+
+    public EventCategory getEventCategory() {
+        return eventCategory;
+    }
+
+    public void setEventCategory(EventCategory eventCategory) {
+        this.eventCategory = eventCategory;
     }
 }

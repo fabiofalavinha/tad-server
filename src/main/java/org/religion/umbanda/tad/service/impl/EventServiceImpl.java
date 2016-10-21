@@ -2,6 +2,7 @@ package org.religion.umbanda.tad.service.impl;
 
 import org.joda.time.DateTime;
 import org.religion.umbanda.tad.model.Event;
+import org.religion.umbanda.tad.model.EventCategory;
 import org.religion.umbanda.tad.model.VisibilityType;
 import org.religion.umbanda.tad.service.EventRepository;
 import org.religion.umbanda.tad.service.EventService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 public class EventServiceImpl implements EventService {
@@ -49,11 +51,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private List<EventResponse> doConvertEvents(List<Event> events) {
-        final List<EventResponse> eventResponseList = new ArrayList<>(events.size());
-        for (Event event : events) {
-            eventResponseList.add(convertEventResponse(event));
-        }
-        return eventResponseList;
+        return events.stream().map(this::convertEventResponse).collect(Collectors.toList());
     }
 
     private EventResponse convertEventResponse(Event event) {
@@ -66,6 +64,7 @@ public class EventServiceImpl implements EventService {
             eventResponse.setVisibility(event.getVisibility().getValue());
             eventResponse.setBackColor(event.getBackColor());
             eventResponse.setFontColor(event.getFontColor());
+            eventResponse.setCategory(event.getEventCategory().getValue());
         }
         return eventResponse;
     }
@@ -117,7 +116,7 @@ public class EventServiceImpl implements EventService {
         event.setVisibility(VisibilityType.fromValue(request.getVisibility()));
         event.setFontColor(request.getFontColor());
         event.setBackColor(request.getBackColor());
+        event.setEventCategory(EventCategory.fromValue(request.getCategory()));
         return event;
     }
-
 }

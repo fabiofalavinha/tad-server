@@ -6,9 +6,10 @@ public class EventResponse {
     private String title;
     private String notes;
     private String date;
-    private int visibility;
     private String backColor;
     private String fontColor;
+    private int visibility;
+    private int category;
 
     public String getId() {
         return id;
@@ -64,5 +65,13 @@ public class EventResponse {
 
     public void setFontColor(String fontColor) {
         this.fontColor = fontColor;
+    }
+
+    public void setCategory(int category) {
+        this.category = category;
+    }
+
+    public int getCategory() {
+        return category;
     }
 }
