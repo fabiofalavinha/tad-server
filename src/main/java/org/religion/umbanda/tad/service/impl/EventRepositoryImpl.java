@@ -47,6 +47,12 @@ public class EventRepositoryImpl implements EventRepository {
 
     @Transactional(readOnly = true)
     @Override
+    public Event findById(UUID id) {
+        return jdbcTemplate.queryForObject("select * from Event where id=?", new Object[] { id.toString() }, eventRowMapper);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public Optional<Event> findByTitleAndDate(String title, DateTime date) {
         try {
             return Optional.of(jdbcTemplate.queryForObject("select * from Event where title = ? and event_date = ?", eventRowMapper, title, date.getMillis()));

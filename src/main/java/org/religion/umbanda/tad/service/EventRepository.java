@@ -12,6 +12,8 @@ public interface EventRepository {
 
     boolean existsById(UUID id);
 
+    Event findById(UUID id);
+
     Optional<Event> findByTitleAndDate(String title, DateTime date);
 
     List<Event> findEventByYear(int year);

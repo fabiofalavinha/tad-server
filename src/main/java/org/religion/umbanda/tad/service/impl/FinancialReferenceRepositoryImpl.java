@@ -10,8 +10,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,16 +17,13 @@ import java.util.Optional;
 public class FinancialReferenceRepositoryImpl implements FinancialReferenceRepository {
 
     private final JdbcTemplate jdbcTemplate;
-    private final RowMapper<FinancialReference> financialReferenceRowMapper = new RowMapper<FinancialReference>() {
-        @Override
-        public FinancialReference mapRow(ResultSet resultSet, int i) throws SQLException {
-            final FinancialReference financialReference = new FinancialReference();
-            financialReference.setId(resultSet.getString("id"));
-            financialReference.setDescription(resultSet.getString("description"));
-            financialReference.setCategory(Category.fromValue(resultSet.getInt("category")));
-            financialReference.setAssociatedWithCollaborator(resultSet.getBoolean("associated_with_collaborator"));
-            return financialReference;
-        }
+    private final RowMapper<FinancialReference> financialReferenceRowMapper = (resultSet, i) -> {
+        final FinancialReference financialReference = new FinancialReference();
+        financialReference.setId(resultSet.getString("id"));
+        financialReference.setDescription(resultSet.getString("description"));
+        financialReference.setCategory(Category.fromValue(resultSet.getInt("category")));
+        financialReference.setAssociatedWithCollaborator(resultSet.getBoolean("associated_with_collaborator"));
+        return financialReference;
     };
 
     @Autowired
