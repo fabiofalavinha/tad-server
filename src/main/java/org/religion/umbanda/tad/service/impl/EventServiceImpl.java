@@ -1,14 +1,17 @@
 package org.religion.umbanda.tad.service.impl;
 
 import org.joda.time.DateTime;
-import org.religion.umbanda.tad.model.Event;
-import org.religion.umbanda.tad.model.EventCategory;
-import org.religion.umbanda.tad.model.VisibilityType;
+import org.religion.umbanda.tad.model.*;
+import org.religion.umbanda.tad.service.CollaboratorRepository;
+import org.religion.umbanda.tad.service.ConsecrationRepository;
 import org.religion.umbanda.tad.service.EventRepository;
 import org.religion.umbanda.tad.service.EventService;
+import org.religion.umbanda.tad.service.vo.ConsecrationDTO;
+import org.religion.umbanda.tad.service.vo.ElementDTO;
 import org.religion.umbanda.tad.service.vo.EventRequest;
 import org.religion.umbanda.tad.service.vo.EventResponse;
 import org.religion.umbanda.tad.util.DateTimeUtils;
+import org.religion.umbanda.tad.util.IdUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,8 +23,16 @@ import java.util.stream.Collectors;
 @RestController
 public class EventServiceImpl implements EventService {
 
+    private final EventRepository eventRepository;
+    private final ConsecrationRepository consecrationRepository;
+    private final CollaboratorRepository collaboratorRepository;
+
     @Autowired
-    private EventRepository eventRepository;
+    public EventServiceImpl(EventRepository eventRepository, ConsecrationRepository consecrationRepository, CollaboratorRepository collaboratorRepository) {
+        this.eventRepository = eventRepository;
+        this.consecrationRepository = consecrationRepository;
+        this.collaboratorRepository = collaboratorRepository;
+    }
 
     @RequestMapping(value = "/events/{visibility}/{year}", method = RequestMethod.GET, produces = "application/json")
     @Override
@@ -79,7 +90,12 @@ public class EventServiceImpl implements EventService {
         } catch (IllegalArgumentException ex) {
             throw new IllegalArgumentException("Could not parse event id", ex);
         }
-        eventRepository.removeEventById(id);
+
+        final Event event = eventRepository.findById(id);
+        if (event != null) {
+            eventRepository.removeEventById(id);
+            consecrationRepository.removeByEventId(event.getId());
+        }
     }
 
     @RequestMapping(value = "/event", method = RequestMethod.POST)
@@ -118,5 +134,87 @@ public class EventServiceImpl implements EventService {
         event.setBackColor(request.getBackColor());
         event.setEventCategory(EventCategory.fromValue(request.getCategory()));
         return event;
+    }
+
+    @RequestMapping(value = "/event/{eventId}/consecration", method = RequestMethod.POST)
+    @Override
+    public void saveConsecration(
+        @PathVariable("eventId") String eventIdAsString,
+        @RequestBody ConsecrationDTO consecrationRequest) {
+        UUID consecrationId;
+        try {
+            consecrationId = IdUtils.fromString(consecrationRequest.getId());
+        } catch (IllegalArgumentException ex) {
+            consecrationId = UUID.randomUUID();
+        }
+
+        Consecration consecration = consecrationRepository.findById(consecrationId);
+        if (consecration == null) {
+            consecration = new Consecration();
+            consecration.setId(consecrationId);
+        }
+
+        final String name = consecrationRequest.getName();
+        if (name == null || name.isEmpty()) {
+            throw new IllegalStateException("O nome da consagração é obrigatório!");
+        }
+        consecration.setName(name);
+
+        final UUID eventId = IdUtils.fromString(eventIdAsString);
+        final Event event = eventRepository.findById(eventId);
+        if (event == null) {
+            throw new IllegalArgumentException(String.format("Não foi possível encontrar o evento [%s]", eventId));
+        }
+        consecration.setEvent(event);
+
+        consecration.setMessage(new CommunicationMessage(consecrationRequest.getCommunicationMessage()));
+
+        final List<ElementDTO> elements = consecrationRequest.getElements();
+        if (elements != null && !elements.isEmpty()) {
+            consecration.setElements(elements.stream().map(e -> {
+                final Element element = new Element(e.getName());
+
+                UUID elementId;
+                try {
+                    elementId = IdUtils.fromString(e.getId());
+                } catch (IllegalArgumentException ex) {
+                    elementId = UUID.randomUUID();
+                }
+                element.setId(elementId);
+                element.setUnit(e.getUnit());
+                element.setQuantity(e.getQuantity());
+                element.setPrimary(collaboratorRepository.findById(IdUtils.fromString(e.getPrimaryCollaboratorId())));
+                element.setSecondary(collaboratorRepository.findById(IdUtils.fromString(e.getSecondaryCollaboratorId())));
+
+                return element;
+            }).collect(Collectors.toList()));
+        }
+
+        consecrationRepository.save(consecration);
+    }
+
+    @RequestMapping(value = "/event/{eventId}/consecration", method = RequestMethod.GET)
+    @Override
+    public ConsecrationDTO findConsecrationByEvent(
+            @PathVariable("eventId") String eventId) {
+        final Consecration consecration = consecrationRepository.findByEventId(IdUtils.fromString(eventId));
+        if (consecration != null) {
+            final ConsecrationDTO dto = new ConsecrationDTO();
+            dto.setId(consecration.getId().toString());
+            dto.setName(consecration.getName());
+            dto.setCommunicationMessage(consecration.getMessage().getContent());
+            dto.setElements(consecration.getElements().stream().map(e -> {
+                ElementDTO elementDTO = new ElementDTO();
+                elementDTO.setId(e.getId().toString());
+                elementDTO.setName(e.getName());
+                elementDTO.setQuantity(e.getQuantity());
+                elementDTO.setUnit(e.getUnit());
+                elementDTO.setPrimaryCollaboratorId(e.getPrimary().getPerson().getId().toString());
+                elementDTO.setSecondaryCollaboratorId(e.getSecondary().getPerson().getId().toString());
+                return elementDTO;
+            }).collect(Collectors.toList()));
+            return dto;
+        }
+        return null;
     }
 }

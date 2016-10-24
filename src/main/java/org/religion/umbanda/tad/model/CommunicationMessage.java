@@ -2,13 +2,13 @@ package org.religion.umbanda.tad.model;
 
 public class CommunicationMessage {
 
-    private String content;
+    private final String content;
+
+    public CommunicationMessage(String content) {
+        this.content = content;
+    }
 
     public String getContent() {
         return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 }
