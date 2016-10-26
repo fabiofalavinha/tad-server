@@ -1,6 +1,9 @@
 package org.religion.umbanda.tad.service.impl;
 
-import org.religion.umbanda.tad.model.*;
+import org.religion.umbanda.tad.model.Collaborator;
+import org.religion.umbanda.tad.model.ForgotPasswordMailTemplate;
+import org.religion.umbanda.tad.model.Password;
+import org.religion.umbanda.tad.model.UserCredentials;
 import org.religion.umbanda.tad.service.AuthenticationService;
 import org.religion.umbanda.tad.service.CollaboratorRepository;
 import org.religion.umbanda.tad.service.MailService;
@@ -118,5 +121,4 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userCredentials.setPassword(Password.createBySHA1(request.getNewPassword()));
         userCredentialsRepository.update(userCredentials);
     }
-
 }
