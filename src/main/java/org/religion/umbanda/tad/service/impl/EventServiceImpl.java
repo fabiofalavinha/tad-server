@@ -154,12 +154,6 @@ public class EventServiceImpl implements EventService {
             consecration.setId(consecrationId);
         }
 
-        final String name = consecrationRequest.getName();
-        if (name == null || name.isEmpty()) {
-            throw new IllegalStateException("O nome da consagração é obrigatório!");
-        }
-        consecration.setName(name);
-
         final UUID eventId = IdUtils.fromString(eventIdAsString);
         final Event event = eventRepository.findById(eventId);
         if (event == null) {
@@ -201,7 +195,6 @@ public class EventServiceImpl implements EventService {
         if (consecration != null) {
             final ConsecrationDTO dto = new ConsecrationDTO();
             dto.setId(consecration.getId().toString());
-            dto.setName(consecration.getName());
             dto.setCommunicationMessage(consecration.getMessage().getContent());
             dto.setElements(consecration.getElements().stream().map(e -> {
                 ElementDTO elementDTO = new ElementDTO();

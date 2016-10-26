@@ -48,7 +48,6 @@ public class ConsecrationRepositoryImpl implements ConsecrationRepository {
 
                 final Consecration consecration = new Consecration();
                 consecration.setId(UUID.fromString(resultSet.getString("consecrationId")));
-                consecration.setName(resultSet.getString("consecrationName"));
                 consecration.setMessage(new CommunicationMessage(resultSet.getString("communication_message")));
 
                 consecrationData.wrapper = consecration;
@@ -110,7 +109,6 @@ public class ConsecrationRepositoryImpl implements ConsecrationRepository {
 
                     final Consecration consecration = new Consecration();
                     consecration.setId(UUID.fromString(resultSet.getString("consecrationId")));
-                    consecration.setName(resultSet.getString("consecrationName"));
                     consecration.setMessage(new CommunicationMessage(resultSet.getString("communication_message")));
 
                     newConsecrationData.wrapper = consecration;
@@ -173,8 +171,8 @@ public class ConsecrationRepositoryImpl implements ConsecrationRepository {
     @Transactional
     @Override
     public void save(Consecration consecration) {
-        jdbcTemplate.update("insert into Consecration (id, name, communication_message, event_id) values (?, ?, ?)",
-            consecration.getId().toString(), consecration.getName(), consecration.getMessage().getContent(), consecration.getEvent().getId().toString());
+        jdbcTemplate.update("insert into Consecration (id, communication_message, event_id) values (?, ?, ?)",
+            consecration.getId().toString(), consecration.getMessage().getContent(), consecration.getEvent().getId().toString());
         final List<Element> elements = consecration.getElements();
         if (elements != null) {
             for (Element element : elements) {

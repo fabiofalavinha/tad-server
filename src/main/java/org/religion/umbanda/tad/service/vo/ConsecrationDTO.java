@@ -5,7 +5,6 @@ import java.util.List;
 public class ConsecrationDTO {
 
     private String id;
-    private String name;
     private String communicationMessage;
     private List<ElementDTO> elements;
 
@@ -15,14 +14,6 @@ public class ConsecrationDTO {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getCommunicationMessage() {

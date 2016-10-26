@@ -6,7 +6,6 @@ import java.util.UUID;
 public class Consecration {
 
     private UUID id;
-    private String name;
     private Event event;
     private CommunicationMessage message;
     private List<Element> elements;
@@ -45,13 +44,5 @@ public class Consecration {
 
     public void setId(UUID id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }
