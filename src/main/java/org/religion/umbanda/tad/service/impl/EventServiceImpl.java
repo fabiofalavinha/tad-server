@@ -202,6 +202,7 @@ public class EventServiceImpl implements EventService {
         final ConsecrationDTO dto = new ConsecrationDTO();
         dto.setId(consecration.getId().toString());
         dto.setCommunicationMessage(consecration.getMessage().getContent());
+        dto.setEvent(convertEventResponse(consecration.getEvent()));
         dto.setElements(consecration.getElements().stream().map(e -> {
             ElementDTO elementDTO = new ElementDTO();
             elementDTO.setId(e.getId().toString());
