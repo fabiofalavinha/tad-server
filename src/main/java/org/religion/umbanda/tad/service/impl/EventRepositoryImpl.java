@@ -76,15 +76,15 @@ public class EventRepositoryImpl implements EventRepository {
     @Transactional
     @Override
     public void addEvent(Event event) {
-        jdbcTemplate.update("insert into Event (id, title, notes, event_date, event_year, visibility_type, back_color, font_color) values (?, ?, ?, ?, ?, ?, ?, ?)",
-            event.getId().toString(), event.getTitle(), event.getNotes(), event.getDate().getMillis(), event.getYear(), event.getVisibility().getValue(), event.getBackColor(), event.getFontColor());
+        jdbcTemplate.update("insert into Event (id, title, notes, event_date, event_year, visibility_type, back_color, font_color, category) values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            event.getId().toString(), event.getTitle(), event.getNotes(), event.getDate().getMillis(), event.getYear(), event.getVisibility().getValue(), event.getBackColor(), event.getFontColor(), event.getEventCategory().getValue());
     }
 
     @Transactional
     @Override
     public void updateEvent(Event event) {
-        jdbcTemplate.update("update Event set title=?, notes=?, event_date=?, event_year=?, visibility_type=?, back_color=?, font_color=? where id=?",
-            event.getTitle(), event.getNotes(), event.getDate().getMillis(), event.getYear(), event.getVisibility().getValue(), event.getBackColor(), event.getFontColor(), event.getId().toString());
+        jdbcTemplate.update("update Event set title=?, notes=?, event_date=?, event_year=?, visibility_type=?, back_color=?, font_color=?, category=? where id=?",
+            event.getTitle(), event.getNotes(), event.getDate().getMillis(), event.getYear(), event.getVisibility().getValue(), event.getBackColor(), event.getFontColor(), event.getEventCategory().getValue(), event.getId().toString());
     }
 
     @Transactional
