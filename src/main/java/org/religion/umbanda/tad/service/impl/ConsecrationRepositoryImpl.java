@@ -47,7 +47,7 @@ public class ConsecrationRepositoryImpl implements ConsecrationRepository {
                 final ConsecrationData consecrationData = new ConsecrationData();
 
                 final Consecration consecration = new Consecration();
-                consecration.setId(UUID.fromString(resultSet.getString("consecrationId")));
+                consecration.setId(UUID.fromString(resultSet.getString("id")));
                 consecration.setMessage(new CommunicationMessage(resultSet.getString("communication_message")));
 
                 consecrationData.wrapper = consecration;
@@ -108,7 +108,7 @@ public class ConsecrationRepositoryImpl implements ConsecrationRepository {
                     final ConsecrationData newConsecrationData = new ConsecrationData();
 
                     final Consecration consecration = new Consecration();
-                    consecration.setId(UUID.fromString(resultSet.getString("consecrationId")));
+                    consecration.setId(UUID.fromString(resultSet.getString("id")));
                     consecration.setMessage(new CommunicationMessage(resultSet.getString("communication_message")));
 
                     newConsecrationData.wrapper = consecration;
