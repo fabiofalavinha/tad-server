@@ -10,6 +10,7 @@ public interface EventService {
 
     List<EventResponse> findEventsByYear(int year);
     List<EventResponse> findEventsByYear(int year, String visibility);
+    List<ConsecrationDTO> findConsecrations();
     EventResponse saveEvent(EventRequest request);
     ConsecrationDTO findConsecrationByEvent(String eventId);
     void removeEvent(String id);

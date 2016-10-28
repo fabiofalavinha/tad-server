@@ -193,21 +193,31 @@ public class EventServiceImpl implements EventService {
             @PathVariable("eventId") String eventId) {
         final Consecration consecration = consecrationRepository.findByEventId(IdUtils.fromString(eventId));
         if (consecration != null) {
-            final ConsecrationDTO dto = new ConsecrationDTO();
-            dto.setId(consecration.getId().toString());
-            dto.setCommunicationMessage(consecration.getMessage().getContent());
-            dto.setElements(consecration.getElements().stream().map(e -> {
-                ElementDTO elementDTO = new ElementDTO();
-                elementDTO.setId(e.getId().toString());
-                elementDTO.setName(e.getName());
-                elementDTO.setQuantity(e.getQuantity());
-                elementDTO.setUnit(e.getUnit());
-                elementDTO.setPrimaryCollaboratorId(e.getPrimary().getPerson().getId().toString());
-                elementDTO.setSecondaryCollaboratorId(e.getSecondary().getPerson().getId().toString());
-                return elementDTO;
-            }).collect(Collectors.toList()));
-            return dto;
+            return convertConsecration(consecration);
         }
         return null;
+    }
+
+    private ConsecrationDTO convertConsecration(Consecration consecration) {
+        final ConsecrationDTO dto = new ConsecrationDTO();
+        dto.setId(consecration.getId().toString());
+        dto.setCommunicationMessage(consecration.getMessage().getContent());
+        dto.setElements(consecration.getElements().stream().map(e -> {
+            ElementDTO elementDTO = new ElementDTO();
+            elementDTO.setId(e.getId().toString());
+            elementDTO.setName(e.getName());
+            elementDTO.setQuantity(e.getQuantity());
+            elementDTO.setUnit(e.getUnit());
+            elementDTO.setPrimaryCollaboratorId(e.getPrimary().getPerson().getId().toString());
+            elementDTO.setSecondaryCollaboratorId(e.getSecondary().getPerson().getId().toString());
+            return elementDTO;
+        }).collect(Collectors.toList()));
+        return dto;
+    }
+
+    @RequestMapping(value = "/event/consecrations")
+    @Override
+    public List<ConsecrationDTO> findConsecrations() {
+        return consecrationRepository.findAll().stream().map(this::convertConsecration).collect(Collectors.toList());
     }
 }
