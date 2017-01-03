@@ -1,6 +1,8 @@
 package org.religion.umbanda.tad.service.impl;
 
 import org.joda.time.DateTime;
+import org.religion.umbanda.tad.log.Log;
+import org.religion.umbanda.tad.log.LogFactory;
 import org.religion.umbanda.tad.model.*;
 import org.religion.umbanda.tad.service.CollaboratorRepository;
 import org.religion.umbanda.tad.service.ConsecrationRepository;
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
 
 @RestController
 public class EventServiceImpl implements EventService {
+
+    private static final Log log = LogFactory.createLog(EventServiceImpl.class);
 
     private final EventRepository eventRepository;
     private final ConsecrationRepository consecrationRepository;
@@ -105,6 +109,7 @@ public class EventServiceImpl implements EventService {
         Event event = null;
         UUID id;
         final String eventId = request.getId();
+        log.info("EVENT ID => %s", eventId);
         if (eventId != null && !"".equals(eventId)) {
             try {
                 id = UUID.fromString(eventId);
@@ -113,6 +118,7 @@ public class EventServiceImpl implements EventService {
                     eventRepository.updateEvent(event);
                 }
             } catch (IllegalArgumentException ex) {
+                log.exception(ex, "Error updating event");
                 throw new IllegalArgumentException("ID do evento é inválido", ex);
             }
         } else {
