@@ -48,7 +48,11 @@ public class EventRepositoryImpl implements EventRepository {
     @Transactional(readOnly = true)
     @Override
     public Event findById(UUID id) {
-        return jdbcTemplate.queryForObject("select * from Event where id=?", new Object[] { id.toString() }, eventRowMapper);
+        try {
+            return jdbcTemplate.queryForObject("select * from Event where id=?", new Object[] { id.toString() }, eventRowMapper);
+        } catch (EmptyResultDataAccessException ex) {
+            return null;
+        }
     }
 
     @Transactional(readOnly = true)
