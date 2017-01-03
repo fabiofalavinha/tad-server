@@ -106,27 +106,27 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventResponse saveEvent(
             @RequestBody EventRequest request) {
-        Event event = null;
+        Event event;
         UUID id;
         final String eventId = request.getId();
         log.info("====> EVENT ID => %s", eventId);
         if (eventId != null && !"".equals(eventId)) {
             try {
                 id = UUID.fromString(eventId);
+                event = doConvertEvent(id, request);
                 if (eventRepository.existsById(id)) {
-                    event = doConvertEvent(id, request);
                     eventRepository.updateEvent(event);
+                } else {
+                    eventRepository.addEvent(event);
                 }
+                return convertEventResponse(event);
             } catch (IllegalArgumentException ex) {
                 log.exception(ex, "Error updating event");
                 throw new IllegalArgumentException("ID do evento é inválido", ex);
             }
         } else {
-            id = UUID.randomUUID();
-            event = doConvertEvent(id, request);
-            eventRepository.addEvent(event);
+            throw new IllegalArgumentException("ID do evento é inválido");
         }
-        return convertEventResponse(event);
     }
 
     private Event doConvertEvent(UUID id, EventRequest request) {
