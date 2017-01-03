@@ -109,7 +109,6 @@ public class EventServiceImpl implements EventService {
         Event event;
         UUID id;
         final String eventId = request.getId();
-        log.info("====> EVENT ID => %s", eventId);
         if (eventId != null && !"".equals(eventId)) {
             try {
                 id = UUID.fromString(eventId);
@@ -121,7 +120,7 @@ public class EventServiceImpl implements EventService {
                 }
                 return convertEventResponse(event);
             } catch (IllegalArgumentException ex) {
-                log.exception(ex, "Error updating event");
+                log.exception(ex, "Error saving event data");
                 throw new IllegalArgumentException("ID do evento é inválido", ex);
             }
         } else {
