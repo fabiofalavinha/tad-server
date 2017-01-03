@@ -109,7 +109,7 @@ public class EventServiceImpl implements EventService {
         Event event = null;
         UUID id;
         final String eventId = request.getId();
-        log.info("===> EVENT ID => %s", eventId);
+        log.info("====> EVENT ID => %s", eventId);
         if (eventId != null && !"".equals(eventId)) {
             try {
                 id = UUID.fromString(eventId);
